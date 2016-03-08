@@ -2,7 +2,7 @@
 class conexion{
 	protected $mysqli;
 	public function __construct(){
-		$this->mysqli = new mysqli("localhost","root","","prueba_json");
+		$this->mysqli = new mysqli("localhost","root","","prueba");
 
 		if ($this->mysqli->connect_errno) {
 			echo "Falló conexión con servidor MySQL, llamar a su proveedor de base de datos ".

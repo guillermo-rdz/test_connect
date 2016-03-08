@@ -1,19 +1,12 @@
 <?php 
-	//$json = $_POST['json'];
+	$json = $_POST['liveData'];
+
 	require_once "conexion.php";
 
-	$json = '[{
-	"name": "primero",
-	"trackers": "00,32,54,78"
-	}, {
-		"name": "segundo",
-		"trackers": "12,13,14,15"
-	}]';
+
+	$objeto = json_decode($json, false, 512, JSON_BIGINT_AS_STRING);
 
 
-    $objeto = json_decode($json, false, 512, JSON_BIGINT_AS_STRING);
-
-    //var_dump($objeto);
     class Data_frame extends conexion{
     	
     	public function _construct(){
@@ -23,21 +16,18 @@
     	 public function save_Volatile($objeto){
 
 //--------------------------------Ingreso de datos a la base de datos de la tabla volatil---------------------------
-    	 	for ($i=0; $i <count($objeto) ; $i++) { 
-		    	$trama = $objeto[$i]->trackers;
-		    	$name = $objeto[$i]->name;
-
-		    	$arreglo_trama = explode(",", $trama);
-
-		    	//echo $name.",".$arreglo_trama[0]."-".$arreglo_trama[1]."-".$arreglo_trama[2]."-".$arreglo_trama[3]."<br>";
-		    	
+    	 	/*for ($i=0; $i < count($objeto); $i++) { 
+				$eventTime = $objeto[$i]->vid;
+				echo $eventTime;
+			}*/
+			echo $objeto[0]->vid;
+		    	/*
 		    	if ($this->mysqli->query("INSERT INTO prueba2 VALUES (default,'$name','$arreglo_trama[0]', '$arreglo_trama[1]', '$arreglo_trama[2]')")) {
 					echo "Se ingresaron los registros";
 				}
 				else{
 					echo "No se ingresaron los registros";
-				}
-		    }
+				}*/
 
     	 }
 
