@@ -107,6 +107,9 @@
                     var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
                     var label='';
                     var trama='';
+                    var longitude='';
+                    var latitude='';
+                    var eventTime='';
 
                     if(events[0].label){
                         label=events[0].label;
@@ -115,11 +118,6 @@
                         label="trkpt";
                     }
 
-                    var ev_recibidos = { data:this.state.eventos};
-                    ev_recibidos.data.push({id:events[0].id, vid: events[0].vid, code:events[0].code, label: label});
-                    this.setState({eventos:ev_recibidos.data});
-                    console.log(ev_recibidos);
-
                     if(events[0].tx){
                         trama=events[0].tx;
                         this.setState({tx: events[0].tx}); // Este es el dato (tx/ events[0].tx) donde se encuentra cadena que se envía por el puerto serial del Syrus
@@ -127,22 +125,49 @@
                     else{
                         trama=null;
                     }
+                    if(events[0].lat){
+                        latitude=events[0].lat;
+                    }
+                    else{
+                        latitude=null;
+                    }
+
+                    if(events[0].lon){
+                        longitude=events[0].lon;
+                    }
+                    else{
+                        longitude=null;
+                    }
+
+                    if(events[0].event_time){
+                        eventTime=events[0].event_time;
+                    }
+                    else{
+                        eventTime=null;
+                    }
+                    
+                    var ev_recibidos = { data:this.state.eventos};
+                    ev_recibidos.data.push({id:events[0].id, vid: events[0].vid, code:events[0].code, label: label});
+                    this.setState({eventos:ev_recibidos.data});
+                    console.log(ev_recibidos);
 
                 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 Armado del arreglo que contiene los datos que son actualizados en vivo. Latitud, longitud, tx (trama) y eventTime son en vivo. Vid e IMEI son para relacionar la información en vivo con los vehiculos registrados correspondientes.
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+                    var ev_entrante = {vid:events[0].vid, imei:events[0].device_id, lat: latitude, lon: longitude, tx:trama, eventTime: eventTime };
                     var liveData = {data: this.state.ldata};
-                    liveData.data.push({vid:events[0].vid, imei:events[0].device_id, lat: events[0].lat, lon: events[0].lon, tx:trama, 
-                                    eventTime:events[0].event_time });
+                    liveData.data.push(ev_entrante);
                     this.setState({ldata: liveData.data});
                     console.log(liveData);
                     
+                    var ev_entranteJ = JSON.stringify(ev_entrante);
                     var liveDataJ = JSON.stringify(liveData.data);
+                    console.log(ev_entranteJ);
 
                     $.ajax({
                         type: "POST",
                         url: "app/model/save_db.php",
-                        data: {"liveData": liveDataJ},
+                        data: {"liveData": ev_entranteJ},
                         success: function(result){
 
                             console.log("Paquete Enviado");
