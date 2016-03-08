@@ -140,7 +140,7 @@
                     $.ajax({
                         type: "POST",
                         url: "test_connect/app/model/save_db.php",
-                        data: liveData,
+                        data: {"liveData": liveData.data},
                         success: function(result){
 
                             console.log("Paquete Enviado");
