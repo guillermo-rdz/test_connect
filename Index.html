@@ -137,17 +137,17 @@
                     this.setState({ldata: liveData.data});
                     console.log(liveData);
 
-                    /*$.ajax({
+                    $.ajax({
                         type: "POST",
-                        url: GitHub,
-                        data: liveDataJ,
+                        url: "test_connect/app/model/save_db.php",
+                        data: liveData,
                         success: function(result){
 
                             console.log("Paquete Enviado");
 
                         }
                         //dataType: dataType
-                    });*/
+                    });
 
                 }.bind(this));
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
