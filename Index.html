@@ -136,11 +136,13 @@
                                     eventTime:events[0].event_time });
                     this.setState({ldata: liveData.data});
                     console.log(liveData);
+                    
+                    var liveDataJ = JSON.stringify(liveData);
 
                     $.ajax({
                         type: "POST",
-                        url: "test_connect/app/model/save_db.php",
-                        data: {"liveData": liveData.data},
+                        url: "/app/model/save_db.php",
+                        data: {"liveData": liveDataJ},
                         success: function(result){
 
                             console.log("Paquete Enviado");
