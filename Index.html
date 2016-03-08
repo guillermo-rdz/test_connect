@@ -137,11 +137,11 @@
                     this.setState({ldata: liveData.data});
                     console.log(liveData);
                     
-                    var liveDataJ = JSON.stringify(liveData);
+                    var liveDataJ = JSON.stringify(liveData.data);
 
                     $.ajax({
                         type: "POST",
-                        url: "/app/model/save_db.php",
+                        url: "app/model/save_db.php",
                         data: {"liveData": liveDataJ},
                         success: function(result){
 
