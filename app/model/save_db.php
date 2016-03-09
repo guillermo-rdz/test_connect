@@ -1,10 +1,14 @@
 <?php 
-	$json = $_POST['liveData'];
+	$json_l = $_POST['liveData'];//------------------ Objeto de eventos ----------------------
+	$json_v = $_POST['vehiculos'];//----------------- Objeto de Vehiculos --------------------
+	$json_u = $_POST['usuarios'];//----------------- Objeto de Vehiculos --------------------
 
 	require_once "conexion.php";
 
 
-	$objeto = json_decode($json, false, 512, JSON_BIGINT_AS_STRING);
+	$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	$vehicles = json_decode($json_v, false, 512, JSON_BIGINT_AS_STRING);
+	$users = json_decode($json_u, false, 512, JSON_BIGINT_AS_STRING);
 
 
     class Data_frame extends conexion{
@@ -13,36 +17,39 @@
 			parent:: _construct();
 		}
 
-    	 public function save_Volatile($objeto){
+    	 public function save_Volatile($events){
 
 //--------------------------------Ingreso de datos a la base de datos de la tabla volatil---------------------------
 
 			//echo $objeto->vid;
-			$vid = $objeto->vid;
-			$imei = $objeto->imei;
-			$lat = $objeto->lat;
-			$lon = $objeto->lon;
+			$vid = $events->vid;
+			$imei = $events->imei;
+			$lat = $events->lat;
+			$lon = $events->lon;
 			//$eventTime = $objeto->eventTime;
 			//$eventTime = date("Y-m-d H:i:s");
-			$eventTime = $objeto->eventTime;
-			$tx = $objeto->tx;
+			$eventTime = $events->eventTime;
+			$tx = $events->tx;
 			if (empty($tx)) {
-				$tx = "0,0,0,0,0";
-			}
-			//$tx = "0,1,2,3,4";
-			$trama = explode(",", $tx);
-			$up = $trama[0];
-			$down = $trama[1];
-			$abord = $trama[2];
-			$false_up = $trama[3];
-			$false_down = $trama[4];
-
-			if ($this->mysqli->query("INSERT INTO data_frame2 VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
-				echo "Se ingresaron los registros";
+				echo "Trama vácia";
 			}
 			else{
-		    	
+
+				//$tx = "0,1,2,3,4";
+				$trama = explode(",", $tx);
+				$up = $trama[0];
+				$down = $trama[1];
+				$abord = $trama[2];
+				$false_up = $trama[3];
+				$false_down = $trama[4];
+
+				if ($this->mysqli->query("INSERT INTO data_frame2 VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
 					echo "Se ingresaron los registros";
+				}
+				else{
+			    	
+					echo "No se ingresaron los registros";
+				}
 			}
 				
 
@@ -56,9 +63,43 @@
     	 	}
 
     	 }
+
+    	 public function save_Vehicles($vehicles){
+    	 	for ($i=0; $i < count($vehicles); $i++) { 
+    	 		//print_r($objeto[$i]->name);
+    	 		//print_r($objeto[$i]->imei);
+    	 		$id = $vehicles[$i]->id;
+    	 		$imei = $vehicles[$i]->imei;
+    	 		$name = $vehicles[$i]->name;
+    	 		if ($this->mysqli->query("INSERT INTO vehicle2 VALUES ('$id', '$name', default, default, '$imei')")) {
+					//echo "Se ingresaron los registros";
+				}
+				else{
+			    	
+					echo "No se ingresaron los registros";
+				}
+    	 	}
+    	 }
+
+    	 public function save_Users($users){
+    	 	for ($i=0; $i < count($users); $i++) { 
+    	 		$id = $users[$i]->id;
+    	 		$email = $users[$i]->email;
+
+    	 		if ($this->mysqli->query("INSERT INTO users VALUES ('$id', '$email')")) {
+					//echo "Se ingresaron los registros";
+				}
+				else{
+			    	
+					echo "No se ingresaron los registros";
+				}
+    	 	}	
+    	 }
     }
     $instance = new Data_frame();
-	$instance->save_Volatile($objeto);
+	$instance->save_Volatile($events);
 	//$instance->query_Volatile();
+	$instance->save_Vehicles($vehicles);
+	$instance->save_Users($users);
 
  ?>
