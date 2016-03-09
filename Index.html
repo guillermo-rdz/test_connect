@@ -219,6 +219,20 @@
 
                             this.setState({items: temp});
                             console.log(result);
+                            
+                             var itemsJ = JSON.stringify(this.state.items);
+                            console.log(itemsJ);
+
+                             $.ajax({
+                                type: "POST",
+                                url: "app/model/save_db.php",
+                                data: {"vehiculos": itemsJ },
+                                success: function(result){
+
+                                    console.log("Paquete Enviado");
+
+                                }
+                            });
 
                     }.bind(this) //set context
                 });
@@ -243,6 +257,20 @@
 
                             this.setState({usersData: Utemp});
                             console.log(result);
+                            
+                            var usersDataJ = JSON.stringify(this.state.usersData);
+                            console.log(usersDataJ);
+                            
+                            $.ajax({
+                                type: "POST",
+                                url: "app/model/save_db.php",
+                                data: {"usuarios": usersDataJ },
+                                success: function(result){
+
+                                    console.log("Paquete Enviado");
+
+                                }
+                            });
 
                     }.bind(this) //set context
                 });
