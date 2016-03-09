@@ -18,10 +18,10 @@
 //--------------------------------Ingreso de datos a la base de datos de la tabla volatil---------------------------
 
 			//echo $objeto->vid;
-			echo $vid = $objeto->vid;
-			echo $imei = $objeto->imei;
-			echo $lat = $objeto->lat;
-			echo $lon = $objeto->lon;
+			$vid = $objeto->vid;
+			$imei = $objeto->imei;
+			$lat = $objeto->lat;
+			$lon = $objeto->lon;
 			//$eventTime = $objeto->eventTime;
 			//$eventTime = date("Y-m-d H:i:s");
 			$eventTime = $objeto->eventTime;
@@ -37,11 +37,13 @@
 			$false_up = $trama[3];
 			$false_down = $trama[4];
 
+			if ($this->mysqli->query("INSERT INTO data_frame2 VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+				echo "Se ingresaron los registros";
+			}
+			else{
 		    	
-		    	//$this->mysqli->query("INSERT INTO data_frame2 VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid'");
-		    	$this->mysqli->query("INSERT INTO data_frame2 VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid')");
-		    	//$this->mysqli->query("INSERT INTO data_frame2 VALUES (default, ".$up.", ".$down.", ".$abord.", ".$false_up.", ".$false_down.", ".$eventTime.", ".$lat.", ".$lon.", ".$imei.", ".$vid."");
-					//echo "Se ingresaron los registros";
+					echo "Se ingresaron los registros";
+			}
 				
 
     	 }
