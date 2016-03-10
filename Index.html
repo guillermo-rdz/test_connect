@@ -17,9 +17,7 @@
       .tdatos{text-align: center; width:100%;}
       .rdatos, .cdatos{padding: 8px; text-align: center; }
       .hdatos{ background-color: #0404B4; padding:10px; width:100%;}
-
       .rdatos:nth-child(even){background-color: #424242}
-
       #consola{overflow-y: scroll; height:300px; }
       #table{display: table-row;}
       #gmaps{ height:400px; width:67%; display:table-cell; padding-left: 25px}
@@ -208,31 +206,31 @@
                     type: "GET",
                     success: function(result) {
                             var temp = [];
-                            ///var temp2 = [];
+                            var vid = [];
 
                             /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
                             for(var i=0; i<result.data.length; i++){
                                 var item = {name:result.data[i].name, id:result.data[i].id, imei: result.data[i].device, make: result.data[i].info.make, model: result.data[i].info.model};
                                 temp.push(item);
-                                //temp2.push(result.data[i].id);
+                                vid.push(result.data[i].id);
                             }
 
                             this.setState({items: temp});
                             console.log(result);
                             
                              var itemsJ = JSON.stringify(this.state.items);
-                            console.log(itemsJ);
+                             var vidJ = JSON.stringify(vid);
 
-                             $.ajax({
+                             /*$.ajax({
                                 type: "POST",
                                 url: "app/model/save_db.php",
-                                data: {"vehiculos": itemsJ },
+                                data: {"vid": vidJ },
                                 success: function(result){
 
                                     console.log("Paquete Enviado");
 
                                 }
-                            });
+                            });*/
 
                     }.bind(this) //set context
                 });
@@ -259,7 +257,6 @@
                             console.log(result);
                             
                             var usersDataJ = JSON.stringify(this.state.usersData);
-                            console.log(usersDataJ);
                             
                             $.ajax({
                                 type: "POST",
@@ -340,6 +337,17 @@
                         /////^^^^^^En construcción, para poder obtener una direccion a apartir de coordenadas////////////////////
                         
                     }.bind(this)
+                });
+                
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/save_db.php",
+                    data: {"vid": vehiculo.id },
+                    success: function(result){
+
+                        console.log("Paquete Enviado");
+
+                    }
                 });
             },
 
