@@ -1,15 +1,14 @@
 <?php 
 	$json_l = $_POST['liveData'];//------------------ Objeto de eventos ----------------------
 	$json_v = $_POST['vehiculos'];//----------------- Objeto de Vehiculos --------------------
-	$json_u = $_POST['usuarios'];//----------------- Objeto de Vehiculos --------------------
-	$json_id = $_POS['nose'];
+	$json_id = $_POST['vid'];//---------------------- Id de los vehiculos -----------------------
 
 	require_once "conexion.php";
 
 
-	$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
 	$vehicles = json_decode($json_v, false, 512, JSON_BIGINT_AS_STRING);
-	$users = json_decode($json_u, false, 512, JSON_BIGINT_AS_STRING);
+	//$vid = json_decode($json_id, false, 512, JSON_BIGINT_AS_STRING);
 
 
     class Data_frame extends conexion{
@@ -44,7 +43,7 @@
 				$false_up = $trama[3];
 				$false_down = $trama[4];
 
-				if ($this->mysqli->query("INSERT INTO data_frame2 VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+				if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
 					echo "Se ingresaron los registros";
 				}
 				else{
@@ -56,25 +55,19 @@
 
     	 }
 
-    	 public function query_Volatile($id){
-    	 	//for ($i=0; $i <count($vehicles) ; $i++) { 
-    	 	//	$id = $vehicles[$i]->id;
 
-    	 		$query = $this->mysqli->query("SELECT vehicle2.name_vehicle, data_frame2.up, data_frame2.down, data_frame2.aboart,data_frame2.false_up, data_frame2.false_down, data_frame2.event_date, data_frame2.lat, data_frame2.long
-											from data_frame2
-											join vehicle2
-											on data_frame2.vehicle_idvehicle = vehicle2.idvehicle
-											where vehicle2.idvehicle = '$id'
-											order by event_date");
-    	 		//$row = $query->fetch_array();
-    	 		
-	    	 	while ($row = $query->fetch_array()) {
-	    	 		//echo $row["idvehicle"];
-	    	 		$encode[$i] = $row;
-	    	 	}
-    	 	//}
-    	 	//print_r(json_encode($encode));
-    	 	echo json_encode($encode);
+    	 public function queryJson($vid){
+    	 	$rawdata = array();
+    	 	$i = 0;
+    	 	//$query = $this->mysqli->query("SELECT * FROM data_frame2 WHERE '$vid'=106");
+    	 	$query = $this->mysqli->query("SELECT vehicle2.name_vehicle, data_frame2.up, data_frame2.down, data_frame2.aboart,data_frame2.false_up, data_frame2.false_down, data_frame2.event_date, data_frame2.lat, data_frame2.lon from data_frame2 INNER JOIN vehicle2 on data_frame2.vehicle_idvehicle = vehicle2.idvehicle where vehicle2.idvehicle = 106 order by event_date");
+    	 	while ($row = $query->fetch_array()) {
+    	 		$rawdata[$i] = $row;
+    	 		$i++;
+    	 	}
+
+    	 	//print_r($rawdata);
+    	 	echo json_encode($rawdata);
     	 }
 
     	 public function save_Vehicles($vehicles){
@@ -84,7 +77,7 @@
     	 		$id = $vehicles[$i]->id;
     	 		$imei = $vehicles[$i]->imei;
     	 		$name = $vehicles[$i]->name;
-    	 		if ($this->mysqli->query("INSERT INTO vehicle3 VALUES ('$id', '$name', default, default, '$imei')")) {
+    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei')")) {
 					//echo "Se ingresaron los registros";
 				}
 				else{
@@ -94,25 +87,10 @@
     	 	}
     	 }
 
-    	 public function save_Users($users){
-    	 	for ($i=0; $i < count($users); $i++) { 
-    	 		$id = $users[$i]->id;
-    	 		$email = $users[$i]->email;
-
-    	 		if ($this->mysqli->query("INSERT INTO users VALUES ('$id', '$email')")) {
-					//echo "Se ingresaron los registros";
-				}
-				else{
-			    	
-					echo "No se ingresaron los registros";
-				}
-    	 	}	
-    	 }
     }
     $instance = new Data_frame();
 	$instance->save_Volatile($events);
-	$instance->query_Volatile($vehicles);
+	$instance->queryJson($vid);
 	$instance->save_Vehicles($vehicles);
-	$instance->save_Users($users);
 
  ?>
