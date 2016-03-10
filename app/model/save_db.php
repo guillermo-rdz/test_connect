@@ -2,13 +2,14 @@
 	$json_l = $_POST['liveData'];//------------------ Objeto de eventos ----------------------
 	$json_v = $_POST['vehiculos'];//----------------- Objeto de Vehiculos --------------------
 	$json_u = $_POST['usuarios'];//----------------- Objeto de Vehiculos --------------------
+	$json_id = $_POS['nose'];
 
 	require_once "conexion.php";
 
 
-	//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
 	$vehicles = json_decode($json_v, false, 512, JSON_BIGINT_AS_STRING);
-	//$users = json_decode($json_u, false, 512, JSON_BIGINT_AS_STRING);
+	$users = json_decode($json_u, false, 512, JSON_BIGINT_AS_STRING);
 
 
     class Data_frame extends conexion{
@@ -55,18 +56,23 @@
 
     	 }
 
-    	 public function query_Volatile($vehicles){
-    	 	for ($i=0; $i <count($vehicles) ; $i++) { 
-    	 		$id = $vehicles[$i]->id;
+    	 public function query_Volatile($id){
+    	 	//for ($i=0; $i <count($vehicles) ; $i++) { 
+    	 	//	$id = $vehicles[$i]->id;
 
-    	 		$query = $this->mysqli->query("SELECT * FROM vehicle2 WHERE idvehicle = $id");
+    	 		$query = $this->mysqli->query("SELECT vehicle2.name_vehicle, data_frame2.up, data_frame2.down, data_frame2.aboart,data_frame2.false_up, data_frame2.false_down, data_frame2.event_date, data_frame2.lat, data_frame2.long
+											from data_frame2
+											join vehicle2
+											on data_frame2.vehicle_idvehicle = vehicle2.idvehicle
+											where vehicle2.idvehicle = '$id'
+											order by event_date");
     	 		//$row = $query->fetch_array();
     	 		
 	    	 	while ($row = $query->fetch_array()) {
 	    	 		//echo $row["idvehicle"];
 	    	 		$encode[$i] = $row;
 	    	 	}
-    	 	}
+    	 	//}
     	 	//print_r(json_encode($encode));
     	 	echo json_encode($encode);
     	 }
@@ -78,7 +84,7 @@
     	 		$id = $vehicles[$i]->id;
     	 		$imei = $vehicles[$i]->imei;
     	 		$name = $vehicles[$i]->name;
-    	 		if ($this->mysqli->query("INSERT INTO vehicle2 VALUES ('$id', '$name', default, default, '$imei')")) {
+    	 		if ($this->mysqli->query("INSERT INTO vehicle3 VALUES ('$id', '$name', default, default, '$imei')")) {
 					//echo "Se ingresaron los registros";
 				}
 				else{
