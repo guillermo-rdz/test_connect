@@ -6,9 +6,9 @@
 	require_once "conexion.php";
 
 
-	$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
 	$vehicles = json_decode($json_v, false, 512, JSON_BIGINT_AS_STRING);
-	$users = json_decode($json_u, false, 512, JSON_BIGINT_AS_STRING);
+	//$users = json_decode($json_u, false, 512, JSON_BIGINT_AS_STRING);
 
 
     class Data_frame extends conexion{
@@ -55,13 +55,20 @@
 
     	 }
 
-    	 public function query_Volatile(){
-    	 	$query = $this->mysqli->query("SELECT up, down, abord FROM prueba2 LIMIT 2");
+    	 public function query_Volatile($vehicles){
+    	 	for ($i=0; $i <count($vehicles) ; $i++) { 
+    	 		$id = $vehicles[$i]->id;
 
-    	 	while ($row = $query->fetch_array()) {
-    	 		var_dump($row["up"]);
+    	 		$query = $this->mysqli->query("SELECT * FROM vehicle2 WHERE idvehicle = $id");
+    	 		//$row = $query->fetch_array();
+    	 		
+	    	 	while ($row = $query->fetch_array()) {
+	    	 		//echo $row["idvehicle"];
+	    	 		$encode[$i] = $row;
+	    	 	}
     	 	}
-
+    	 	//print_r(json_encode($encode));
+    	 	echo json_encode($encode);
     	 }
 
     	 public function save_Vehicles($vehicles){
@@ -98,7 +105,7 @@
     }
     $instance = new Data_frame();
 	$instance->save_Volatile($events);
-	//$instance->query_Volatile();
+	$instance->query_Volatile($vehicles);
 	$instance->save_Vehicles($vehicles);
 	$instance->save_Users($users);
 
