@@ -58,17 +58,9 @@
 
 
     	 public function queryJson($vid){
-    	 	//$rawdata = array();
-    	 	//$i = 0;
-    	 	//$query = $this->mysqli->query("SELECT * FROM data_frame2 WHERE '$vid'=106");
-    	 	$query = $this->mysqli->query("SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon from data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = '$vid' order by event_date");
-    	 	/*while ($row = $query->fetch_array()) {
-    	 		$name = $row["name_vehicle"];
 
-    	 		$arreglo[] = array('name_vehicle' => $name );
-    	 	}
-    	 	$json_string = json_encode($arreglo);
-    	 	print_r($json_string);*/
+    	 	$query = $this->mysqli->query("SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon from data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = '$vid' order by event_date");
+
     	 	$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
     	 		//$rawdata[$i] = $row;
@@ -85,10 +77,8 @@
     	 		$output .= '"Lon":"'.$row["lon"].'"}';
     	 	}
 
-    	 	//print_r($rawdata);
     	 	$output .= "]}";
     	 	echo $output;
-    	 	//print_r($output);
     	 }
 
     	 public function save_Vehicles($vehicles){
