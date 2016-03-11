@@ -82,7 +82,8 @@
                     eventos:[],    //Eventos generados por los vehiculos regustrados a la cuenta.
                     usersData:[],  //Información de los usuarios registrados. (ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL)
                     ldata:[],      //Informacíon que se actualiza de forma constante (en vivo). (LAT,LON, Tx, Vid, IMEI, eventTime)
-                    tx:''          //tx lo tengo como una variable de estado para que cada vez que llegue un nuevo valor se refleje en el layout.
+                    tx:'',          //tx lo tengo como una variable de estado para que cada vez que llegue un nuevo valor se refleje en el layout.
+                    trama: []
                 };
             },
 
@@ -97,6 +98,8 @@
                 Namespace: Espacio de nombre al que pertenecen lo eventos. 
                 Object: Objeto(s) al que pertenecen los eventos.
                 Payload: Contiene los datos del evento como tal.*/ 
+                Gmap(21.2125, -87.7417);
+                
                 socket.on ('events', function(envelope){
                     console.log (envelope);
 
@@ -220,8 +223,18 @@
                             
                              var itemsJ = JSON.stringify(this.state.items);
                              var vidJ = JSON.stringify(vid);
+                             
+                             $.ajax({
+                                type: "POST",
+                                url: "app/model/save_db.php",
+                                data: {"vehiculo": itemsJ },
+                                success: function(result){
+                                    console.log("Paquete Enviado");
+                                }
 
-                             /*$.ajax({
+                            }.bind(this));
+
+                             $.ajax({
                                 type: "POST",
                                 url: "app/model/save_db.php",
                                 data: {"vid": vidJ },
@@ -230,7 +243,7 @@
                                     console.log("Paquete Enviado");
 
                                 }
-                            });*/
+                            });
 
                     }.bind(this) //set context
                 });
@@ -302,7 +315,7 @@
                         console.log(coordenadas);
 
                         this.setState({location:coordenadas});
-                        Gmap(coordenadas[0],coordenadas[1]);
+                        //Gmap(coordenadas[0],coordenadas[1]);
 
                         $.ajax({
                             url: source + "/api/vehicles/" + vehiculo.id + "/remote/state",
@@ -344,11 +357,12 @@
                     url: "app/model/save_db.php",
                     data: {"vid": vehiculo.id },
                     success: function(result){
-
-                        console.log("Paquete Enviado");
+                        var resultJ=JSON.parse(result);
+                        this.setState({trama:resultJ});
+                        console.log(resultJ);
 
                     }
-                });
+                }.bind(this));
             },
 
 
@@ -361,6 +375,7 @@
                         <FormVehiculo items={this.state.items} username={this.state.username} token={this.state.token} location={this.state.location} vehiculo={this.state.selected} onVehicleSelection={this.onVehicleSelChange} message={this.state.tx}/>
                         <SocketBtns vid={this.state.selected.id}/>
                         <ConsolaEventos eventos={this.state.eventos}/>
+                        <TxRecibidos trama={this.state.trama}/>
                     </div>
                     );
             }
@@ -593,6 +608,48 @@
                     </div>
                 );
             }
+        });
+        
+        var TxRecibidos = React.createClass({
+            render: function(){
+
+                var elementosTx = this.props.trama.data.map(function(e){
+                    <tr className="rwtx" key={e.Name_Vehicle}>
+                        <td className="coltx">{e.Name_Vehicle}</td>
+                        <td className="coltx">{e.Up}</td>
+                        <td className="coltx">{e.Down}</td>
+                        <td className="coltx">{e.Abord}</td>
+                        <td className="coltx">{e.False_Up}</td>
+                        <td className="coltx">{e.False_Down}</td>
+                        <td className="coltx">{e.Event_Date}</td>
+                        <td className="coltx">{e.Lat}</td>
+                        <td className="coltx">{e.Lon}</td>
+                    </tr>
+
+                });
+                return(
+                    <div className="tx_cont">
+                        <table className="tx_disp">
+                            <thead>
+                                <tr className="rwtx">
+                                    <th className="headtx">Nombre Vehiculo</th>
+                                    <th className="headtx">Subidas</th>
+                                    <th className="headtx">Bajadas</th>
+                                    <th className="headtx">Abordo</th>
+                                    <th className="headtx">Falsas Subidas</th>
+                                    <th className="headtx">Falsas Bajadas</th>
+                                    <th className="headtx">Tiempo Evento</th>
+                                    <th className="headtx">Latitud</th>
+                                    <th className="headtx">Longitud</th>
+                                </tr>
+                            </thead>
+                            <tbody>{elementosTx}</tbody>
+                        </table>
+                    </div>
+
+                );
+            }
+
         });
 
         var Items=[
