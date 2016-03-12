@@ -1,6 +1,6 @@
 <?php 
 	//$json_l = $_POST['liveData'];//------------------ Objeto de eventos ----------------------
-	//$json_v = $_POST['vehiculos'];//----------------- Objeto de Vehiculos --------------------
+	//$json_v = $_POST['vehiculo'];//----------------- Objeto de Vehiculos --------------------
 	$json_id = $_POST['vid'];//---------------------- Id de los vehiculos -----------------------
 
 	require_once "conexion.php";
@@ -31,7 +31,7 @@
 			$eventTime = $events->eventTime;
 			$tx = $events->tx;
 			if (empty($tx)) {
-				echo "Trama vácia";
+				//echo "Trama vácia";
 			}
 			else{
 
@@ -83,25 +83,27 @@
 
     	 public function save_Vehicles($vehicles){
     	 	for ($i=0; $i < count($vehicles); $i++) { 
-    	 		//print_r($objeto[$i]->name);
-    	 		//print_r($objeto[$i]->imei);
     	 		$id = $vehicles[$i]->id;
     	 		$imei = $vehicles[$i]->imei;
     	 		$name = $vehicles[$i]->name;
+    	 		//$capacitance = $vehicles[$i]->loquesea;
+    	 		//$max_capacitance = $vehicles[$i]->loquesea;
     	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei')")) {
 					//echo "Se ingresaron los registros";
 				}
 				else{
 			    	
-					echo "No se ingresaron los registros";
+					//echo "No se ingresaron los registros";
 				}
+
+				$this->mysqli->query("UPDATE vehicles SET imei = '$imei', name_vehicle = '$name' WHERE idvehicle='$id'");
     	 	}
     	 }
 
     }
     $instance = new Data_frame();
 	//$instance->save_Volatile($events);
-	$instance->queryJson($vid);
 	//$instance->save_Vehicles($vehicles);
+	$instance->queryJson($vid);
 
  ?>
