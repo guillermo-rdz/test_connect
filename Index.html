@@ -24,16 +24,15 @@
       .headtx{ background-color: #0404B4; padding:10px; width:100%;}
       .rwtx:nth-child(even){background-color: #424242}
 
-      #tx_cont{overflow-y: scroll; height:250px;}
-      #consola{overflow-y: scroll; height:250px; }
-      #table{display: table-row;}
-      #gmaps{ height:400px; width:67%; display:table-cell; padding-left: 25px}
+      #tx_cont{overflow-y: scroll; overflow-x: scroll; height: 250px; width:500px;}
+      #consola{overflow-y: scroll; height:250px; width: 500px;}
+      #gmaps{ width: 700px; height:500px; display:table-cell; padding-left: 25px;}
       #content{ display: table-cell; padding-left: 10px; padding-right:20px; padding-bottom: 0px;}
     </style>
 </head>
 <body>
     <header>
-        <h1>Consola de Vehiculos</h1>
+        <h1>Grupo IT Solutions</h1>
     </header>
     <section id="table">
         <div id="content"></div>
@@ -47,6 +46,7 @@
         var socket = io("https://live.pegasusgateway.com/socket");
         var token = null;
         var selected_vehicle = null;
+        map=null;
 
         socket.on('_authenticated', function(message) {
             socket.emit("vehicle:list");
@@ -71,6 +71,7 @@
         var key = 'auto';
         var lat=43.6425569;
         var lon=-79.4073126;
+        var marcadores = [];
 
         
 
@@ -90,7 +91,8 @@
                     usersData:[],  //Información de los usuarios registrados. (ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL)
                     ldata:[],      //Informacíon que se actualiza de forma constante (en vivo). (LAT,LON, Tx, Vid, IMEI, eventTime)
                     tx:'',          //tx lo tengo como una variable de estado para que cada vez que llegue un nuevo valor se refleje en el layout.
-                    trama:[]
+                    trama:[],
+                    txstr:''
                 };
             },
 
@@ -115,9 +117,14 @@
                     var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
                     var label='';
                     var trama='';
+                    var tramastr='';
                     var longitude='';
                     var latitude='';
                     var eventTime='';
+                    
+                     if(events[0].lat && events[0].lon){
+                        Marker(map, events[0].lat, events[0].lon, events[0].vid, 0);
+                    }
 
                     if(events[0].label){
                         label=events[0].label;
@@ -154,6 +161,21 @@
                         eventTime=null;
                     }
                     
+                    if(events[0].taip){
+
+                        if(events[0].taip.search("RTX")){
+                            var cadena = events[0].taip.substr(4,24);
+                            tramastr = cadena;
+                            this.setState({txstr: tramastr});
+                        }
+                        else{
+                            tramastr= null;
+                        }
+
+                        console.log(events[0].taip);
+
+                    }
+                    
                     var ev_recibidos = { data:this.state.eventos};
                     ev_recibidos.data.push({id:events[0].id, vid: events[0].vid, code:events[0].code, label: label});
                     this.setState({eventos:ev_recibidos.data});
@@ -162,7 +184,7 @@
                 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 Armado del arreglo que contiene los datos que son actualizados en vivo. Latitud, longitud, tx (trama) y eventTime son en vivo. Vid e IMEI son para relacionar la información en vivo con los vehiculos registrados correspondientes.
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-                    var ev_entrante = {vid:events[0].vid, imei:events[0].device_id, lat: latitude, lon: longitude, tx:trama, eventTime: eventTime };
+                    var ev_entrante = {vid:events[0].vid, imei:events[0].device_id, lat: latitude, lon: longitude, tx:tramastr, eventTime: eventTime };
                     var liveData = {data: this.state.ldata};
                     liveData.data.push(ev_entrante);
                     this.setState({ldata: liveData.data});
@@ -323,6 +345,7 @@
 
                         this.setState({location:coordenadas});
                         //Gmap(coordenadas[0],coordenadas[1]);
+                        Marker(map, lat, lon, vehiculo.id, 1);
 
                         $.ajax({
                             url: source + "/api/vehicles/" + vehiculo.id + "/remote/state",
@@ -337,7 +360,7 @@
 
                         ////////Solicitud Reverse geocoding, todavia no funciona. Error 400 BAD REQUEST////////////////////
                         ///////////////////////////////////////////////////////////////////////////////////////////////////
-                        $.ajax({
+                        /*$.ajax({
                             url: source + "/api/reversegeo",
                             headers: {Authenticate: this.state.token},
                             data: [{
@@ -352,7 +375,7 @@
                                 this.setState({adress: direccion});
                                 console.log(result);
                             }
-                        });
+                        });*/
                         /////////////////////////////////////////////////////////////////////////////////////////////////////////
                         /////^^^^^^En construcción, para poder obtener una direccion a apartir de coordenadas////////////////////
                         
@@ -379,7 +402,7 @@
                 return(
                     <div className="BusquedaVehicular">
                         <FormInicio onUserLogin={this.handleUserLogin} token={this.state.token}/>
-                        <FormVehiculo items={this.state.items} username={this.state.username} token={this.state.token} location={this.state.location} vehiculo={this.state.selected} onVehicleSelection={this.onVehicleSelChange} message={this.state.tx}/>
+                        <FormVehiculo items={this.state.items} username={this.state.username} token={this.state.token} location={this.state.location} vehiculo={this.state.selected} onVehicleSelection={this.onVehicleSelChange} message={this.state.txstr}/>
                         <SocketBtns vid={this.state.selected.id}/>
                         <ConsolaEventos eventos={this.state.eventos}/>
                         <TxRecibidos tramas={this.state.trama}/>
@@ -554,8 +577,11 @@
                 }); 
                 
                 return(
-                    <select onChange={this.handleChange}>{optionNodes}</select>
-                    );
+                    <select onChange={this.handleChange}>
+                        <option disabled hidden>----Select an option----</option>
+                        {optionNodes}
+                    </select>
+                );
             }
         });
 
@@ -587,11 +613,12 @@
 
         var ConsolaEventos = React.createClass({
             render: function(){
+                var k='';
 
                 var elementosEv= this.props.eventos.map(function(e){
 
                     return(
-                        <tr className="rdatos" key={e.id}>
+                        <tr className="rdatos" key={k++}>
                             <td className="cdatos">{e.vid}</td>
                             <td className="cdatos">{e.code}</td>
                             <td className="cdatos">{e.label}</td>
@@ -678,8 +705,7 @@
         /*Función que recibe la longitud y latitud de un vehículo para generar un mapa centrado en dicha ubicación
          y dibujar un marcador usando la API de GoogleMaps */
         function Gmap(latitude, longitude){
-
-            var map;
+            
             map = new google.maps.Map(document.getElementById('gmaps'), {
                 center: {lat: latitude, lng: longitude},
                 zoom: 12,
@@ -687,13 +713,35 @@
                 scrollwheel: true
             });
 
+        }
+        
+        function Marker(map, lat, lon, vid, flag){
+            
             var marker;
-            marker = new google.maps.Marker({
+            marker= new google.maps.Marker({
                 map: map,
-                position: {lat: latitude, lng: longitude},
-                title: "Hello World!"
+                position: {lat: lat , lng: lon},
+                title: String(vid)
+
             });
 
+            
+
+            for(var i=0; i<marcadores.length;i++){
+
+                if(marcadores[i].title == String(vid)){
+                    marcadores[i].setMap(null);
+                    marcadores.splice(i,1);
+                    break;
+                }
+            }
+
+            marcadores.push(marker);
+            console.log(marcadores);
+           
+            if(flag){
+                map.setCenter(marker.getPosition());
+            }   
 
         }
 
@@ -723,11 +771,17 @@
 
             console.log('emitting stop to server', envelope);
         }
+        
+        function Time(event_time){
+            
+            var tiempo = new Date(event_time);
+            var fecha = new Date();
 
-        /*function Datos(){
+            var tiempoMili = tiempo.getTime();
+            fecha.setTime(tiempoMili);
+            console.log("Milisegundos: "+tiempoMili+", Fecha: "+fecha.toLocaleString());
 
-        }*/
-
+        }
 
     </script>
 
