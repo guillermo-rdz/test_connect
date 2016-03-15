@@ -1,15 +1,14 @@
 <?php 
-	//$json_l = $_POST['liveData'];//------------------ Objeto de eventos ----------------------
-	//$json_v = $_POST['vehiculo'];//----------------- Objeto de Vehiculos --------------------
-	$json_id = $_POST['vid'];//---------------------- Id de los vehiculos -----------------------
-
 	require_once "conexion.php";
-
-
+	//---------------------- Objeto de eventos ------------------------
+	//$json_l = $_POST['liveData'];
 	//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	//---------------------- Objeto de Vehiculos -----------------------
+	//$json_v = $_POST['vehiculo'];
 	//$vehicles = json_decode($json_v, false, 512, JSON_BIGINT_AS_STRING);
+	//---------------------- Id de los vehiculos -----------------------
+	$json_id = $_POST['vid'];
 	$vid = json_decode($json_id, false, 512, JSON_BIGINT_AS_STRING);
-
 
     class Data_frame extends conexion{
     	
@@ -59,7 +58,7 @@
 
     	 public function queryJson($vid){
 
-    	 	$query = $this->mysqli->query("SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon from data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = '$vid' order by event_date");
+    	 	$query = $this->mysqli->query("SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon from data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = $vid order by event_date");
 
     	 	$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
