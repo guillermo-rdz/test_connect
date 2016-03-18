@@ -1,29 +1,24 @@
 <?php 
 	class controller{
 
-		public function content(){
-			session_start();
-			if (isset($_SESSION["conectado"])) {
-				include("app/view/contenido.html");
-			} else
-				header('Location: /tzotzil/');
+
+		public function pageLogin(){
+			include("app/views/login.html");
 		}
 
-		public function panel2(){
+		public function main(){
 			session_start();
 			if (isset($_SESSION["conectado"])) {
-				include("app/view/auscultacion.html");
+				include("app/views/index.html");
 			} else
-				header('Location: /tzotzil/');
+				//include("app/views/index.html");
+				header('Location: /test_connect/');
 		}
 
-		public function error(){
-			session_start();
-			if (isset($_SESSION["conectado"])) {
-				include("app/view/404.shtml");
-			} else
-				header('Location: /tzotzil/');
-		}
+		/*public function error(){
+			header('Location: /test_connect/');
+		}*/
+
 	}
 
  ?>

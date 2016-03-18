@@ -3,15 +3,19 @@
 	$mvc = new controller();
 
 	if (empty($_GET['action'])) {
-		$_GET['action'] = "home";
+		$_GET['action'] = "login";
 	}
-	if ($_GET["action"]=="home") {
-		$mvc->home();
-	}
-	elseif($_GET['action']=="login"){
+
+	if ($_GET["action"]=="login") {
 		$mvc->pageLogin();
 	}
-	else
+
+	elseif($_GET['action']=="main"){
+		$mvc->main();
+	}
+
+	/*else{
 		$mvc->error();
+	}*/
 
  ?>

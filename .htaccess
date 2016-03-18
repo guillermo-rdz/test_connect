@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule ^(\w+)/?$ ?action=$1
+	#http:localhost/php-laravel/index.php?action=contacts
+	#http://localhost/php-laravel/contacts
+</IfModule>

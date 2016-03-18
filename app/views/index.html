@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>VEHICULOS_GPS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
+    <style type="text/css">
+      html, body {color: white; background-color: #102E55; height: 100%; margin: 0; padding: 0;}
+      body {display:table;}
+      header{display:table-caption; height:90px; padding:5px;}
+      .tdatos{text-align: center; width:100%;}
+      .rdatos, .cdatos{padding: 8px; text-align: center; }
+      .hdatos{ background-color: #0404B4; padding:10px; width:100%;}
+      .rdatos:nth-child(even){background-color: #424242}
+
+      .tx_disp{text-align: center; width:100%;}
+      .rwtx, .coltx{padding: 8px; text-align: center; }
+      .headtx{ background-color: #0404B4; padding:10px; width:100%;}
+      .rwtx:nth-child(even){background-color: #424242}
+
+      #tx_cont{overflow-y: scroll; overflow-x: scroll; height: 250px; width:500px;}
+      #consola{overflow-y: scroll; height:250px; width: 500px;}
+      #gmaps{ width: 700px; height:500px; display:table-cell; padding-left: 25px;}
+      #content{ display: table-cell; padding-left: 10px; padding-right:20px; padding-bottom: 0px;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Grupo IT Solutions</h1>
+    </header>
+    <section id="table">
+        <div id="content"></div>
+        <div id="gmaps"></div>
+    </section>
+    <script type="text/babel" type="text/javascript" >
+        
+
+        ////////////////////////WEB SOCKET/////////////////////////
+        var source = "https://diesel.grupoitsur.com";//URL our pegasus site
+        var socket = io("https://live.pegasusgateway.com/socket");
+        var token = null;
+        var selected_vehicle = null;
+        var map=null;
+
+        socket.on('_authenticated', function(message) {
+            socket.emit("vehicle:list");
+        });
+
+        socket.on('_error', function(message) {
+          console.error(message);
+        });
+
+        socket.on('_update', function(message) {
+          console.info(message);
+        });
+
+        socket.on('vehicle:list', function(vehicles) {
+          console.log(vehicles);
+        });
+
+        //////////////////////////////////////////////////////////
+
+        var username = 'developer@digitalcomtech.com';
+        var password = 'dctdevelop';
+        var key = 'auto';
+        var lat=43.6425569;
+        var lon=-79.4073126;
+        var marcadores = [];
+
+        
+
+        var BusquedaVehicular = React.createClass({
+
+            
+
+            getInitialState: function(){
+                return {
+                    selected: '',  //Vehiculo Seleccionado en el Combo Box.
+                    token:'',      //Token de autorización al hacer un correcto inicio de sesión.
+                    username:'',   //Nombre del Usuario que inicia sesión en Pegasus.
+                    items:[],      //Información de los vehiculos registrados.(ID,IMEI,MODEL,MAKE)
+                    location:[],   //Ubicación actual del vehículo, del momento en que se hizo la solicitud. (LAT, LON)
+                    listening:[],  //ID de los vehiculos de los cuales se esta recibiendo eventos.
+                    eventos:[],    //Eventos generados por los vehiculos regustrados a la cuenta.
+                    usersData:[],  //Información de los usuarios registrados. (ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL)
+                    ldata:[],      //Informacíon que se actualiza de forma constante (en vivo). (LAT,LON, Tx, Vid, IMEI, eventTime)
+                    tx:'',          //tx lo tengo como una variable de estado para que cada vez que llegue un nuevo valor se refleje en el layout.
+                    trama:[],
+                    txstr:''
+                };
+            },
+
+
+
+            handleUserLogin: function(token){
+
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                //////////////////////Esta es la sección por donde reciben todos los eventos de vehiculos///////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /* En la variable envelope se encuentra el paquete JSON que contiene los datos del evento. Estos son:
+                Namespace: Espacio de nombre al que pertenecen lo eventos. 
+                Object: Objeto(s) al que pertenecen los eventos.
+                Payload: Contiene los datos del evento como tal.*/ 
+                Gmap(21.2125, -87.7417);
+                
+                socket.on ('events', function(envelope){
+                    console.log (envelope);
+
+                    var namespace = envelope.namespace;
+                    var vehicle = envelope.object;
+                    var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
+                    var label='';
+                    var trama='';
+                    var tramastr='';
+                    var longitude='';
+                    var latitude='';
+                    var eventTime='';
+                    
+                     if(events[0].lat && events[0].lon){
+                        Marker(map, events[0].lat, events[0].lon, events[0].vid, 0);
+                    }
+
+                    if(events[0].label){
+                        label=events[0].label;
+                    }
+                    else{
+                        label="trkpt";
+                    }
+
+                    if(events[0].tx){
+                        trama=events[0].tx;
+                        this.setState({tx: events[0].tx}); // Este es el dato (tx/ events[0].tx) donde se encuentra cadena que se envía por el puerto serial del Syrus
+                    }
+                    else{
+                        trama=null;
+                    }
+                    if(events[0].lat){
+                        latitude=events[0].lat;
+                    }
+                    else{
+                        latitude=null;
+                    }
+
+                    if(events[0].lon){
+                        longitude=events[0].lon;
+                    }
+                    else{
+                        longitude=null;
+                    }
+
+                    if(events[0].event_time){
+                        eventTime=events[0].event_time;
+                    }
+                    else{
+                        eventTime=null;
+                    }
+                    
+                    if(events[0].taip){
+
+                        if(events[0].taip.search("RTX")){
+                            var cadena = events[0].taip.substr(4,24);
+                            tramastr = cadena;
+                            this.setState({txstr: tramastr});
+                        }
+                        else{
+                            tramastr= null;
+                        }
+
+                        console.log(events[0].taip);
+
+                    }
+                    
+                    var ev_recibidos = { data:this.state.eventos};
+                    ev_recibidos.data.push({id:events[0].id, vid: events[0].vid, code:events[0].code, label: label});
+                    this.setState({eventos:ev_recibidos.data});
+                    console.log(ev_recibidos);
+
+                /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                Armado del arreglo que contiene los datos que son actualizados en vivo. Latitud, longitud, tx (trama) y eventTime son en vivo. Vid e IMEI son para relacionar la información en vivo con los vehiculos registrados correspondientes.
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+                    var ev_entrante = {vid:events[0].vid, imei:events[0].device_id, lat: latitude, lon: longitude, tx:tramastr, eventTime: eventTime };
+                    var liveData = {data: this.state.ldata};
+                    liveData.data.push(ev_entrante);
+                    this.setState({ldata: liveData.data});
+                    console.log(liveData);
+                    
+                    var ev_entranteJ = JSON.stringify(ev_entrante);
+                    var liveDataJ = JSON.stringify(liveData.data);
+                    console.log(ev_entranteJ);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "app/model/save_db.php",
+                        data: {"liveData": ev_entranteJ},
+                        success: function(result){
+
+                            console.log("Paquete Enviado");
+
+                        }
+                        //dataType: dataType
+                    });
+
+                }.bind(this));
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                this.setState({token:token[0]});
+                console.log(token[0]);
+
+                connect(token[0]);
+
+                $.ajax({
+                    url: source + "/api/login",
+                    headers: { Authenticate: token[0] },
+                    type: "GET",
+                    success: function (result) {
+                        //var name = result.name;
+                        console.log(result);
+                        this.setState({username: token[1]});
+                        //document.getElementById('id').innerHTML =result.message;
+                    }.bind(this)//set context
+                });
+
+
+
+                /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                Solicitud de todos lo VEHÍCULOS registrados a la cuenta de Pegasus que inicio sesión
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+                $.ajax({
+                    url: source+"/api/vehicles",
+                    headers: { Authenticate: token[0] },
+                    type: "GET",
+                    success: function(result) {
+                            var temp = [];
+                            var vid = [];
+
+                            /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
+                            for(var i=0; i<result.data.length; i++){
+                                var item = {name:result.data[i].name, id:result.data[i].id, imei: result.data[i].device, make: result.data[i].info.make, model: result.data[i].info.model};
+                                temp.push(item);
+                                vid.push(result.data[i].id);
+                            }
+
+                            this.setState({items: temp});
+                            console.log(result);
+                            
+                             var itemsJ = JSON.stringify(this.state.items);
+                             var vidJ = JSON.stringify(vid);
+                             
+                             $.ajax({
+                                type: "POST",
+                                url: "app/model/save_db.php",
+                                data: {"vehiculo": itemsJ },
+                                success: function(result){
+                                    console.log("Paquete Enviado");
+                                }
+
+                            });
+
+                             $.ajax({
+                                type: "POST",
+                                url: "app/model/save_db.php",
+                                data: {"vid": vidJ },
+                                success: function(result){
+
+                                    console.log("Paquete Enviado");
+
+                                }
+                            });
+
+                    }.bind(this) //set context
+                });
+
+                /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                Solicitud de todos los USUARIOS registrados en Pegasus
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+                $.ajax({
+                    url: source+"/api/users",
+                    headers: { Authenticate: token[0] },
+                    type: "GET",
+                    success: function(result) {
+                            var Utemp = [];
+
+                            /*Armado del arreglo que contiene la información de los usuarios. (ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL)*/
+                            for(var i=0; i<result.data.length; i++){
+                                var userData = {username:result.data[i].username, id:result.data[i].id, Fname: result.data[i].first_name, Lname: result.data[i].last_name, email: result.data[i].email};
+                                Utemp.push(userData);
+
+                            }
+
+
+                            this.setState({usersData: Utemp});
+                            console.log(result);
+                            
+                            var usersDataJ = JSON.stringify(this.state.usersData);
+                            
+                            $.ajax({
+                                type: "POST",
+                                url: "app/model/save_db.php",
+                                data: {"usuarios": usersDataJ },
+                                success: function(result){
+
+                                    console.log("Paquete Enviado");
+
+                                }
+                            });
+
+                    }.bind(this) //set context
+                });
+
+            },
+
+
+
+            onVehicleSelChange: function(vehiculo){
+
+                var vehicleSel=this.state.listening
+                if(vehicleSel.indexOf(vehiculo.id)==-1)
+                {
+                    vehicleSel.push(vehiculo.id);
+                    this.setState({listening:vehicleSel});
+                }
+
+                this.setState({selected:vehiculo});
+                listen(vehicleSel);
+                console.log(vehicleSel);
+                //console.log(vehicleSel);
+
+                $.ajax({
+                    url: source + "/api/vehicles/" + vehiculo.id + "/remote/location",
+                    headers: { Authenticate: this.state.token},
+                    type: "GET",
+                    success: function (result) {
+                        
+                        var coordenadas=[result.location.lat,result.location.lon];
+                        lat=coordenadas[0];
+                        lon=coordenadas[1];
+                        console.log(coordenadas);
+
+                        this.setState({location:coordenadas});
+                        //Gmap(coordenadas[0],coordenadas[1]);
+                        Marker(map, lat, lon, vehiculo.id, 1);
+
+                        $.ajax({
+                            url: source + "/api/vehicles/" + vehiculo.id + "/remote/state",
+                            headers: {Authenticate: this.state.token},
+                            type: "GET",
+                            success: function (result){
+                                var in_2=result.ios.io_in2;
+                                console.log(result);
+
+                            }
+                        });
+
+                        ////////Solicitud Reverse geocoding, todavia no funciona. Error 400 BAD REQUEST////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////////////////////////
+                        /*$.ajax({
+                            url: source + "/api/reversegeo",
+                            headers: {Authenticate: this.state.token},
+                            data: [{
+                                    "lat": 25.68125, 
+                                    "lon": -100.48351, 
+                                    "key": "auto"
+                                }],
+                            type: "POST",
+                            success: function(result){
+                                
+                                var direccion=result.auto.location_full;
+                                this.setState({adress: direccion});
+                                console.log(result);
+                            }
+                        });*/
+                        /////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        /////^^^^^^En construcción, para poder obtener una direccion a apartir de coordenadas////////////////////
+                        
+                    }.bind(this)
+                });
+                
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/save_db.php",
+                    data: {"vid": vehiculo.id },
+                    success: function(result){
+                        var resultJ=JSON.parse(result);
+                        this.setState({trama:resultJ.data});
+                        console.log(this.state.trama);
+
+                    }.bind(this)
+                });
+            },
+
+
+            render: function(){
+
+                
+                return(
+                    <div className="BusquedaVehicular">
+                        <FormInicio onUserLogin={this.handleUserLogin} token={this.state.token}/>
+                        <FormVehiculo items={this.state.items} username={this.state.username} token={this.state.token} location={this.state.location} vehiculo={this.state.selected} onVehicleSelection={this.onVehicleSelChange} message={this.state.txstr}/>
+                        <SocketBtns vid={this.state.selected.id}/>
+                        <ConsolaEventos eventos={this.state.eventos}/>
+                        <TxRecibidos tramas={this.state.trama}/>
+                    </div>
+                    );
+            }
+        });
+
+        var FormVehiculo = React.createClass({
+
+            handleVehicleChange: function(vehiculo){
+                var size=this.props.items.length;
+              
+                for(var i=0;i<size;i++){
+                    if(this.props.items[i].name==vehiculo){
+                        var seleccion = this.props.items[i];
+                    }
+                }
+
+                if (this.props.onVehicleSelection)
+                this.props.onVehicleSelection(seleccion);
+            },
+
+            render: function(){
+                return(
+                    <form className="FormUsuario">
+                        <Usuario user={this.props.username}/>
+                        <VehiculosCB items={this.props.items} onVehicleChange={this.handleVehicleChange}/>
+                        <table><Detalles item={this.props.vehiculo} latitude={this.props.location[0]} longitude={this.props.location[1]} msj={this.props.message}/></table>
+                    </form>
+                    );
+            }
+        });
+
+        var FormInicio = React.createClass({
+            
+            handleClickIn: function(){
+                var User=document.getElementById("user").value;
+                var Pass=document.getElementById("pass").value;
+                $.post(source +"/api/login", { username: User, password: Pass }, function (result) {
+                    
+                    var logged = [result.auth, User]; // Extract token
+                    //usernameLogged = user;
+                    //tokenRecibido = token;
+
+                    if (this.props.onUserLogin)
+                    this.props.onUserLogin(logged);
+
+                }.bind(this));
+
+                
+            },
+
+            handleClickOut: function(){
+                    $.ajax({
+                        url: source + "/api/logout",
+                        headers: { Authenticate: this.props.token},
+                        type: "GET",
+                        success: function (result) {
+                            console.log(result);
+                            //document.getElementById('id').innerHTML =result.message;
+                        }
+                    });
+            },
+
+
+            render: function(){
+                return(
+                    <table>
+                        <tbody>
+                        <tr>
+                            <th>Username:</th>
+                            <td><Username/></td>
+                        </tr>
+                        <tr>
+                            <th>Password:</th>
+                            <td><Password/></td>
+                        </tr>
+                        <tr>
+                            <td><input type="button" value="Log In" onClick={this.handleClickIn}></input></td>
+                            <td><input type="button" value="Log Out" onClick={this.handleClickOut}></input></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    );
+            }
+        });
+
+        var Detalles = React.createClass({
+            render: function(){
+                return(
+                    <tbody>
+                        <tr>
+                            <th>ID:</th>
+                            <td>{this.props.item.id}</td>
+                        </tr>
+                        <tr>
+                            <th>IMEI:</th>
+                            <td>{this.props.item.imei}</td>
+                        </tr>
+                        <tr>
+                            <th>MODEL:</th>
+                            <td>{this.props.item.model}</td>
+                        </tr>
+                        <tr>
+                            <th>MAKE:</th>
+                            <td>{this.props.item.make}</td>
+                        </tr>
+                        <tr>
+                            <th>LAT:</th>
+                            <td>{this.props.latitude}</td>
+                            <th>LON:</th>
+                            <td>{this.props.longitude}</td>
+                        </tr>
+                        <tr>
+                            <th>MENSAJE:</th>
+                            <td>{this.props.msj}</td>
+                        </tr>
+                    </tbody>
+                    );
+            }
+        });
+
+        var Usuario = React.createClass({
+            
+            render: function(){
+                return(
+                    <p><b>Usuario:</b>{this.props.user}</p>
+                    );
+            }
+        });
+
+        var Username = React.createClass({
+
+            render: function () {
+                return <input id="user" type="text" placeholder="Usuario" defaultValue="grupoitmerida@hotmail.com"></input>
+            }
+        });
+
+        var Password = React.createClass({
+
+            render: function () {
+                return (
+                <input id="pass" type="password" placeholder="Contraseña" defaultValue="bloqueador1"></input>
+                );
+            }
+        });
+
+        var VehiculosCB = React.createClass({
+           
+            handleChange: function(e){
+
+              var name = e.target.value;
+              /*var size=this.props.items.length;
+              
+              for(var i=0;i<size;i++){
+                if(this.props.items[i].model==name){
+                    var seleccion = this.props.items[i] ;
+                }
+              }*/
+            if (this.props.onVehicleChange)
+                this.props.onVehicleChange(name);
+            },  
+
+            render: function(){
+                var optionNodes = this.props.items.map(function(item) { 
+                  
+                  return (
+                    <option key={item.id}>{item.name}</option>
+                  );
+                
+                }); 
+                
+                return(
+                    <select onChange={this.handleChange}>
+                        <option disabled hidden>----Select an option----</option>
+                        {optionNodes}
+                    </select>
+                );
+            }
+        });
+
+        var SocketBtns = React.createClass({
+
+            handleListen: function(){
+                listen("all");
+            },
+
+            handleStop: function(){
+                stopListen("all");
+            },
+
+
+            render: function(){
+                return(
+                    <table>
+                    <tbody>
+                        <tr>
+                            <td><input type="button" value="ListenAll" onClick={this.handleListen}></input></td>
+                            <td><input type="button" value="Stop" onClick={this.handleStop}></input></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                    );
+            }
+
+        });
+
+        var ConsolaEventos = React.createClass({
+            render: function(){
+                var k='';
+
+                var elementosEv= this.props.eventos.map(function(e){
+
+                    return(
+                        <tr className="rdatos" key={k++}>
+                            <td className="cdatos">{e.vid}</td>
+                            <td className="cdatos">{e.code}</td>
+                            <td className="cdatos">{e.label}</td>
+                        </tr>
+                    );
+                });
+
+                
+                return(
+                    <div id="consola">
+                        <table className="tdatos">
+                            <thead>
+                                <tr className="rdatos">
+                                    <th className="hdatos">ID</th>
+                                    <th className="hdatos">CODE</th>
+                                    <th className="hdatos">LABEL</th>
+                                </tr>
+                            </thead>
+                            <tbody >{elementosEv}</tbody>
+                        </table>
+                    </div>
+                );
+            }
+        });
+        
+        var TxRecibidos = React.createClass({
+            render: function(){
+                var j='';
+
+                var elementosTx = this.props.tramas.map(function(e){
+                    return(
+                        <tr className="rwtx" key={j++}>
+                            <td className="coltx">{e.Name_Vehicle}</td>
+                            <td className="coltx">{e.Up}</td>
+                            <td className="coltx">{e.Down}</td>
+                            <td className="coltx">{e.Abord}</td>
+                            <td className="coltx">{e.False_Up}</td>
+                            <td className="coltx">{e.False_Down}</td>
+                            <td className="coltx">{e.Event_Date}</td>
+                            <td className="coltx">{e.Lat}</td>
+                            <td className="coltx">{e.Lon}</td>
+                        </tr>
+                    );
+
+                });
+                return(
+                    <div id="tx_cont">
+                        <table className="tx_disp">
+                            <thead>
+                                <tr className="rwtx">
+                                    <th className="headtx">Nombre Vehiculo</th>
+                                    <th className="headtx">Subidas</th>
+                                    <th className="headtx">Bajadas</th>
+                                    <th className="headtx">Abordo</th>
+                                    <th className="headtx">Falsas Subidas</th>
+                                    <th className="headtx">Falsas Bajadas</th>
+                                    <th className="headtx">Tiempo Evento</th>
+                                    <th className="headtx">Latitud</th>
+                                    <th className="headtx">Longitud</th>
+                                </tr>
+                            </thead>
+                            <tbody>{elementosTx}</tbody>
+                        </table>
+                    </div>
+
+                );
+            }
+
+        });
+
+        var Items=[
+            {id:472, device:29283749, model: 'Matiz', make: 'Pontiac' },
+            {id:489, device:82938530, model: 'Yaris', make: 'Toyota'},
+            {id:923, device:12938462, model: 'Grandi10', make: 'Hyundai'},
+            {id:589, device:98273456, model: 'Spark', make: 'Chevrolet'}
+        ];
+
+        ReactDOM.render(<BusquedaVehicular/>, document.getElementById("content"));
+
+        //////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////Funciones JavaScript//////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
+
+        /*Función que recibe la longitud y latitud de un vehículo para generar un mapa centrado en dicha ubicación
+         y dibujar un marcador usando la API de GoogleMaps */
+        function Gmap(latitude, longitude){
+            
+            map = new google.maps.Map(document.getElementById('gmaps'), {
+                center: {lat: latitude, lng: longitude},
+                zoom: 12,
+                zoomControl:true,
+                scrollwheel: true
+            });
+
+        }
+        
+        function Marker(map, lat, lon, vid, flag){
+            
+            var marker;
+            marker= new google.maps.Marker({
+                map: map,
+                position: {lat: lat , lng: lon},
+                title: String(vid)
+
+            });
+
+            
+
+            for(var i=0; i<marcadores.length;i++){
+
+                if(marcadores[i].title == String(vid)){
+                    marcadores[i].setMap(null);
+                    marcadores.splice(i,1);
+                    break;
+                }
+            }
+
+            marcadores.push(marker);
+            console.log(marcadores);
+           
+            if(flag){
+                map.setCenter(marker.getPosition());
+            }   
+
+        }
+
+        /*Función para autenticar al usuario por medio del socket.io y comenzar la comunicación 
+        con el socket "https://live.pegasusgateway.com/socket". Conectarse al socket*/
+        function connect(token) {
+            var params =   {'pegasus': source, 'auth': token};
+            console.log("Creando conexion: "+params.pegasus+", "+params.auth);
+            socket.emit("authenticate", params);
+        }
+
+        /*Función para empezar a escuchar al servidor al que pertenece e*/
+        function listen(vehicle){
+
+            var envelope = {namespace:"vehicle-events", objects: vehicle};
+            socket.emit ('listen', envelope);
+
+            console.log('emitting listen to server', envelope);
+
+            //socket.emit('listen:vehicles', selected_vehicle);
+        }
+
+        function stopListen(vehicle){
+            
+            var envelope = {namespace:"vehicle-events", objects: vehicle};
+            socket.emit ('stop', envelope);
+
+            console.log('emitting stop to server', envelope);
+        }
+        
+        function Time(event_time){
+            
+            var tiempo = new Date(event_time);
+            var fecha = new Date();
+
+            var tiempoMili = tiempo.getTime();
+            fecha.setTime(tiempoMili);
+            console.log("Milisegundos: "+tiempoMili+", Fecha: "+fecha.toLocaleString());
+
+        }
+
+    </script>
+
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAH2Cwa5ty4cb17GwoievJfxKkrKkYuaDE">
+    </script>
+</body>
+</html>
