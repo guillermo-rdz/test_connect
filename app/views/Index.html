@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>VEHICULOS_GPS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5bziuTX-sOCYrRaRArTsjvBW469wcmGE">
+    </script>
+
+
+    <style type="text/css">
+        @import url("http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css");
+        @import url("http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700");
+        *{margin:0; padding:0}
+        body{font-family: 'Source Sans Pro', sans-serif}
+        .loginForm{width:400px; margin:0 auto; background:#1C2B4A; margin-top:150px; border-radius: 10px;}
+        .loginheader{height:44px; background:#17233B; border-radius: 10px;}
+        .loginheader h2{height:44px; line-height:44px; color:#fff; text-align:center}
+        .login{padding:0 20px}
+        .login span.un{width:10%; text-align:center; color:#0C6; border-radius:3px 0 0 3px}
+        .text{background:#12192C; width:90%; border-radius:0 3px 3px 0; border:none; outline:none; color:#999; font-family: 'Source Sans Pro', sans-serif;} 
+        .text,.login span.un{display:inline-block; vertical-align:top; height:40px; line-height:40px; background:#12192C;}
+
+        .btn-login{height:30px; border:none; background:#0C6; width:50%; outline:none; font-family: 'Source Sans Pro', sans-serif; font-size:18px; font-weight:bold; color:#eee; border-bottom:solid 3px #093; border-radius:5px; cursor:pointer;}
+        ul li{height:40px; margin:15px 0; list-style:none}
+        .span{display:table; width:100%; font-size:14px;}
+        .ch{display:inline-block; width:50%; color:#CCC}
+        .ch a{color:#CCC; text-decoration:none}
+        .ch:nth-child(2){text-align:right}
+
+        #btn-listen{padding-right: 10px;}
+        /*.infodiv table tbody{width: 100%; float: left; display: block; overflow-y: scroll; height:300px;}
+        .infodiv table thead{display: block; float:left; width:98.29%;}
+        .infodiv table tr{display: block; float:left; width:100%;}
+        .infodiv table td{display: block; float:left; width:11.11%; }
+        .infodiv table {width: 100%; overflow-x: scroll;}*/
+        .infodiv { overflow-y:scroll; height:300px;}
+        #gmaps{ width:100%; height:500px;}
+        
+        .navbar{margin-bottom: 0px}
+        .navbar-brand {padding-top: 30px}
+        #Userlog { pointer-events: none;}
+        .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
+
+
+    </style>
+</head>
+<body> 
+
+    <nav class="navbar navbar-default navbar-fixed-top" id="main-navbar">
+        <div class= "navbar container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>                        
+                </button>
+                <a class="navbar-brand" href="#">GRUPO IT SOLUTIONS</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reportes<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Vehículo</a></li>
+                            <li><a href="#">Conductor</a></li>
+                            <li><a href="#">Ruta</a></li>
+                            <li><a href="#">Turno</a></li>
+                            <li><a href="#">Hora</a></li>
+                            <li><a href="#">Geocerca</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Mapas</a></li> 
+                    <li><a href="#">Configuración</a></li> 
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a id="Userlog" href="#"></a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="pageContent container-fluid">
+
+        <div id="main-content">
+            <h1 id="mainheader">Grupo IT Solutions</h1>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="gmaps"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <input type="button" id="listenbtn" value="LISTEN" class="btn btn-default"></input>
+                    <input type="button" id="stopbtn" value="STOP" class="btn btn-default"></input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="reactContent"></div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    
+    <script type="text/babel" type="text/javascript">
+
+        var source = "https://diesel.grupoitsur.com";//URL our pegasus site
+        var socket = io("https://live.pegasusgateway.com/socket");
+        var auth = '';
+        var selected_vehicle = null;
+        var map = null;
+        var marcadores = [];
+        var vehiculos = [];
+
+        socket.on('_authenticated', function(message) {
+            socket.emit("vehicle:list");
+            //listen("all");
+        });
+
+        socket.on('_error', function(message) {
+          console.error(message);
+        });
+
+        socket.on('_update', function(message) {
+          console.info(message);
+        });
+
+        socket.on('vehicle:list', function(vehicles) {
+          console.log(vehicles);
+        });
+
+        var User = '';
+        var Pass = '';
+
+        Gmap(16.793056, -93.225556);
+        
+        var HomePage = React.createClass({
+
+            getInitialState: function(){
+                return {
+                    username: '',
+                    password: '',
+                    token: '',
+                    ldata: [],
+                    vehicles: []
+                };
+            },
+
+            
+
+            componentDidMount: function(){
+
+                socket.on ('events', function(envelope){
+                    console.log (envelope);
+
+                    var namespace = envelope.namespace;
+                    var vehicle = envelope.object;
+                    var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
+
+                    if(events[0].lat && events[0].lon){
+
+                        Marker(map, events[0].lat, events[0].lon, events[0].vid, 0);
+                    }
+
+                    console.log(events);
+
+                    var ev_entrante = {vid:events[0].vid, nombre: events[0].label, conductor: events[0].ky, ruta: events[0].pid, up:events[0].lat , down: events[0].lon , onboard: events[0].code , sensores: events[0].io_sign , ingreso: events[0].dev_dist , turno: events[0].ip };
+                    var liveData = {data: this.state.ldata};
+                    liveData.data.push(ev_entrante);
+                    
+                    this.setState({
+                        ldata: liveData.data,
+                    });
+
+
+                }.bind(this));
+
+            },
+
+            componentWillMount: function(){
+
+            },
+
+            
+
+            render: function(){
+
+                return(
+                    <InfoTable item={Items} token={this.state.token}/>
+                );
+            }
+
+        });
+
+
+
+        var InfoTable = React.createClass({
+
+            handleSelection: function(e){
+
+                var vid= e.target.value;
+                var selectedVehicles = [];
+
+                /*for(var i=0;i<selectedVehicles.length; i++){
+                    if(selectedVehicle[i]==vid){
+
+                    }
+                }
+                selectedVehicles.push(vid);*/
+                console.log(vid);
+                var checkElements = document.getElementsByClassName("check_item");
+                
+                for(var i=0; i<checkElements.length; i++){
+                    if(checkElements[i].checked){
+                        
+                        selectedVehicles.push(checkElements[i].value); 
+                        var sel_id = checkElements.value;
+
+                        $.ajax({
+                            url: source + "/api/vehicles/" + checkElements[i].value + "/remote/location",
+                            headers: { Authenticate: this.props.token},
+                            type: "GET",
+                            success: function (result) {
+                                
+                                var coordenadas=[result.location.lat,result.location.lon];
+                                var lat=coordenadas[0];
+                                var lon=coordenadas[1];
+
+                                Marker(map, lat, lon, sel_id , 0);
+
+                            }
+
+                        });
+                    }
+                }
+                console.log(selectedVehicles);
+
+                /*if(this.props.handleSelectItem)
+                    this.props.handleSelectItem(vid)*/
+
+            },
+
+            render: function(){
+
+                var j='';
+                var Items = this.props.item.map(function(e){
+                    return(
+                        <tr key={j++}>
+                            <td><input type="checkbox" onClick={this.handleSelection} className="check_item" value={e.vid}/></td>
+                            <td className={e.vid}>{e.vid}</td>
+                            <td className={e.vid}>{e.nombre}</td>
+                            <td className={e.vid}>{e.conductor}</td>
+                            <td className={e.vid}>{e.ruta}</td>
+                            <td className={e.vid}>{e.up}</td>
+                            <td className={e.vid}>{e.down}</td>
+                            <td className={e.vid}>{e.onboard}</td>
+                            <td className={e.vid}>{e.sensores}</td>
+                            <td className={e.vid}>{e.ingreso}</td>
+                            <td className={e.vid}>{e.turno}</td>
+                        </tr>
+                    );
+
+                }.bind(this));
+
+
+                return(
+                    <div className="infodiv table-responsive">
+                        <table className="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>ID</th>
+                                <th>VEHÍCULO</th>
+                                <th>CONDUCTOR</th>
+                                <th>RUTA</th>
+                                <th>SUBIDAS</th>
+                                <th>BAJADAS</th>
+                                <th>ABORDO</th>
+                                <th>SENSORES</th>
+                                <th>INGRESOS</th>
+                                <th>TURNO</th>
+                            </tr>
+                        </thead>
+                        <tbody >{Items}</tbody>
+                        </table>
+                    </div>
+                );
+            }
+        });
+        
+
+        var Items=[
+            {vid: 12, nombre:'Camion1', conductor: 'Juan Pablo', ruta: 52, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 81, nombre:'Camion23', conductor: 'Juan Carlos', ruta: 67, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 23, nombre:'Camion24', conductor: 'Luis Fernando', ruta: 82, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 67, nombre:'Camion76', conductor: 'Rafael', ruta: 80, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 91, nombre:'Camion45', conductor: 'Pedro', ruta: 56, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 74, nombre:'Camion34', conductor: 'Mauricio', ruta: 23, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 92, nombre:'Camion90', conductor: 'Jaime', ruta: 65, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 42, nombre:'Camion10', conductor: 'Andres', ruta: 95, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 78, nombre:'Camion1', conductor: 'Juan Pablo', ruta: 52, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 36, nombre:'Camion23', conductor: 'Juan Carlos', ruta: 67, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 10, nombre:'Camion24', conductor: 'Luis Fernando', ruta: 82, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 45, nombre:'Camion76', conductor: 'Rafael', ruta: 80, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 19, nombre:'Camion45', conductor: 'Pedro', ruta: 56, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 17, nombre:'Camion34', conductor: 'Mauricio', ruta: 23, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 16, nombre:'Camion90', conductor: 'Jaime', ruta: 65, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+            {vid: 14, nombre:'Camion10', conductor: 'Andres', ruta: 95, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
+        ];
+
+        ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
+
+
+        function Gmap(latitude, longitude){
+
+            map = new google.maps.Map(document.getElementById('gmaps'), {
+                center: {lat: latitude, lng: longitude},
+                zoom: 13,
+                zoomControl:true,
+                scrollwheel: true
+            });
+
+        }
+
+        function Marker(map, lat, lon, vid, flag){
+            
+            var marker;
+            var image = "icons/phantom.png";
+            marker= new google.maps.Marker({
+                map: map,
+                position: {lat: lat , lng: lon},
+                title: String(vid),
+                icon: image
+
+            });
+
+            
+
+            for(var i=0; i<marcadores.length;i++){
+
+                if(marcadores[i].title == String(vid)){
+                    marcadores[i].setMap(null);
+                    marcadores.splice(i,1);
+                    break;
+                }
+            }
+
+            marcadores.push(marker);
+            console.log(marcadores);
+           
+            if(flag){
+                map.setCenter(marker.getPosition());
+            }   
+
+        }
+
+        /*Función para autenticar al usuario por medio del socket.io y comenzar la comunicación 
+        con el socket "https://live.pegasusgateway.com/socket". Conectarse al socket*/
+        function connect(token) {
+            var params =   {'pegasus': source, 'auth': token};
+            console.log("Creando conexion: "+params.pegasus+", "+params.auth);
+            socket.emit("authenticate", params);
+        }
+
+        /*Función para empezar a escuchar al servidor al que pertenece e*/
+        function listen(vehicle){
+
+            var envelope = {namespace:"vehicle-events", objects: vehicle};
+            socket.emit ('listen', envelope);
+
+            console.log('emitting listen to server', envelope);
+
+            //socket.emit('listen:vehicles', selected_vehicle);
+        }
+
+        function stopListen(vehicle){
+            
+            var envelope = {namespace:"vehicle-events", objects: vehicle};
+            socket.emit ('stop', envelope);
+
+            console.log('emitting stop to server', envelope);
+        }
+
+       //Una vez instanciada la función "Login" la asgina al objeto btn.
+        document.getElementById("listenbtn").addEventListener('click', function(){listen("all");});
+        document.getElementById("stopbtn").addEventListener('click', function(){stopListen("all");});
+
+    </script>
+
+</body>
+</html>
