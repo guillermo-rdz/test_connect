@@ -3,7 +3,12 @@
 
 
 		public function pageLogin(){
-			include("app/views/login.html");
+			session_start();
+			if (isset($_SESSION["conectado"])) {
+				include("app/views/index.html");
+			}
+			else
+				include("app/views/login.html");
 		}
 
 		public function main(){
@@ -15,9 +20,9 @@
 				header('Location: /test_connect/');
 		}
 
-		/*public function error(){
+		public function error(){
 			header('Location: /test_connect/');
-		}*/
+		}
 
 	}
 

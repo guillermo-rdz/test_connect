@@ -43,6 +43,7 @@
 				$false_down = $trama[4];
 				$error = 0;
 
+				// Modificar query de data_frame y hacer el ingreso de tablas volatiles
 				if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
 					echo "Se ingresaron los registros";
 				}
@@ -62,8 +63,6 @@
 
     	 	$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
-    	 		//$rawdata[$i] = $row;
-    	 		//$i++;
     	 		if ($output!='{"data":[') {$output .= ",";}
     	 		$output .= '{"Name_Vehicle":"'.$row["name_vehicle"].'",';
     	 		$output .= '"Up":"'.$row["up"].'",';

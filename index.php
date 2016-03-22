@@ -14,8 +14,8 @@
 		$mvc->main();
 	}
 
-	/*else{
+	else{
 		$mvc->error();
-	}*/
+	}
 
  ?>
