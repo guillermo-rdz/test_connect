@@ -1,6 +1,5 @@
 <?php 
 	require_once "conexion.php";
-	$login = $_POST['login'];
 
 	class model extends conexion{
 
@@ -8,18 +7,36 @@
 			parent:: _construct();
 		}
 
-		public function login($login){
+		public function login(){
+			$login = $_POST['login'];
+			$token = $_POST['token'];
 			if ($login == "Valid") {
 				session_start();
+				$_SESSION['token'] = $token;
 				$_SESSION['conectado']=true;
-				echo "Valido";
+				echo $_SESSION['token'];
 			} 
 			else {
 				echo "Usuario y contraseña equivocados";
 			}
 		}
+
+		public function sessionToken(){
+			session_start();
+			echo $_SESSION['token'];
+		}
+
 	}
 
 	$instance = new model();
-	$instance->login($login);
+	if ($_POST['type']=="login") {
+		$instance->login();
+	}
+	elseif ($_POST['type']=="token") {
+		$instance->sessionToken();
+	}
+	else{
+		echo "Error al llamar a la funcion";
+	}
+	
  ?>

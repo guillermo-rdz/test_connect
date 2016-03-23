@@ -63,7 +63,7 @@ ul li{height:40px; margin:15px 0; list-style:none}
 			$.post(source +"/api/login", { username: User, password: Pass }, function (result) {
 
 				console.log(result);
-				var token = result.auth;
+				token = result.auth;
 
 				if(result.message == "User succesfully authenticated"){
 					console.log("CORRECTO!!!!!");
@@ -74,20 +74,21 @@ ul li{height:40px; margin:15px 0; list-style:none}
 					authMsj = "Invalid";
 				}
 
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "login","login": authMsj, "token": token },
+                success: function(result){
+
+                    console.log(result);
+                    window.location = "/test_connect/";
+                }
+            });
+
              });
 
 			//var ev_entranteJ = JSON.stringify(ev_entrante);
 
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                data: {"authMsj": authMsj, "token": token },
-                success: function(result){
-
-                    console.log("Paquete Enviado");
-
-                }
-            });
 
 		}
 		

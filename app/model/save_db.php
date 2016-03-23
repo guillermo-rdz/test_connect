@@ -1,5 +1,6 @@
 <?php 
 	require_once "conexion.php";
+	//error_reporting(E_ALL ^ E_NOTICE);
 	//---------------------- Objeto de eventos ------------------------
 	//$json_l = $_POST['liveData'];
 	//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
@@ -39,12 +40,16 @@
 				$up = $trama[0];
 				$down = $trama[1];
 				$abord = $trama[2];
+				//$sensor_state = $trama[3];
+				//$error = $trama[4];
 				$false_up = $trama[3];
 				$false_down = $trama[4];
-				$error = 0;
+				//$block_up = $trama[5];
+				//$block_down = $trama[6];
 
 				// Modificar query de data_frame y hacer el ingreso de tablas volatiles
 				if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+				//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
 					echo "Se ingresaron los registros";
 				}
 				else{
@@ -80,24 +85,28 @@
     	 }
 
     	 public function save_Vehicles($vehicles){
-    	 	for ($i=0; $i < count($vehicles); $i++) { 
-    	 		$id = $vehicles[$i]->id;
-    	 		$imei = $vehicles[$i]->imei;
-    	 		$name = $vehicles[$i]->name;
-    	 		//$capacitance = $vehicles[$i]->loquesea;
-    	 		//$max_capacitance = $vehicles[$i]->loquesea;
-    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei')")) {
-					//echo "Se ingresaron los registros";
-				}
-				else{
-			    	
-					//echo "No se ingresaron los registros";
-				}
-
-				$this->mysqli->query("UPDATE vehicles SET imei = '$imei', name_vehicle = '$name' WHERE idvehicle='$id'");
+    	 	if (empty($vehicles)) {
+    	 		//echo "No hay vechiculos";
     	 	}
-    	 }
+    	 	else{
+	    	 	for ($i=0; $i < count($vehicles); $i++) { 
+	    	 		$id = $vehicles[$i]->id;
+	    	 		$imei = $vehicles[$i]->imei;
+	    	 		$name = $vehicles[$i]->name;
+	    	 		//$capacitance = $vehicles[$i]->loquesea;
+	    	 		//$max_capacitance = $vehicles[$i]->loquesea;
+	    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei')")) {
+						//echo "Se ingresaron los registros";
+					}
+					else{
+				    	
+						//echo "No se ingresaron los registros";
+					}
 
+					$this->mysqli->query("UPDATE vehicles SET imei = '$imei', name_vehicle = '$name' WHERE idvehicle='$id'");
+	    	 	}
+	    	}
+    	}
     }
     $instance = new Data_frame();
 	//$instance->save_Volatile($events);
