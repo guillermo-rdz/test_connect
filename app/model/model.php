@@ -26,6 +26,12 @@
 			echo $_SESSION['token'];
 		}
 
+		public function logout(){
+			session_start();
+			session_unset();
+			session_destroy();
+		}
+
 	}
 
 	$instance = new model();
@@ -34,6 +40,9 @@
 	}
 	elseif ($_POST['type']=="token") {
 		$instance->sessionToken();
+	}
+	elseif ($_POST['type']=="logout") {
+		$instance->logout();
 	}
 	else{
 		echo "Error al llamar a la funcion";
