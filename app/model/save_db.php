@@ -2,14 +2,17 @@
 	require_once "conexion.php";
 	//error_reporting(E_ALL ^ E_NOTICE);
 	//---------------------- Objeto de eventos ------------------------
-	//$json_l = $_POST['liveData'];
-	//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	$json_l = $_POST['liveData'];
+	$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+	//---------------------- Objeto de paradas ------------------------
+	//$json_l = $_POST['stop'];
+	//$stop_ev = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
 	//---------------------- Objeto de Vehiculos -----------------------
 	//$json_v = $_POST['vehiculo'];
 	//$vehicles = json_decode($json_v, false, 512, JSON_BIGINT_AS_STRING);
 	//---------------------- Id de los vehiculos -----------------------
-	$json_id = $_POST['vid'];
-	$vid = json_decode($json_id, false, 512, JSON_BIGINT_AS_STRING);
+	//$json_id = $_POST['vid'];
+	//$vid = json_decode($json_id, false, 512, JSON_BIGINT_AS_STRING);
 
     class Data_frame extends conexion{
     	
@@ -17,49 +20,83 @@
 			parent:: _construct();
 		}
 
-    	 public function save_Volatile($events){
+		public function save_Volatile($stop_ev){
+			//$json_s = $_POST['stop'];
+			//$stop_ev = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+			$vid = $stop_ev->vid;
+			$lat = $stop_ev->lat;
+			$lon = $stop_ev->lon;
+			$eventTime = $stop_ev->eventTime;
+			$type = $stop_ev->tipo;
 
-//--------------------------------Ingreso de datos a la base de datos de la tabla volatil---------------------------
+			$query = $this->mysqli->query("INSERT INTO volatile_stop(idvolatile_stop, lat, lon, eventTime, vehicles_idvehicles) values(default, '$lat', '$lon', '$eventTime', '$vid') ON DUPLICATE KEY UPDATE vehicles_idvehicles=VALUES(vehicles_idvehicles)");
+			/*$query = $this->mysql->query("SELECT lat, lon, eventTime, tipo, vehicles_idvehicles");
+			while ($row = $query->fetch_array()) {
+				if ($row['lat']==$lat) {
+					# code...
+				}
+			}*/
+		}
 
-			//echo $objeto->vid;
-			$vid = $events->vid;
+    	public function save_Frames($events){
+    		//$json_l = $_POST['liveData'];
+			//$events = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
+
+			/*$vid = $events->vid;
 			$imei = $events->imei;
 			$lat = $events->lat;
 			$lon = $events->lon;
-			//$eventTime = $objeto->eventTime;
-			//$eventTime = date("Y-m-d H:i:s");
-			$eventTime = $events->eventTime;
+			$eventTime = $events->eventTime;*/
+			$vid = $events->vid;
+			$imei = $events->imei;
 			$tx = $events->tx;
 			if (empty($tx)) {
-				//echo "Trama vácia";
+				//$tx = "0,0,0,0,0,0,0,0,0";
+				echo "trama vacia";
 			}
-			else{
+			//else{
 
-				//$tx = "0,1,2,3,4,5";
+				$tx = "0,0,0,0,0,0,0,0,0";
+				//echo "condicion 2";
 				$trama = explode(",", $tx);
 				$up = $trama[0];
 				$down = $trama[1];
-				$abord = $trama[2];
-				//$sensor_state = $trama[3];
-				//$error = $trama[4];
-				$false_up = $trama[3];
-				$false_down = $trama[4];
-				//$block_up = $trama[5];
-				//$block_down = $trama[6];
+				$onboard = $trama[2];
+				$sensor_state = $trama[3];
+				$error = $trama[4];
+				$false_up = $trama[5];
+				$false_down = $trama[6];
+				$block_up = $trama[7];
+				$block_down = $trama[8];
+				echo $vid;
+				$query1 = $this->mysqli->query("SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block, event_date from data_frame where vehicle_idvehicle = '$vid' order by event_date desc limit 1");
+				//print_r($query1->num_rows);
+				while ($row = $query1->fetch_array()) {
+					if ($row['up'] == $up && $row['down']==$down && $row['onboard']==$onboard && $row['sensor_state']==$sensor_state && $row['error']==$error && $row['false_up']==$false_up && $row['false_down']==$false_down && $row['block_up']==$block_up && $row['block_down']==$block_down) {
+						echo "Registros iguales";
+					}
+					else{
+						$query2 = $this->mysqli->query("SELECT lat, lon, eventTime, tipo, vehicles_idvehicle from volatile_stop where vehicles_idvehicle = '$vid' order by eventTime desc limit 1");
+						while ($row2->query2->fetch_array()) {
+							$lat = $row2['lat'];
+							$lon = $row2['lon'];
+							$eventTime = $row2['eventTime'];
+							if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+							//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+								echo "Se ingresaron los registros";
+							}
+							else{
+						    	
+								echo "No se ingresaron los registros";
+							}
+						}
+					}
+				}
 
-				// Modificar query de data_frame y hacer el ingreso de tablas volatiles
-				if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
-				//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$abord', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
-					echo "Se ingresaron los registros";
-				}
-				else{
-			    	
-					echo "No se ingresaron los registros";
-				}
-			}
+			//}
 				
 
-    	 }
+    	}
 
 
     	 public function queryJson($vid){
@@ -95,12 +132,12 @@
 	    	 		$name = $vehicles[$i]->name;
 	    	 		//$capacitance = $vehicles[$i]->loquesea;
 	    	 		//$max_capacitance = $vehicles[$i]->loquesea;
-	    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei')")) {
-						//echo "Se ingresaron los registros";
+	    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei', default)")) {
+						echo "---Se ingresaron los registros---";
 					}
 					else{
 				    	
-						//echo "No se ingresaron los registros";
+						echo "---No se ingresaron los registros---";
 					}
 
 					$this->mysqli->query("UPDATE vehicles SET imei = '$imei', name_vehicle = '$name' WHERE idvehicle='$id'");
@@ -109,8 +146,17 @@
     	}
     }
     $instance = new Data_frame();
-	//$instance->save_Volatile($events);
+	$instance->save_Frames($events);
 	//$instance->save_Vehicles($vehicles);
-	$instance->queryJson($vid);
+	//$instance->queryJson($vid);
+	//$instance->save_Volatile();
+
+	/*if ($_POST["tipo"]=="stop_ev") {
+		$instance->save_Volatile();
+	}
+
+	elseif ($_POST["tipo"]=="frame_ev") {
+		$instance->save_Frames();
+	}*/
 
  ?>

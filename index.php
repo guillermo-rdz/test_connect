@@ -2,7 +2,7 @@
 	require "app/controller/controller.php";
 	$mvc = new controller();
 
-	if (empty($_GET['action'])) {
+	if (empty($_GET['action'])) {	
 		$_GET['action'] = "login";
 	}
 
@@ -13,7 +13,12 @@
 	elseif($_GET['action']=="main"){
 		$mvc->main();
 	}
-
+	elseif($_GET['action']=="config"){
+		$mvc->settings();
+	}
+	elseif($_GET['action']=="reports"){
+		$mvc->reports();
+	}
 	else{
 		$mvc->error();
 	}

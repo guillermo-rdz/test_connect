@@ -200,7 +200,7 @@
                         data: {"liveData": ev_entranteJ},
                         success: function(result){
 
-                            console.log("Paquete Enviado");
+                            console.log(result);
 
                         }
                         //dataType: dataType
@@ -344,7 +344,7 @@
                         console.log(coordenadas);
 
                         this.setState({location:coordenadas});
-                        //Gmap(coordenadas[0],coordenadas[1]);
+                        Gmap(coordenadas[0],coordenadas[1]);
                         Marker(map, lat, lon, vehiculo.id, 1);
 
                         $.ajax({
@@ -706,7 +706,7 @@
          y dibujar un marcador usando la API de GoogleMaps */
         function Gmap(latitude, longitude){
             
-            map = new google.maps.Map(document.getElementById('gmaps'), {
+            var map = new google.maps.Map(document.getElementById('gmaps'), {
                 center: {lat: latitude, lng: longitude},
                 zoom: 12,
                 zoomControl:true,
