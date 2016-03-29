@@ -57,6 +57,11 @@
 			echo $_SESSION['token'];
 		}
 
+		public function sessionReport(){
+			session_start();
+			echo $_SESSION['submenu'];
+		}
+
 		public function logout(){
 			session_start();
 			session_unset();
@@ -72,6 +77,9 @@
 	}
 	elseif ($_POST['type']=="token") {
 		$instance->sessionToken();
+	}
+	elseif ($_POST['type']=="submenu") {
+		$instance->sessionReport();
 	}
 	elseif ($_POST['type']=="reportes") {
 		$instance->reports();
