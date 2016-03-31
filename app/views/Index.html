@@ -73,17 +73,17 @@
                     <li class="active"><a href="#">Home</a></li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reportes<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Vehículo</a></li>
-                            <li><a href="#">Conductor</a></li>
-                            <li><a href="#">Ruta</a></li>
-                            <li><a href="#">Turno</a></li>
-                            <li><a href="#">Hora</a></li>
-                            <li><a href="#">Geocerca</a></li>
+                        <ul class="dropdown-menu" id="submenu">
+                            <li><a href="#" id="vehiculo">Vehículo</a></li>
+                            <li><a href="#" id="conductor">Conductor</a></li>
+                            <li><a href="#" id="ruta">Ruta</a></li>
+                            <li><a href="#" id="turno">Turno</a></li>
+                            <li><a href="#" id="hora">Hora</a></li>
+                            <li><a href="#" id="geo">Geocerca</a></li>
                         </ul>
                     </li>
                     <li><a href="#">Mapas</a></li> 
-                    <li><a href="#">Configuración</a></li> 
+                    <li><a href="config">Configuración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -128,8 +128,9 @@
         var marcadores = [];
         var vehiculos = [];
         var tramastr = '';
-
+        window.onbeforeunload = Logout;
         Setup();
+        
 
         socket.on('_authenticated', function(message) {
             socket.emit("vehicle:list");
@@ -165,7 +166,7 @@
                     password: '',
                     token: auth,
                     ldata: [],
-                    vehicles: vehiculos
+                    vehicles: []
                 };
             },
 
@@ -216,6 +217,32 @@
             },
 
             componentWillMount: function(){
+                console.log(auth);
+
+                $.ajax({
+                    url: source+"/api/vehicles",
+                    headers: { Authenticate: auth},
+                    type: "GET",
+                    success: function(result) {
+                        var temp = [];
+                        var vid = [];
+
+                        /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
+                        for(var i=0; i<result.data.length; i++){
+                            var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: result.data[i].device, ruta: result.data[i].type, up: result.data[i].counters.dev_dist, down: result.data[i].counters.dev_ign, onboard: result.data[i].counters.dev_idle, sensores:result.data[i].info.make, ingreso: result.data[i].counters.dev_ospeed, turno: result.data[i].info.model};
+                            temp.push(item);
+                            //vid.push(result.data[i].id);
+                            //temp2.push(result.data[i].id);
+                        }
+
+                        //vehiculos = temp;
+                        this.setState({vehicles:temp});
+                        console.log(result);
+
+                        ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
+
+                    }.bind(this) //set context
+                });
 
             },
 
@@ -249,6 +276,7 @@
                 if(e.target.checked){
                     
                     checked_vehicles.push(vid);
+                    listen(vid);
 
                     $.ajax({
                         url: source + "/api/vehicles/" + vid + "/remote/location",
@@ -270,6 +298,7 @@
                 }else{
                     var index = checked_vehicles.indexOf(vid);
                     checked_vehicles.splice(index,1);
+                    stopListen(vid);
 
                     for(var i=0; i<marcadores.length;i++){
 
@@ -283,7 +312,7 @@
                 }
 
                 console.log(checked_vehicles);
-                listen(checked_vehicles);
+                //listen(checked_vehicles);
 
                 /*if(this.props.handleSelectItem)
                     this.props.handleSelectItem(vid)*/
@@ -337,6 +366,8 @@
                 );
             }
         });
+
+        ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
         
 
         /*var Items=[
@@ -425,32 +456,9 @@
                         }
                     });
 
-                    $.ajax({
-                    url: source+"/api/vehicles",
-                    headers: { Authenticate: result},
-                    type: "GET",
-                    success: function(result) {
-                        var temp = [];
-                        var vid = [];
-
-                        /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
-                        for(var i=0; i<result.data.length; i++){
-                            var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: result.data[i].device, ruta: result.data[i].type, up: result.data[i].counters.dev_dist, down: result.data[i].counters.dev_ign, onboard: result.data[i].counters.dev_idle, sensores:result.data[i].info.make, ingreso: result.data[i].counters.dev_ospeed, turno: result.data[i].info.model};
-                            temp.push(item);
-                            //vid.push(result.data[i].id);
-                            //temp2.push(result.data[i].id);
-                        }
-
-                        vehiculos = temp;
-                        console.log(result);
-
-                        ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
-
-                    }.bind(this) //set context
-                });
-
                 }
             });
+
 
 
         }
@@ -467,18 +475,18 @@
                 success: function (result) {
                     
                     console.log(result);
-                    
-                    $.ajax({
-                        type: "POST",
-                        url: "app/model/model.php",
-                        data: {"type": "logout" },
-                        success: function(result){
+                }
+            });
 
-                            console.log(result);
-                            window.location = "/test_connect/"
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "logout" },
+                success: function(result){
 
-                        }
-                    });
+                    console.log(result);
+                    window.location = "/test_connect/"
+
                 }
             });
 
@@ -510,10 +518,32 @@
             console.log('emitting stop to server', envelope);
         }
 
+        function reporteSel(seleccion){
+            console.log(seleccion);
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "report", "submenu":seleccion },
+                success: function(result){
+
+                    console.log(result);
+                    window.location = "/test_connect/reports"
+
+                }
+            });
+
+        }
+
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("listenbtn").addEventListener('click', function(){listen("all");});
         document.getElementById("stopbtn").addEventListener('click', function(){stopListen("all");});
+        document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("vehiculo");});
+        document.getElementById("ruta").addEventListener('click', function(){reporteSel("ruta");});
+        document.getElementById("conductor").addEventListener('click', function(){reporteSel("conductor");});
+        document.getElementById("turno").addEventListener('click', function(){reporteSel("turno");});
+        document.getElementById("hora").addEventListener('click', function(){reporteSel("hora");});
+        document.getElementById("geo").addEventListener('click', function(){reporteSel("geo");});
 
     </script>
 

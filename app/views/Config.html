@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>VEHICULOS_GPS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5bziuTX-sOCYrRaRArTsjvBW469wcmGE">
+    </script>
+
+
+    <style type="text/css">
+        @import url("http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css");
+        @import url("http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700");
+        *{margin:0; padding:0}
+        body{font-family: 'Source Sans Pro', sans-serif}
+        .text{background:#12192C; width:90%; border-radius:0 3px 3px 0; border:none; outline:none; color:#999; font-family: 'Source Sans Pro', sans-serif;} 
+        .text,.login span.un{display:inline-block; vertical-align:top; height:40px; line-height:40px; background:#12192C;}
+        ul li{height:40px; margin:15px 0; list-style:none}
+        .navbar{margin-bottom: 0px}
+        .navbar-brand {padding-top: 30px}
+        #Userlog { pointer-events: none;}
+        .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
+
+
+    </style>
+</head>
+<body> 
+
+    <nav class="navbar navbar-default navbar-fixed-top" id="main-navbar">
+        <div class= "navbar container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>                        
+                </button>
+                <a class="navbar-brand" href="#">GRUPO IT SOLUTIONS</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/test_connect/">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reportes<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" id="vehiculo">Vehículo</a></li>
+                            <li><a href="#" id="conductor">Conductor</a></li>
+                            <li><a href="#" id="ruta">Ruta</a></li>
+                            <li><a href="#" id="turno">Turno</a></li>
+                            <li><a href="#" id="hora">Hora</a></li>
+                            <li><a href="#" id="geo">Geocerca</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Mapas</a></li> 
+                    <li><a href="config">Configuración</a></li> 
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a id="Userlog" href="#"></a></li>
+                    <li><a href="#" id="logout_btn"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pageContent container-fluid">
+
+        <div id="main-content">
+            <h1 id="mainheader">DATOS CONDUCTOR</h1>
+            <div class="row">
+                <div class="col-sm-6">
+                    <form role="form">
+                      <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" class="form-control" id="nombre">
+                      </div>
+                      <div class="form-group">
+                        <label for="ruta">Ruta:</label>
+                        <input type="text" class="form-control" id="ruta">
+                      </div>
+                      <div class="form-group">
+                        <label for="ruta">Turno:</label>
+                        <input type="text" class="form-control" id="turno">
+                      </div>
+                      <button type="submit" class="btn btn-default">Registrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    
+    <script type="text/babel" type="text/javascript">
+
+        var source = "https://diesel.grupoitsur.com";//URL our pegasus site
+        var socket = io("https://live.pegasusgateway.com/socket");
+        var auth = '';
+        var selected_vehicle = null;
+        var checked_vehicles = [];
+        var map = null;
+        var marcadores = [];
+        var vehiculos = [];
+        var tramastr = '';
+        var User = '';
+
+        Setup();
+        
+        function stopListen(vehicle){
+            var envelope = {namespace:"vehicle-events", objects: vehicle};
+            socket.emit ('stop', envelope);
+
+            console.log('emitting stop to server', envelope);
+        }
+
+        function Logout(token){
+
+            stopListen("all");
+            socket.disconnect();
+            console.log(auth);
+
+            $.ajax({
+                url: source + "/api/logout",
+                headers: { Authenticate: auth},
+                type: "GET",
+                success: function (result) {
+                    
+                    console.log(result);
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: "app/model/model.php",
+                        data: {"type": "logout" },
+                        success: function(result){
+
+                            console.log(result);
+                            window.location = "/test_connect/"
+
+                        }
+                    });
+                }
+            });
+
+        }
+
+        function Setup(){
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type":"token"},
+                success: function(result){
+
+                    auth = result;
+                    console.log(result);
+                    //connect(result);
+
+                    $.ajax({
+                        url: source+"/api/user",
+                        headers: {Authenticate: auth},
+                        type: "GET",
+                        success: function (result) {
+                            User = result.username;
+                            document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+                        }
+                    });
+
+                }
+            });
+
+
+        }
+
+        function reporteSel(seleccion){
+            console.log(seleccion);
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "report", "submenu":seleccion },
+                success: function(result){
+
+                    console.log(result);
+                    window.location = "/test_connect/reports"
+
+                }
+            });
+
+        }
+
+
+       //Una vez instanciada la función "Login" la asgina al objeto btn.
+        document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
+        document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("vehiculo");});
+        document.getElementById("ruta").addEventListener('click', function(){reporteSel("ruta");});
+        document.getElementById("conductor").addEventListener('click', function(){reporteSel("conductor");});
+        document.getElementById("turno").addEventListener('click', function(){reporteSel("turno");});
+        document.getElementById("hora").addEventListener('click', function(){reporteSel("hora");});
+        document.getElementById("geo").addEventListener('click', function(){reporteSel("geo");});
+
+    </script>
+
+</body>
+</html>

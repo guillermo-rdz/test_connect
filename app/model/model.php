@@ -22,8 +22,34 @@
 		}
 
 		public function reports(){
+			session_start();
 			$value = $_POST['submenu'];
 			$_SESSION['submenu'] = $value;
+		}
+
+		public function saveDriver(){
+			$driverJson = $_POST['drivers'];
+			$driverData = json_decode($driverJson);
+
+			$active = 0;
+			if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$active')")) {
+				echo "Se ingreso el Conductor";
+				$query = ("SELECT *  from drivers WHERE name_driver = '$name' ORDER BY date_driver");
+				while ($row = $query->fetch_array()) {
+					$iddriver = $row['iddrivers'];
+					if ($this->mysqli->query("INSERT INTO turn_driver values (default, null, '$start_turn', '$end_turn', '$iddriver')")) {
+						echo "Se ingreso el turno";
+						
+					}
+					else{
+						echo "No se ingresaron turno";
+					}
+				}
+
+			}
+			else{
+				echo "No se ingreso el Conductor";
+			}
 		}
 
 		public function mainQuery(){
@@ -81,8 +107,11 @@
 	elseif ($_POST['type']=="submenu") {
 		$instance->sessionReport();
 	}
-	elseif ($_POST['type']=="reportes") {
+	elseif ($_POST['type']=="report") {
 		$instance->reports();
+	}
+	elseif ($_POST['type']=="driver") {
+		$instance->saveDriver();
 	}
 	elseif ($_POST['type']=="logout") {
 		$instance->logout();

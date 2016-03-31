@@ -20,16 +20,30 @@
 			parent:: _construct();
 		}
 
-		public function save_Volatile($stop_ev){
+		public function save_Volatile(){
 			//$json_s = $_POST['stop'];
 			//$stop_ev = json_decode($json_l, false, 512, JSON_BIGINT_AS_STRING);
-			$vid = $stop_ev->vid;
+			/*$vid = $stop_ev->vid;
 			$lat = $stop_ev->lat;
 			$lon = $stop_ev->lon;
-			$eventTime = $stop_ev->eventTime;
-			$type = $stop_ev->tipo;
-
-			$query = $this->mysqli->query("INSERT INTO volatile_stop(idvolatile_stop, lat, lon, eventTime, vehicles_idvehicles) values(default, '$lat', '$lon', '$eventTime', '$vid') ON DUPLICATE KEY UPDATE vehicles_idvehicles=VALUES(vehicles_idvehicles)");
+			$eventTime = $stop_ev->eventTime;*/
+			$vid = 106;
+			$lat = 19.866;
+			$lon = -19.56;
+			//$eventTime = "current_timestamp";
+			//restructurar el insert update
+			//$query = $this->mysqli->query("INSERT INTO volatile_stop(idvolatile_stop, lat, lon, eventTime, vehicles_idvehicles) values(default, '$lat', '$lon', '$eventTime', '$vid') ON DUPLICATE KEY UPDATE lat='$lat', lon='$lon',event_date='$eventTime'");
+			if ($this->mysqli->query("INSERT INTO volatile_stop values('$vid', '$lat', '$lon', current_timestamp)")) {
+				echo "Se ingreso la parada";
+			}
+			else{
+				//echo "No se ingresaron registros";
+				if ($this->mysqli->query("UPDATE volatile_stop SET  lat='$lat', lon='$lon', eventTime=current_timestamp WHERE vehicles_idvehicle='$vid' ")) {
+					echo "Se actualizo el registro";
+				}
+			}
+			
+			//$this->mysqli->query("UPDATE volatile_stop SET vehicles_idvehicles='$vid', lat='$lat', lon='$lon', eventTime='$eventTime' ");
 			/*$query = $this->mysql->query("SELECT lat, lon, eventTime, tipo, vehicles_idvehicles");
 			while ($row = $query->fetch_array()) {
 				if ($row['lat']==$lat) {
@@ -56,7 +70,7 @@
 			}
 			//else{
 
-				$tx = "1,0,0,0,0,0,0,0,0";
+				$tx = "3,1,2,1,0,0,0,0,0";
 				//echo "condicion 2";
 				$trama = explode(",", $tx);
 				$up = $trama[0];
@@ -68,37 +82,53 @@
 				$false_down = $trama[6];
 				$block_up = $trama[7];
 				$block_down = $trama[8];
-				$query1 = $this->mysqli->query("SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block, event_date from data_frame where vehicle_idvehicle = '$vid' order by event_date desc limit 1");
-				//$query1 = $this->mysqli->query("SELECT * from data_frame where vehicle_idvehicle = '$vid' order by event_date desc limit 1");
-				if ($query1->num_rows < 1) {
-					echo "No hay registros";
-				}
-				else{
-					echo "Ya hay registros";
-				}
-					/*while ($row = $query1->fetch_array()) {
-						//if ($row['up'] == $up && $row['down'] == $down && $row['onboard'] == $onboard && $row['sensor_state'] == $sensor_state && $row['error'] == $error && $row['false_up'] == $false_up && $row['false_down'] == $false_down && $row['up_block'] == $block_up && $row['down_block'] == $block_down) {
-						if($row['up']==$up){
-							echo "Registros iguales";
-						
+				//$query1 = $this->mysqli->query("SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block, event_date from data_frame where vehicle_idvehicle = '$vid' order by event_date desc limit 1");
+				$query1 = $this->mysqli->query("SELECT * from data_frame where vehicle_idvehicle = '$vid' order by event_date and iddata_frame desc limit 1");
+				if ($query1->num_rows > 0) {
+					echo "----Hay registros-----";
+					$query2 = $this->mysqli->query("SELECT lat, lon, eventTime, vehicles_idvehicle from volatile_stop where vehicles_idvehicle = '$vid' order by eventTime desc limit 1");
+						while ($row1 = $query1->fetch_array()) {
+							if($row1['up']==$up && $row1['down']==$down && $row1['onboard']==$onboard && $row1['sensor_state']==$sensor_state && $row1['error']==$error && $row1['false_up']==$false_up && $row1['false_down']==$false_down && $row1['up_block']==$block_up && $row1['down_block']==$block_down){
+								echo "Registros iguales----No se ingreso la trama";
+							}
+							else{
+								while ($row2 = $query2->fetch_array()) {
+									$lat = $row2['lat'];
+									$lon = $row2['lon'];
+									$eventTime = $row2['eventTime'];
+									//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+									if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+										echo "IF-----Se ingreso la trama";
+									}
+									else{
+									    	
+										echo "IF-----No se ingreso la trama";
+									}
+								}
+
+							}
+								
 						}
-						else{
-							$query2 = $this->mysqli->query("SELECT lat, lon, eventTime, tipo, vehicles_idvehicle from volatile_stop where vehicles_idvehicle = '$vid' order by eventTime desc limit 1");
-							while ($row2 = $query2->fetch_array()) {
-								$lat = $row2['lat'];
-								$lon = $row2['lon'];
-								$eventTime = $row2['eventTime'];
-								//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
-								if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
-									echo "Se ingresaron los registros";
-								}
-								else{
-							    	
-									echo "No se ingresaron los registros";
-								}
+				}
+					
+				
+				else{
+						echo "No hay registros";
+						$query2 = $this->mysqli->query("SELECT lat, lon, eventTime, vehicles_idvehicle from volatile_stop where vehicles_idvehicle = '$vid' order by eventTime desc limit 1");
+						while ($row2 = $query2->fetch_array()) {
+							$lat = $row2['lat'];
+							$lon = $row2['lon'];
+							$eventTime = $row2['eventTime'];
+							//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$false_up', '$false_down', '$error', '$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+							if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+								echo "Se ingreso la trama";
+							}
+							else{	
+								echo "No se ingreso la trama";
 							}
 						}
-					}*/
+				}
+				//}
 
 			//}
 				
