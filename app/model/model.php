@@ -30,16 +30,27 @@
 		public function saveDriver(){
 			$driverJson = $_POST['drivers'];
 			$driverData = json_decode($driverJson);
-
-			$active = 0;
-			if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$active')")) {
+			$name = $driverData->nombre;
+			$start_turn = $driverData->inicio;
+			$end_turn = $driverData->fin;
+			$active = 1;
+			if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$active', current_timestamp)")) {
 				echo "Se ingreso el Conductor";
-				$query = ("SELECT *  from drivers WHERE name_driver = '$name' ORDER BY date_driver");
+				$query = ("SELECT *  from drivers WHERE name_driver = '$name' ORDER BY date_driver LIMIT 1");
 				while ($row = $query->fetch_array()) {
-					$iddriver = $row['iddrivers'];
-					if ($this->mysqli->query("INSERT INTO turn_driver values (default, null, '$start_turn', '$end_turn', '$iddriver')")) {
+					$iddrivers = $row['iddrivers'];
+					if ($this->mysqli->query("INSERT INTO turn_driver values (default, null, '$start_turn', '$end_turn', current_timestamp)")) {
 						echo "Se ingreso el turno";
-						
+						$query1 = ("SELECT idturn, start_turn, end_turn FROM turn ORDER BY date_turn LIMIT 1");
+						while ($row1 = $query1->fetch_array()) {
+							$idturn = $row1['idturn'];
+							if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', 'idturn')")) {
+								echo "Se ingreso el turno correspondiente";
+							}
+							else{
+								echo "No se ingreso el turno correspondiente";
+							}
+						}
 					}
 					else{
 						echo "No se ingresaron turno";

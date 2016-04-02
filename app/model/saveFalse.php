@@ -26,7 +26,7 @@
 				$frame = explode(",", $tx);
 
 				$up = $frame[0];
-				$down = $frame[1];
+				$down = $frame[1]+rand(0, 2);
 				$onboard = $frame[2];
 				$sensor_state = $frame[3];
 				$error = $frame[4];
@@ -35,13 +35,25 @@
 				$block_up = $frame[7];
 				$block_down = $frame[8];
 
-				if ($this->mysqli->query("INSERT INTO volatile_stop values('$vid', '$lat', '$lon', current_timestamp)")) {
+				//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
+				if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down',current_timestamp, '$lat', '$lon', '$imei', '$vid')")) {
+					echo "Se ingreso la trama";
+				}
+				else{
+									    	
+					echo "No se ingreso la trama";
+				}
+
+				/*if ($this->mysqli->query("INSERT INTO volatile_stop values(default, '$lat', '$lon', current_timestamp, '$vid')")) {
 				echo "Se ingreso la parada";
 				}
 				else{
 					//echo "No se ingresaron registros";
 					if ($this->mysqli->query("UPDATE volatile_stop SET  lat='$lat', lon='$lon', eventTime=current_timestamp WHERE vehicles_idvehicle='$vid' ")) {
 						echo "Se actualizo el registro";
+					}
+					else{
+						echo "No se actualizo el registro";
 					}
 				}
 
@@ -89,7 +101,7 @@
 								echo "No se ingreso la trama";
 							}
 						}
-				}
+				}*/
 			}
 			//echo "Respuesta del servidor";
 		}

@@ -11,35 +11,38 @@
 	</body>
 	<script type="text/javascript">
 	$(document).ready(function() {
-			
-			for (var i = 0; i<5; i++) {
-				var up = i+i;
-				var down = 0;
-				var onboard = up-down;
-				var sensor_state = 1;
-				var error = 0;
-				var false_up = up;
-				var false_down = down;
-				var up_block = 0;
-				var down_block = 0;
-				var array = [];
-				array.push(up,down,onboard,sensor_state,error,false_up,false_down,up_block,down_block);
-				var nuevo = array.toString();
-				//console.log(nuevo);
-				//console.log(jsonSend);
-				var jsonSend = {"vid":106, "tx":nuevo, "lat":19.45, "lon":-19.45, "imei":356612024653182};
-				var liveData = JSON.stringify(jsonSend);
-				$.ajax({
-					url: 'model/saveFalse.php',
-					type: 'POST',
-					data: {"liveData": liveData},
-				})
-				.done(function(result) {
-					$("#result").text(result);
-					console.log(result);
-				});
-			};
-
+			var i = 0;
+			function sendFalse () {
+				//if (i <=5) {
+					var up = i+i;
+					var down = i;
+					var onboard = 0;
+					var sensor_state = 1;
+					var error = 0;
+					var false_up = up+1;
+					var false_down = down+1;
+					var up_block = 0;
+					var down_block = 0;
+					var array = [];
+					array.push(up,down,onboard,sensor_state,error,false_up,false_down,up_block,down_block);
+					var nuevo = array.toString();
+					//console.log(nuevo);
+					//console.log(jsonSend);
+					var jsonSend = {"vid":17, "tx":nuevo, "lat":19.45, "lon":-19.45, "imei":356612024653182};
+					var liveData = JSON.stringify(jsonSend);
+					i++;
+					$.ajax({
+						url: 'model/saveFalse.php',
+						type: 'POST',
+						data: {"liveData": liveData},
+					})
+					.done(function(result) {
+						$("#result").text(result);
+						console.log(result);
+					});
+				//}
+			}
+			setInterval(sendFalse, 120000);
 
 
 	});

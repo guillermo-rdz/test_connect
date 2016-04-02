@@ -62,7 +62,6 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `db_frames`.`drivers` (
   `iddrivers` INT NOT NULL AUTO_INCREMENT,
   `name_driver` VARCHAR(45) NULL,
-  `turn` VARCHAR(45) NULL,
   `active` BINARY NULL,
   PRIMARY KEY (`iddrivers`))
 ENGINE = InnoDB;
