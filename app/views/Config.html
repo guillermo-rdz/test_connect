@@ -84,14 +84,22 @@
                         <input type="text" class="form-control" id="nombre">
                       </div>
                       <div class="form-group">
-                        <label for="ruta">Ruta:</label>
-                        <input type="text" class="form-control" id="ruta">
-                      </div>
-                      <div class="form-group">
                         <label for="ruta">Turno:</label>
-                        <input type="text" class="form-control" id="turno">
+                        <div class="form-group">
+                            <div class="row">
+                            <div class="col-sm-6">
+                                <label>Inicio</label>
+                                <input type="time" class="form-control" id="tini">
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Fin</label>
+                                <input type="time" class="form-control" id="tfin">
+                            </div>
+                            </div>
+                        </div>
                       </div>
-                      <button type="submit" class="btn btn-default">Registrar</button>
+
+                      <button type="button" id="regbtn"class="btn btn-default">Registrar</button>
                     </form>
                 </div>
             </div>
@@ -113,6 +121,7 @@
         var User = '';
 
         Setup();
+        
         
         function stopListen(vehicle){
             var envelope = {namespace:"vehicle-events", objects: vehicle};
@@ -194,15 +203,35 @@
 
         }
 
+        function registro(){
+            var inicio = document.getElementById("tini").value+":00";
+            var fin = document.getElementById("tfin").value+":00";
+            var nombre = document.getElementById("nombre").value;
+            var conductor = JSON.stringify({nombre: nombre, inicio: inicio, fin: fin});
+            console.log(conductor);
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "driver", "info":conductor },
+                success: function(result){
+
+                    console.log(result);
+
+                }
+            });
+        }
+
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
-        document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("vehiculo");});
-        document.getElementById("ruta").addEventListener('click', function(){reporteSel("ruta");});
-        document.getElementById("conductor").addEventListener('click', function(){reporteSel("conductor");});
-        document.getElementById("turno").addEventListener('click', function(){reporteSel("turno");});
-        document.getElementById("hora").addEventListener('click', function(){reporteSel("hora");});
-        document.getElementById("geo").addEventListener('click', function(){reporteSel("geo");});
+        document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
+        document.getElementById("ruta").addEventListener('click', function(){reporteSel("Ruta");});
+        document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
+        document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
+        document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
+        document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
+        document.getElementById("regbtn").addEventListener('click', function(){registro();});
 
     </script>
 
