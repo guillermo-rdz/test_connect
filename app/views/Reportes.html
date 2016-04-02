@@ -10,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="/test_connect/app/views/dark-unica.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <!-- Latest compiled JavaScript -->
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
@@ -30,7 +33,9 @@
         .navbar{margin-bottom: 0px}
         .navbar-brand {padding-top: 30px}
         #Userlog { pointer-events: none;}
+        .infodiv { overflow-y:scroll; height:350px;}
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
+        #highcharts {padding-top: 20px; margin-left: 20px; margin-right: 20px ;}
 
 
     </style>
@@ -66,7 +71,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
-                    <li><a href="#" id="logout_btn"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
+                    <li><a href="#" id="logout_btn"><span class="glyphicon glyphicon-stats"></span> Log Out</a></li>
                 </ul>
             </div>
         </div>
@@ -76,16 +81,9 @@
 
         <div id="main-content">
             <h1 id="mainheader">REPORTES</h1>
+            <div id="reactContent"></div>
             <div class="row">
-                <div class="col-sm-4"> 
-                    <div id="reactContent"></div>
-                </div>
-                <div class="col-sm-4">
-                    
-                </div>
-                <div class="col-sm-4">
-                
-                </div>
+                <div id="highcharts"></div>
             </div>
         </div>
     </div> 
@@ -105,19 +103,95 @@
         var submenu ='';
         var User = '';
 
+        var Prueba =[
+            {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
+            {vid: 81, nombre:'Camion1', lat: 34 , lon: 56 , up: 60, down: 48 , onboard: 46 , ingreso: 2467, turno: 'Matutino' },
+            {vid: 30, nombre:'Camion24', lat: 84 , lon: 93 , up: 38, down: 34 , onboard: 46 , ingreso: 2467, turno: 'Vespertino'  },
+            {vid: 67, nombre:'Camion23', lat: 64, lon: 25, up: 60, down: 48 , onboard: 46 , ingreso: 2434, turno: 'Matutino' },
+            {vid: 91, nombre:'Camion23', lat: 75, lon: 59, up: 92, down: 48 , onboard: 46 , ingreso: 3467, turno: 'Matutino' },
+            {vid: 74, nombre:'Camion1', lat: 63, lon:36, up: 60, down: 48 , onboard: 96 , ingreso: 7586, turno: 'Vespertino' },
+            {vid: 92, nombre:'Camion24', lat: 12, lon: 83, up: 74, down: 57 , onboard: 46 , ingreso: 2467, turno: 'Matutino' },
+            {vid: 42, nombre:'Camion23', lat: 27, lon: 58, up: 60, down: 48 , onboard: 46 , ingreso: 4467, turno: 'Matutino' },
+            {vid: 78, nombre:'Camion1', lat: 81 , lon: 62, up: 60, down: 48 , onboard: 46 , ingreso: 8324, turno: 'Vespertino' },
+            {vid: 36, nombre:'Camion23', lat: 83, lon: 97, up: 60, down: 48 , onboard: 46 , ingreso: 2467, turno: 'Matutino' },
+            {vid: 10, nombre:'Camion24', lat: 78, lon: 81, up: 60, down: 48 , onboard: 46 , ingreso: 2467, turno: 'Matutino' },
+            {vid: 45, nombre:'Camion1', lat: 34, lon: 82, up: 60, down: 48 , onboard: 46 , ingreso: 2467, turno: 'Matutino' }
+        ];
+
         Setup();
+
+         socket.on('_authenticated', function(message) {
+            socket.emit("vehicle:list");
+            //listen("all");
+        });
+
+        socket.on('_error', function(message) {
+          console.error(message);
+        });
+
+        socket.on('_update', function(message) {
+          console.info(message);
+        });
+
+        socket.on('vehicle:list', function(vehicles) {
+          console.log(vehicles);
+        });
+
+        socket.on('disconnect', function() {
+          console.log('disconnected');
+        });
+
 
         var ReportPage = React.createClass({
             
             getInitialState: function(){
                 return{
                     opcion: submenu,
-                    items: []
+                    nombres: [],
+                    items: [],
+                    ldata: []
 
                 };
             },
 
             componentWillMount: function(){
+
+                socket.on ('events', function(envelope){
+                    console.log (envelope);
+
+                    var namespace = envelope.namespace;
+                    var vehicle = envelope.object;
+                    var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
+
+                    if(events[0].taip){
+
+                        if(events[0].taip.search("RTX")){
+                            var cadena = events[0].taip.substr(4,30);
+                            tramastr = cadena;
+                            //this.setState({txstr: tramastr});
+                        }
+                        else{
+                            tramastr= null;
+                        }
+
+                        console.log(events[0].taip);
+
+                    }
+
+                    console.log(events);
+
+                    var ev_entrante = {vid:events[0].vid, nombre: events[0].label, conductor: events[0].ky, ruta: events[0].pid, up:events[0].lat , down: events[0].lon , onboard: events[0].code , sensores: events[0].io_sign , ingreso: events[0].dev_dist , turno: events[0].ip };
+                    var liveData = {data: this.state.ldata};
+                    liveData.data.push(ev_entrante);
+                    
+                    this.setState({
+                        ldata: liveData.data
+                    });
+                    console.log(liveData);
+
+
+                }.bind(this));
+
                 $.ajax({
                     url: "app/model/model.php",
                     data: {"type":"submenu"},
@@ -146,7 +220,8 @@
                                     }
 
                                     console.log(result);
-                                    this.setState({items:elementos});
+                                    this.setState({nombres:elementos});
+                                    this.setState({items:result.data});
                                     //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
 
                                 }.bind(this)//set context
@@ -169,11 +244,9 @@
                             //document.getElementById("selectionCB").innerHTML = "Geocerca";
                             break;
                             default:
-                            console.log("ERROE!!")
+                            console.log("ERROR!!")
                             break;
                         }
-
-                        //this.setState({items: elementos});
 
                     }.bind(this)
                 });
@@ -182,11 +255,49 @@
 
 
             render: function(){
-                return(<ComboBox items={this.state.items}  submenu={this.state.opcion}/>);
+                return(
+                    <div>
+                        <ComboBox items={this.state.nombres} vehiculos={this.state.items}  submenu={this.state.opcion} eventos={this.state.ldata}/>
+                        <div className="row">
+                            <div className="col-sm-2">
+                                <button type="button" id="genbtn" className="btn btn-default">GENERAR</button>
+                            </div>
+                            <div className="col-sm-1">
+                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"></span></button>
+                            </div>
+                            <div className="col-sm-1">
+                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"></span></button>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <ReportTable item={this.state.ldata}/>
+                        </div>
+                    </div>
+                    );
             }
         });
 
         var ComboBox = React.createClass({
+
+            handleChange: function(e){
+                var name = e.target.value;
+                console.log(name);
+
+                var size=this.props.vehiculos.length;
+              
+                for(var i=0;i<size;i++){
+                    if(this.props.vehiculos[i].name== name){
+                        var sel_vid = this.props.vehiculos[i].id;
+                        break;
+                    }
+                }
+
+                console.log(sel_vid);
+                listen(sel_vid);
+
+
+
+            },
             
             render: function(){
                 var j='';
@@ -198,17 +309,89 @@
                 });
 
                 return(
-                    <div className="form-group">
-                      <label htmlFor="sel1" id="selectionCB">{this.props.submenu}</label>
-                      <select className="form-control" id="sel1">
-                        {Items}
-                      </select>
+                    <div className="row">
+                        <div className="col-sm-3">
+                            <div className="form-group">
+                              <label htmlFor="sel1" id="selectionCB">{this.props.submenu}</label>
+                              <select className="form-control" id="sel1" onChange={this.handleChange}>{Items}</select>
+                            </div>
+                        </div>
+                        <div className="col-sm-3">
+                            <div className="form-group">
+                              <label htmlFor="dt">Inicio</label>
+                              <input type="date" className="form-control" id="tini"/>
+                            </div>
+                        </div>
+                        <div className="col-sm-3">
+                           <div className="form-group">
+                              <label htmlFor="dt">Fin</label>
+                              <input type="date" className="form-control" id="tfin"/>
+                            </div> 
+                        </div>
+                        <div className="col-sm-3">
+                            <div className="form-group">
+                              <label htmlFor="dt">Lapso</label>
+                              <select className="form-control">
+                                <option>Presente día</option>
+                                <option>Últimos 7 días</option>
+                                <option>Últimos 15 días</option>
+                                <option>Último Mes</option>
+                              </select>
+                            </div>
+                        </div>
                     </div>
                     );
             }
         });
 
+        var ReportTable = React.createClass({
+
+            render: function(){
+                var j='';
+                var Items = this.props.item.map(function(e){
+                    return(
+                        <tr key={j++}>
+                            <td className={e.vid}>{e.vid}</td>
+                            <td className={e.vid}>{e.conductor}</td>
+                            <td className={e.vid}>{e.lat}</td>
+                            <td className={e.vid}>{e.lon}</td>
+                            <td className={e.vid}>{e.up}</td>
+                            <td className={e.vid}>{e.down}</td>
+                            <td className={e.vid}>{e.onboard}</td>
+                            <td className={e.vid}>{e.ingreso}</td>
+                            <td className={e.vid}>{e.turno}</td>
+                        </tr>
+                    );
+
+                }.bind(this));
+
+
+                return(
+                    <div className="infodiv table-responsive">
+                        <table className="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>VEHÍCULO</th>
+                                <th>LATITUD</th>
+                                <th>LONGITUD</th>
+                                <th>SUBIDAS</th>
+                                <th>BAJADAS</th>
+                                <th>ABORDO</th>
+                                <th>INGRESO</th>
+                                <th>TURNO</th>
+                            </tr>
+                        </thead>
+                        <tbody >{Items}</tbody>
+                        </table>
+                    </div>
+                );
+            }
+        });
+
         ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+        
         
         function stopListen(vehicle){
             var envelope = {namespace:"vehicle-events", objects: vehicle};
@@ -260,7 +443,7 @@
 
                     auth = result;
                     console.log(result);
-                    //connect(result);
+                    connect(result);
 
                     $.ajax({
                         url: source+"/api/user",
@@ -275,6 +458,23 @@
                 }
             });
 
+        }
+
+        function connect(token) {
+            var params =   {'pegasus': source, 'auth': token};
+            console.log("Creando conexion: "+params.pegasus+", "+params.auth);
+            socket.emit("authenticate", params);
+        }
+
+        /*Función para empezar a escuchar al servidor al que pertenece e*/
+        function listen(vehicle){
+
+            var envelope = {namespace:"vehicle-events", objects: vehicle};
+            socket.emit ('listen', envelope);
+
+            console.log('emitting listen to server', envelope);
+
+            //socket.emit('listen:vehicles', selected_vehicle);
         }
 
         function reporteSel(seleccion){
@@ -296,6 +496,35 @@
 
         }
 
+        function Generar(){
+            console.log("Generando Reporte...");
+            $(function () { 
+                $('#highcharts').highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Fruit Consumption'
+                    },
+                    xAxis: {
+                        categories: ['Apples', 'Bananas', 'Oranges']
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Fruit eaten'
+                        }
+                    },
+                    series: [{
+                        name: 'Jane',
+                        data: [1, 0, 4]
+                    }, {
+                        name: 'John',
+                        data: [5, 7, 3]
+                    }]
+                });
+            });
+        }
+
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
@@ -305,6 +534,7 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
+        document.getElementById("genbtn").addEventListener('click', function(){Generar();});
 
     </script>
 
