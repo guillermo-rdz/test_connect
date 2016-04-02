@@ -128,9 +128,9 @@
         var marcadores = [];
         var vehiculos = [];
         var tramastr = '';
-        //window.onbeforeunload = Logout;
+
         Setup();
-        
+        //document.onunload=Logout(auth);
 
         socket.on('_authenticated', function(message) {
             socket.emit("vehicle:list");
@@ -213,35 +213,47 @@
 
 
                 }.bind(this));
+                
 
             },
 
             componentWillMount: function(){
-                console.log(auth);
-
                 $.ajax({
-                    url: source+"/api/vehicles",
-                    headers: { Authenticate: auth},
-                    type: "GET",
-                    success: function(result) {
-                        var temp = [];
-                        var vid = [];
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type":"token"},
+                    success: function(result){
 
-                        /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
-                        for(var i=0; i<result.data.length; i++){
-                            var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: result.data[i].device, ruta: result.data[i].type, up: result.data[i].counters.dev_dist, down: result.data[i].counters.dev_ign, onboard: result.data[i].counters.dev_idle, sensores:result.data[i].info.make, ingreso: result.data[i].counters.dev_ospeed, turno: result.data[i].info.model};
-                            temp.push(item);
-                            //vid.push(result.data[i].id);
-                            //temp2.push(result.data[i].id);
-                        }
+                        auth = result;
+                        this.setState({token:result});
+                        console.log(this.state.token);
+                        //connect(result);
+                        $.ajax({
+                            url: source+"/api/vehicles",
+                            headers: { Authenticate: this.state.token},
+                            type: "GET",
+                            success: function(result) {
+                                var temp = [];
+                                var vid = [];
 
-                        //vehiculos = temp;
-                        this.setState({vehicles:temp});
-                        console.log(result);
+                                /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
+                                for(var i=0; i<result.data.length; i++){
+                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: result.data[i].device, ruta: result.data[i].type, up: result.data[i].counters.dev_dist, down: result.data[i].counters.dev_ign, onboard: result.data[i].counters.dev_idle, sensores:result.data[i].info.make, ingreso: result.data[i].counters.dev_ospeed, turno: result.data[i].info.model};
+                                    temp.push(item);
+                                    //vid.push(result.data[i].id);
+                                    //temp2.push(result.data[i].id);
+                                }
 
-                        ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
+                                //vehiculos = temp;
+                                this.setState({vehicles:temp});
+                                console.log(result);
 
-                    }.bind(this) //set context
+                                ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
+
+                            }.bind(this) //set context
+                        });
+
+                    }.bind(this)
                 });
 
             },
@@ -436,31 +448,28 @@
         }
 
         function Setup(){
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                data: {"type":"token"},
-                success: function(result){
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type":"token"},
+                    success: function(result){
 
-                    auth = result;
-                    console.log(result);
-                    connect(result);
+                        auth = result;
+                        console.log(result);
+                        connect(result);
 
-                    $.ajax({
-                        url: source+"/api/user",
-                        headers: {Authenticate: auth},
-                        type: "GET",
-                        success: function (result) {
-                            User = result.username;
-                            document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
-                        }
-                    });
+                        $.ajax({
+                            url: source+"/api/user",
+                            headers: {Authenticate: auth},
+                            type: "GET",
+                            success: function (result) {
+                                User = result.username;
+                                document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+                            }
+                        });
 
-                }
-            });
-
-
-
+                    }
+                });
         }
 
         function Logout(token){
@@ -538,12 +547,12 @@
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("listenbtn").addEventListener('click', function(){listen("all");});
         document.getElementById("stopbtn").addEventListener('click', function(){stopListen("all");});
-        document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("vehiculo");});
-        document.getElementById("ruta").addEventListener('click', function(){reporteSel("ruta");});
-        document.getElementById("conductor").addEventListener('click', function(){reporteSel("conductor");});
-        document.getElementById("turno").addEventListener('click', function(){reporteSel("turno");});
-        document.getElementById("hora").addEventListener('click', function(){reporteSel("hora");});
-        document.getElementById("geo").addEventListener('click', function(){reporteSel("geo");});
+        document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
+        document.getElementById("ruta").addEventListener('click', function(){reporteSel("Ruta");});
+        document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
+        document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
+        document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
+        document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
 
     </script>
 
