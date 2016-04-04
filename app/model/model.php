@@ -30,7 +30,7 @@
 		public function saveDriver(){
 			$driverJson = $_POST['info'];
 			$driverData = json_decode($driverJson, true);
-			$name = $driverData["nombre"];
+			$name = utf8_decode($driverData["nombre"]);
 			$start_turn = $driverData['inicio'];
 			$end_turn = $driverData['fin'];
 			$active = 0;
@@ -71,7 +71,7 @@
 			//$idvehicle = $_POST['idvehicle'];
 			//$array_vehicles  = json_decode($array_vehicles, false, 512, JSON_BIGINT_AS_STRING);
     	 	//$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, d.turn, max(f.up) as mxup, f.down, f.onboard, f.sensor_state, max(f.up) as total from driver_events as de INNER JOIN vehicles as v on de.vehicles_idvehicle = v.idvehicle INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle group by d.name_driver");
-    	 	$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor_state, max(f.up) as total, t.name_turn
+    	 	/*$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor_state, max(f.up) as total, t.name_turn
 			FROM driver_events as de
 			INNER JOIN vehicles as v on de.vehicles_idvehicles = v.idvehicle
 			INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
@@ -79,7 +79,7 @@
 			INNER JOIN driver_turn as dt on dt.drivers_iddrivers = d.iddrivers
 			INNER JOIN turn as t on dt.turn_driver = t.idturn_driver
 			GROUP BY d.name_driver
-			ORDER BY f.event_date DESC");
+			ORDER BY f.event_date DESC");*/
 			$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0");
 			$query3 = $this->mysqli->query("SELECT v.idvehicle, d.name_driver 
 			FROM driver_events as de 
@@ -88,10 +88,10 @@
 			$query4 = $this->mysqli->query("SELECT v.idvehicle, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor, max(f.up) as total
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date(event_date) = '2016-04-01'
+			WHERE date(event_date) = curdate()
 			GROUP BY v.idvehicle");
 
-    	 	$output = '{"data":[';
+    	 	/*$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
     	 		if ($output!='{"data":[') {$output .= ",";}
     	 		$output .= '{"Vid":"'.$row["idvehicle"].'",';
@@ -106,12 +106,12 @@
     	 		$output .= '"Turno":"'.$row["name_turn"].'"}';
     	 	}
 
-    	 	$output .= "],";
+    	 	$output .= "],";*/
 
-    	 	$output2 = '"Inactivo":[';
+    	 	$output2 = '{"Inactivo":[';
     	 	while ($row2 = $query2->fetch_array()) {
-    	 		if ($output2!='"Inactivo":[') {$output2 .= ",";}
-    	 		$output2 .= '{"Nombre":"'.$row2["name_driver"].'"}';
+    	 		if ($output2!='{"Inactivo":[') {$output2 .= ",";}
+    	 		$output2 .= '{"Nombre":"'.utf8_encode($row2["name_driver"]).'"}';
     	 	}
     	 	$output2 .= "],";
 
@@ -119,7 +119,7 @@
     	 	while ($row3 = $query3->fetch_array()) {
     	 		if ($output3!='"Driver_Vehicle":[') {$output3 .= ",";}
     	 		$output3 .= '{"Vid":"'.$row3["idvehicle"].'",';
-    	 		$output3 .= '"Conductor":"'.$row3["name_driver"].'"}';
+    	 		$output3 .= '"Conductor":"'.utf8_encode($row3["name_driver"]).'"}';
     	 	}
     	 	$output3 .= "],";
 
@@ -135,8 +135,8 @@
     	 	}
     	 	$output4 .= "]}";
     	 	
-    	 	echo $output.$output2.$output3.$output4;
-    	 	//echo json_encode($output, JSON_NUMERIC_CHECK);
+    	 	//echo $output.$output2.$output3.$output4;
+    	 	echo $output2.$output3.$output4;
 
     	 }
 
