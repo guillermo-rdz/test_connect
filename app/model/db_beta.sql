@@ -15,12 +15,12 @@ SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, d
 SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon from data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = 106 order by event_date
 
 #COUNSULTA PARA TODOS LOS CAMPOS PASANDOLE COMO PARAMETRO idvehicle y event_date(FECHA)
-SELECT b.name_vehicle, a.up, a.down, a.aboart, a.false_up, a.false_down, a.event_date, a.lat, a.lon 
-from data_frame as a
-RIGHT JOIN vehicles as b
-on a.vehicle_idvehicle = b.idvehicle 
-where b.idvehicle = 106 and event_date = "2016-03-10"
-order by event_date;
+SELECT v.name_vehicle, f.up, f.down, f.onboard, f.false_up, f.false_down, f.event_date, f.lat, f.lon 
+FROM data_frame as f
+INNER JOIN vehicles as v
+on f.vehicle_idvehicle = v.idvehicle 
+GROUP BY v.idvehicle
+ORDER BY event_date DESC;
 
 
 #CONSULTA PARA SUBIDA POR ID VEHICULO, DÍA Y HORA 
@@ -48,10 +48,6 @@ INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 #where f.event_date between time("14:00:00") and time("22:59:59")
 group by d.name_driver
 
-select v.name_vehicle, de.vehicles_idvehicles
-from driver_events as de
-INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles
-
 
 SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up), max(f.down), max(f.onboard), max(f.sensor_state), max(f.up), t.name_turn
 FROM driver_events as de
@@ -59,16 +55,63 @@ INNER JOIN vehicles as v on de.vehicles_idvehicles = v.idvehicle
 INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
 INNER JOIN data_frame as f on f.vehicle_idvehicle = v.idvehicle
 INNER JOIN driver_turn as dt on dt.drivers_iddrivers = d.iddrivers
-INNER JOIN turn as t on dt.turn_driver_idturn_driver = t.idturn_driver
+INNER JOIN turn as t on dt.turn_driver = t.idturn_driver
 #WHERE f.event_date between "2016-04-01:17:00:00" and "2016-04-01:18:00:00"
-GROUP BY d.name_driver
+GROUP BY v.idvehicle
+ORDER BY f.event_date DESC
+
+SELECT v.idvehicle, max(f.up), max(f.down), max(f.onboard), max(f.sensor_state), max(f.up)
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+#WHERE date(event_date) = curdate() AND v.idvehicle = 106
+WHERE f.event_date between DATE_sub(curdate(), INTERVAL 7 DAY) and curdate() AND v.idvehicle = 106
+#GROUP BY f.event_date
+ORDER BY f.event_date DESC
+
+###################### CONSULTA REPORTE DEL DÍA ###############################
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(event_date) = curdate() and v.idvehicle = 106
+ORDER BY f.event_date DESC
+
+##################### CONSULTA REPORTE POR SEMANA #############################
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 7 DAY) and curdate() AND v.idvehicle = 106
+ORDER BY f.event_date DESC
+
+##################### CONSULTA REPORTE POR 15 DÍAS ############################
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 15 DAY) and curdate() AND v.idvehicle = 106
+ORDER BY f.event_date DESC
+
+#################### CONSULTA REPORTE POR MES ##################################
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 1 MONTH) and curdate() AND v.idvehicle = 106
+ORDER BY f.event_date DESC
+
+#################### CONSULTA REPORTE PERSONALIZADO ############################
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between "2016-04-02" and "2016-04-04" AND v.idvehicle = 106
 ORDER BY f.event_date DESC
 
 
-SELECT v.name_vehicle, d.name_driver, f.up, f.event_date
+
+SELECT v.name_vehicle, d.name_driver, max(f.up), max(f.event_date)
 from vehicles  as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 INNER JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicles
 INNER JOIN drivers as d on iddrivers = de.drivers_iddrivers
-GROUP BY v.name_vehicle
+WHERE date(f.event_date) = '2016-04-01'
+GROUP BY v.idvehicle
 ORDER BY f.event_date
+
+SELECT v.idvehicle,
