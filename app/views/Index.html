@@ -128,9 +128,12 @@
         var marcadores = [];
         var vehiculos = [];
         var tramastr = '';
+        var drivers_off = [];
+        var drivers_on = [];
+        var tramas = [];
 
         Setup();
-        //document.onunload=Logout(auth);
+        
 
         socket.on('_authenticated', function(message) {
             socket.emit("vehicle:list");
@@ -156,7 +159,8 @@
         var User = '';
         var Pass = '';
 
-        Gmap(16.793056, -93.225556);
+        Gmap(16.7516009, -93.1029939);
+        setInterval(infoUpdate,1000);
         
         var HomePage = React.createClass({
 
@@ -166,7 +170,10 @@
                     password: '',
                     token: auth,
                     ldata: [],
-                    vehicles: []
+                    vehicles: [],
+                    dvrs_off:[],
+                    dvrs_on: [],
+                    counters: []
                 };
             },
 
@@ -218,6 +225,7 @@
             },
 
             componentWillMount: function(){
+
                 $.ajax({
                     type: "POST",
                     url: "app/model/model.php",
@@ -228,33 +236,79 @@
                         this.setState({token:result});
                         console.log(this.state.token);
                         //connect(result);
+
                         $.ajax({
                             url: source+"/api/vehicles",
                             headers: { Authenticate: this.state.token},
                             type: "GET",
                             success: function(result) {
+                                
                                 var temp = [];
                                 var vid = [];
+                                var data_driver = null;
+                                var data_up = 0;
+                                var data_down = 0;
+                                var data_onboard = 0;
+                                var data_sensor = 'NA';
+                                var data_ingreso = 0;
+
+                                this.setState({
+                                    dvrs_off:drivers_off,
+                                    dvrs_on:drivers_on,
+                                    counters:tramas
+                                });
 
                                 /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
                                 for(var i=0; i<result.data.length; i++){
-                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: result.data[i].device, ruta: result.data[i].type, up: result.data[i].counters.dev_dist, down: result.data[i].counters.dev_ign, onboard: result.data[i].counters.dev_idle, sensores:result.data[i].info.make, ingreso: result.data[i].counters.dev_ospeed, turno: result.data[i].info.model};
+
+                                    for(var j=0; j<this.state.dvrs_on.length; j++){
+
+                                        if(result.data[i].id == this.state.dvrs_on[j].Vid){
+                                            data_driver = this.state.dvrs_on[j].Conductor;
+                                            break;
+                                        }else{
+                                            data_driver = null;
+                                        }
+                                    }
+
+                                    for(var k=0; k<this.state.counters.length;k++){
+                                        
+                                        if(result.data[i].id == this.state.counters[k].Vid){
+                                            data_up = this.state.counters[k].Subidas;
+                                            data_down = this.state.counters[k].Bajadas;
+                                            data_onboard = this.state.counters[k].Abordo;
+                                            data_sensor = this.state.counters[k].Sensor;
+                                            data_ingreso = this.state.counters[k].Ingreso;
+                                            break;
+                                        }else{
+
+                                            data_up = 0;
+                                            data_down = 0;
+                                            data_onboard = 0;
+                                            data_sensor = 'NA';
+                                            data_ingreso = 0;
+                                        }
+                                    }
+
+                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: data_driver, ruta: 'NA', up: data_up, down: data_down, onboard: data_onboard, sensores: data_sensor, ingreso: data_ingreso, turno: 'NA'};
                                     temp.push(item);
                                     //vid.push(result.data[i].id);
                                     //temp2.push(result.data[i].id);
                                 }
 
-                                //vehiculos = temp;
-                                this.setState({vehicles:temp});
-                                console.log(result);
+                                this.setState({
+                                    vehicles:temp
+                                });
 
-                                ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
+                                console.log(result);
 
                             }.bind(this) //set context
                         });
 
                     }.bind(this)
                 });
+
+                
 
             },
 
@@ -263,7 +317,7 @@
             render: function(){
 
                 return(
-                    <InfoTable item={this.state.vehicles} token={this.state.token}/>
+                    <InfoTable item={this.state.vehicles} tramas={this.state.counters} dvrs_on={this.state.dvrs_on} dvrs_off={this.state.dvrs_off} token={this.state.token}/>
                 );
             }
 
@@ -283,7 +337,6 @@
                 console.log(vid);
                 
                 //var checkElements = document.getElementsByClassName("check_item");
-
                 
                 if(e.target.checked){
                     
@@ -333,14 +386,28 @@
 
             render: function(){
 
-                var j='';
+                var i='';
+                var conductores = this.props.dvrs_off.map(function(e){
+                    return(
+                        <option key={i++}>{e}</option>
+                    );
+
+                }.bind(this));
+
+                var j=0;
+                var up='';
+                var down='';
                 var Items = this.props.item.map(function(e){
+                    
                     return(
                         <tr key={j++}>
                             <td><input type="checkbox" onClick={this.handleSelection} className="check_item" value={e.vid}/></td>
                             <td className={e.vid}>{e.vid}</td>
                             <td className={e.vid}>{e.nombre}</td>
-                            <td className={e.vid}>{e.conductor}</td>
+                            <td className={e.vid}><select>
+                            <option hidden>----Select a driver----</option>
+                            {conductores}
+                            </select></td>
                             <td className={e.vid}>{e.ruta}</td>
                             <td className={e.vid}>{e.up}</td>
                             <td className={e.vid}>{e.down}</td>
@@ -542,6 +609,26 @@
             });
 
         }
+
+        function infoUpdate(){
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "consulta"},
+                success: function(result){
+                    console.log(result);
+                    drivers_off = result.Inactivo ;
+                    drivers_on = result.Driver_Vehicle;
+                    tramas = result.Frame_Vehicle;
+
+                }
+            });
+            
+            //drivers_off =["Fernando","Carlos","Jose", "Luis", "Javier"];
+            //drivers_on =["Carlos"];
+            console.log("POST");
+        }
+
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
