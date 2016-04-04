@@ -28,23 +28,26 @@
 		}
 
 		public function saveDriver(){
-			$driverJson = $_POST['drivers'];
-			$driverData = json_decode($driverJson);
-			$name = $driverData->nombre;
-			$start_turn = $driverData->inicio;
-			$end_turn = $driverData->fin;
-			$active = 1;
+			$driverJson = $_POST['info'];
+			$driverData = json_decode($driverJson, true);
+			$name = $driverData["nombre"];
+			$start_turn = $driverData['inicio'];
+			$end_turn = $driverData['fin'];
+			$active = 0;
+			
 			if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$active', current_timestamp)")) {
 				echo "Se ingreso el Conductor";
-				$query = ("SELECT *  from drivers WHERE name_driver = '$name' ORDER BY date_driver LIMIT 1");
+				$query = $this->mysqli->query("SELECT *  from drivers WHERE name_driver = '$name' ORDER BY date_driver DESC LIMIT 1");
+				//print_r($row = $query->fetch_array());
 				while ($row = $query->fetch_array()) {
 					$iddrivers = $row['iddrivers'];
-					if ($this->mysqli->query("INSERT INTO turn_driver values (default, null, '$start_turn', '$end_turn', current_timestamp)")) {
+					if ($this->mysqli->query("INSERT INTO turn values (default, null, '$start_turn', '$end_turn', current_timestamp)")) {
 						echo "Se ingreso el turno";
-						$query1 = ("SELECT idturn, start_turn, end_turn FROM turn ORDER BY date_turn LIMIT 1");
+						$query1 = $this->mysqli->query("SELECT idturn_driver, start_turn, end_turn FROM turn ORDER BY date_turn DESC LIMIT 1");
+						//print_r($query1);
 						while ($row1 = $query1->fetch_array()) {
-							$idturn = $row1['idturn'];
-							if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', 'idturn')")) {
+							$idturn = $row1['idturn_driver'];
+							if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', '$idturn')")) {
 								echo "Se ingreso el turno correspondiente";
 							}
 							else{
@@ -53,7 +56,7 @@
 						}
 					}
 					else{
-						echo "No se ingresaron turno";
+						$query1 = $this->mysqli->query("SELECT idturn_driver, start_turn, end_turn FROM turn ORDER BY date_turn DESC LIMIT 1");
 					}
 				}
 
@@ -67,7 +70,27 @@
 
 			//$idvehicle = $_POST['idvehicle'];
 			//$array_vehicles  = json_decode($array_vehicles, false, 512, JSON_BIGINT_AS_STRING);
-    	 	$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, d.turn, max(f.up) as mxup, f.down, f.onboard, f.sensor_state, max(f.up) as total from driver_events as de INNER JOIN vehicles as v on de.vehicles_idvehicle = v.idvehicle INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle group by d.name_driver");
+    	 	//$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, d.turn, max(f.up) as mxup, f.down, f.onboard, f.sensor_state, max(f.up) as total from driver_events as de INNER JOIN vehicles as v on de.vehicles_idvehicle = v.idvehicle INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle group by d.name_driver");
+    	 	$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor_state, max(f.up) as total, t.name_turn
+			FROM driver_events as de
+			INNER JOIN vehicles as v on de.vehicles_idvehicles = v.idvehicle
+			INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
+			INNER JOIN data_frame as f on f.vehicle_idvehicle = v.idvehicle
+			INNER JOIN driver_turn as dt on dt.drivers_iddrivers = d.iddrivers
+			INNER JOIN turn as t on dt.turn_driver = t.idturn_driver
+			GROUP BY d.name_driver
+			ORDER BY f.event_date DESC");
+			$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0");
+			$query3 = $this->mysqli->query("SELECT v.idvehicle, d.name_driver 
+			FROM driver_events as de 
+			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles 
+			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers");
+			$query4 = $this->mysqli->query("SELECT v.idvehicle, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor, max(f.up) as total
+			FROM vehicles as v
+			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+			WHERE date(event_date) = '2016-04-01'
+			GROUP BY v.idvehicle");
+
     	 	$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
     	 		if ($output!='{"data":[') {$output .= ",";}
@@ -75,16 +98,44 @@
     	 		$output .= '"Vehiculo":"'.$row["name_vehicle"].'",';
     	 		$output .= '"Conductor":"'.$row["name_driver"].'",';
     	 		$output .= '"Ruta":"'.$row["route"].'",';
-    	 		$output .= '"Turno":"'.$row["turn"].'",';
-    	 		$output .= '"Subidas":"'.$row["mxup"].'",';
+    	 		$output .= '"Subidas":"'.$row["up"].'",';
     	 		$output .= '"Bajadas":"'.$row["down"].'",';
     	 		$output .= '"Abordo":"'.$row["onboard"].'",';
     	 		$output .= '"Estado del sensor":"'.$row["sensor_state"].'",';
-    	 		$output .= '"Total":"'.$row["total"].'"}';
+    	 		$output .= '"Total":"'.$row["total"].'",';
+    	 		$output .= '"Turno":"'.$row["name_turn"].'"}';
     	 	}
 
-    	 	$output .= "]}";
-    	 	echo $output;
+    	 	$output .= "],";
+
+    	 	$output2 = '"Inactivo":[';
+    	 	while ($row2 = $query2->fetch_array()) {
+    	 		if ($output2!='"Inactivo":[') {$output2 .= ",";}
+    	 		$output2 .= '{"Nombre":"'.$row2["name_driver"].'"}';
+    	 	}
+    	 	$output2 .= "],";
+
+    	 	$output3 = '"Driver_Vehicle":[';
+    	 	while ($row3 = $query3->fetch_array()) {
+    	 		if ($output3!='"Driver_Vehicle":[') {$output3 .= ",";}
+    	 		$output3 .= '{"Vid":"'.$row3["idvehicle"].'",';
+    	 		$output3 .= '"Conductor":"'.$row3["name_driver"].'"}';
+    	 	}
+    	 	$output3 .= "],";
+
+    	 	$output4 = '"Frame_Vehicle":[';
+    	 	while ($row4 = $query4->fetch_array()) {
+    	 		if ($output4!='"Frame_Vehicle":[') {$output4 .= ",";}
+    	 		$output4 .= '{"Vid":"'.$row4["idvehicle"].'",';
+    	 		$output4 .= '"Subidas":"'.$row4["up"].'",';
+    	 		$output4 .= '"Bajadas":"'.$row4["down"].'",';
+    	 		$output4 .= '"Abordo":"'.$row4["onboard"].'",';
+    	 		$output4 .= '"Sensor":"'.$row4["sensor"].'",';
+    	 		$output4 .= '"Ingresos":"'.$row4["total"].'"}';
+    	 	}
+    	 	$output4 .= "]}";
+    	 	
+    	 	echo $output.$output2.$output3.$output4;
     	 	//echo json_encode($output, JSON_NUMERIC_CHECK);
 
     	 }
@@ -123,6 +174,9 @@
 	}
 	elseif ($_POST['type']=="driver") {
 		$instance->saveDriver();
+	}
+	elseif ($_POST['type']=="consulta") {
+		$instance->mainQuery();
 	}
 	elseif ($_POST['type']=="logout") {
 		$instance->logout();
