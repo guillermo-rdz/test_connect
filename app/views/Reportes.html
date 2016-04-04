@@ -33,9 +33,15 @@
         .navbar{margin-bottom: 0px}
         .navbar-brand {padding-top: 30px}
         #Userlog { pointer-events: none;}
-        .infodiv { overflow-y:scroll; height:350px;}
+        .infodiv { overflow-y:scroll; height:350px; padding-top: 20px}
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
-        #highcharts {padding-top: 20px; margin-left: 20px; margin-right: 20px ;}
+        #highcharts {padding-top: 20px; width:100%;}
+        #gendiv,#chartdiv,#mapdiv {padding: 0px}
+        #chartdiv {text-align: center}
+        #gendiv{text-align: right}
+        #mapdiv{text-align: left}
+        #maps{height:400px; width:100%; margin-top: 20px}
+        .current{background-color:#CEE3F6}
 
 
     </style>
@@ -54,8 +60,8 @@
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="/test_connect/">Home</a></li>
-                    <li class="dropdown">
+                    <li ><a href="/test_connect/">Home</a></li>
+                    <li class="dropdown active">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reportes<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#" id="vehiculo">Vehículo</a></li>
@@ -71,7 +77,7 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
-                    <li><a href="#" id="logout_btn"><span class="glyphicon glyphicon-stats"></span> Log Out</a></li>
+                    <li><a href="#" id="logout_btn"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
                 </ul>
             </div>
         </div>
@@ -83,7 +89,14 @@
             <h1 id="mainheader">REPORTES</h1>
             <div id="reactContent"></div>
             <div class="row">
-                <div id="highcharts"></div>
+                <div class="col-sm-12">
+                    <div id="highcharts"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="maps"></div>
+                </div>
             </div>
         </div>
     </div> 
@@ -96,12 +109,14 @@
         var auth = '';
         var selected_vehicle = null;
         var checked_vehicles = [];
-        var map = null;
         var marcadores = [];
         var elementos = [];
         var tramastr = '';
         var submenu ='';
         var User = '';
+        var toggle_chart=false;
+        var toggle_map=false;
+
 
         var Prueba =[
             {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
@@ -259,18 +274,18 @@
                     <div>
                         <ComboBox items={this.state.nombres} vehiculos={this.state.items}  submenu={this.state.opcion} eventos={this.state.ldata}/>
                         <div className="row">
-                            <div className="col-sm-2">
-                                <button type="button" id="genbtn" className="btn btn-default">GENERAR</button>
+                            <div id="gendiv" className="col-sm-2">
+                                    <button type="button" id="genbtn" className="btn btn-default"><span className="glyphicon glyphicon-flash"> GENERAR </span></button>
                             </div>
-                            <div className="col-sm-1">
-                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"></span></button>
+                            <div id="chartdiv" className="col-sm-2">
+                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"> GRÁFICA </span></button>
                             </div>
-                            <div className="col-sm-1">
-                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"></span></button>
+                            <div id="mapdiv" className="col-sm-2">
+                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"> MAPA </span></button>
                             </div>
                         </div>
                         <div className="row">
-                            <ReportTable item={this.state.ldata}/>
+                            <ReportTable item={Prueba}/>
                         </div>
                     </div>
                     );
@@ -313,7 +328,10 @@
                         <div className="col-sm-3">
                             <div className="form-group">
                               <label htmlFor="sel1" id="selectionCB">{this.props.submenu}</label>
-                              <select className="form-control" id="sel1" onChange={this.handleChange}>{Items}</select>
+                              <select className="form-control" id="sel1" onChange={this.handleChange}>
+                                  <option disabled hidden>----Select a vehicle----</option>
+                                  {Items}
+                              </select>
                             </div>
                         </div>
                         <div className="col-sm-3">
@@ -332,6 +350,7 @@
                             <div className="form-group">
                               <label htmlFor="dt">Lapso</label>
                               <select className="form-control">
+                                <option hidden>----Select an option----</option>
                                 <option>Presente día</option>
                                 <option>Últimos 7 días</option>
                                 <option>Últimos 15 días</option>
@@ -352,7 +371,7 @@
                     return(
                         <tr key={j++}>
                             <td className={e.vid}>{e.vid}</td>
-                            <td className={e.vid}>{e.conductor}</td>
+                            <td className={e.vid}>{e.nombre}</td>
                             <td className={e.vid}>{e.lat}</td>
                             <td className={e.vid}>{e.lon}</td>
                             <td className={e.vid}>{e.up}</td>
@@ -373,8 +392,8 @@
                             <tr>
                                 <th>ID</th>
                                 <th>VEHÍCULO</th>
-                                <th>LATITUD</th>
-                                <th>LONGITUD</th>
+                                <th>LAT</th>
+                                <th>LON</th>
                                 <th>SUBIDAS</th>
                                 <th>BAJADAS</th>
                                 <th>ABORDO</th>
@@ -435,6 +454,8 @@
 
 
         function Setup(){
+            $('#highcharts').hide();
+            $('#maps').hide();
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
@@ -497,7 +518,20 @@
         }
 
         function Generar(){
+            
+        }
+
+        function Chart(){
+
+            toggle_chart ^= true;
+            if(toggle_chart){
+                $('#chartbtn').addClass('current');
+            }else{
+                $('#chartbtn').removeClass('current');
+            }
+
             console.log("Generando Reporte...");
+            $('#highcharts').toggle();
             $(function () { 
                 $('#highcharts').highcharts({
                     chart: {
@@ -525,6 +559,24 @@
             });
         }
 
+        function Maps(latitude, longitude){
+            //console.log("Generando Mapa...");
+            toggle_map ^= true;
+            if(toggle_map){
+                $('#mapbtn').addClass('current');
+            }else{
+                $('#mapbtn').removeClass('current');
+            }
+
+            $('#maps').toggle();
+            var map = new google.maps.Map(document.getElementById("maps"), {
+                center: {lat: latitude, lng: longitude},
+                zoom: 13,
+                zoomControl:true,
+                scrollwheel: true
+            });
+        }
+
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
@@ -535,6 +587,8 @@
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
         document.getElementById("genbtn").addEventListener('click', function(){Generar();});
+        document.getElementById("chartbtn").addEventListener('click', function(){Chart();});
+        document.getElementById("mapbtn").addEventListener('click', function(){Maps(16.7516009, -93.1029939);});
 
     </script>
 
