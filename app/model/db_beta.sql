@@ -49,14 +49,14 @@ INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 group by d.name_driver
 
 
-SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up), max(f.down), max(f.onboard), max(f.sensor_state), max(f.up), t.name_turn
+SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up), f.down, max(f.onboard), max(f.sensor_state), f.up, t.name_turn
 FROM driver_events as de
 INNER JOIN vehicles as v on de.vehicles_idvehicles = v.idvehicle
 INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
 INNER JOIN data_frame as f on f.vehicle_idvehicle = v.idvehicle
 INNER JOIN driver_turn as dt on dt.drivers_iddrivers = d.iddrivers
 INNER JOIN turn as t on dt.turn_driver = t.idturn_driver
-#WHERE f.event_date between "2016-04-01:17:00:00" and "2016-04-01:18:00:00"
+WHERE date(f.event_date) = curdate()
 GROUP BY v.idvehicle
 ORDER BY f.event_date DESC
 

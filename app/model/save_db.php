@@ -166,7 +166,7 @@
 	    	 	for ($i=0; $i < count($vehicles); $i++) { 
 	    	 		$id = $vehicles[$i]->id;
 	    	 		$imei = $vehicles[$i]->imei;
-	    	 		$name = $vehicles[$i]->name;
+	    	 		$name = utf8_decode($vehicles[$i]->name);
 	    	 		//$capacitance = $vehicles[$i]->loquesea;
 	    	 		//$max_capacitance = $vehicles[$i]->loquesea;
 	    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei', default)")) {

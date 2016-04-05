@@ -111,7 +111,7 @@
     	 	$output2 = '{"Inactivo":[';
     	 	while ($row2 = $query2->fetch_array()) {
     	 		if ($output2!='{"Inactivo":[') {$output2 .= ",";}
-    	 		$output2 .= '{"Nombre":"'.utf8_encode($row2["name_driver"]).'"}';
+    	 		$output2 .= '{"nombre":"'.utf8_encode($row2["name_driver"]).'"}';
     	 	}
     	 	$output2 .= "],";
 
@@ -144,6 +144,27 @@
 			session_start();
 			echo $_SESSION['token'];
 		}
+
+		/*public function last7Days(){
+			$vidJson = $_POST['vid'];
+			$vid = json_decode($vidJson, true);
+			$query = $this->mysqli->("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+			FROM vehicles as v
+			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+			WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 7 DAY) and curdate() AND v.idvehicle = '$vid'
+			ORDER BY f.event_date DESC");
+
+			$output = '{"ultimos7dias":[';
+    	 	while ($row = $query->fetch_array()) {
+    	 		if ($output!='{"ultimos7dias":[') {$output .= ",";}
+    	 		$output .= '{"vid":"'.$row["idvehicle"].'",';
+    	 		$output .= '"vehiculo":"'.$row["name_vehicle"].'",';
+    	 		$output .= '"lat":"'.$row["lat"].'",';
+    	 		$output .= '"lon":"'.$row["lo"].'",';
+    	 	}
+    	 	$output2 .= "]}";
+
+		}*/
 
 		public function sessionReport(){
 			session_start();
