@@ -80,8 +80,12 @@
                 <div class="col-sm-6">
                     <form role="form" id="driverForm">
                       <div class="form-group">
-                        <label for="nombre">Nombre:</label>
+                        <label for="nombre">Nombre(s):</label>
                         <input type="text" class="form-control" id="nombre" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="nombre">Apellido(s):</label>
+                        <input type="text" class="form-control" id="apellido" required>
                       </div>
                       <div class="form-group">
                         <label for="ruta">Turno:</label>
@@ -207,7 +211,29 @@
 
         }
 
-        function registro(){
+        $("#driverForm").submit(function (event){
+
+            event.preventDefault();
+
+            var inicio = document.getElementById("tini").value+":00";
+            var fin = document.getElementById("tfin").value+":00";
+            var nombre = document.getElementById("nombre").value;
+            var apellido = document.getElementById("apellido").value;
+            var conductor = JSON.stringify({nombre: nombre, apellido: apellido, inicio: inicio, fin: fin, userId: Uid});
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "driver", "info":conductor },
+                success: function(result){
+
+                    console.log(result);
+                    document.getElementById("driverForm").reset();
+                }
+            });
+        });
+
+        /*function registro(){
             var inicio = document.getElementById("tini").value+":00";
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
@@ -219,11 +245,15 @@
                 data: {"type": "driver", "info":conductor },
                 success: function(result){
 
-                    document.getElementById("driverForm").reset();
+                    console.log(result);
+                    document.getElementById("tini").value = '';
+                    document.getElementById("tfin").value = '';
+                    document.getElementById("nombre").value = '';
+                    document.getElementById("apellido").value = '';
                 }
             });
 
-        }
+        }*/
 
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
@@ -234,7 +264,7 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("regbtn").addEventListener('onsubmit', function(){registro();});
+        //document.getElementById("regbtn").addEventListener('click', function(){registro();});
 
     </script>
 
