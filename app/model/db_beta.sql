@@ -110,8 +110,8 @@ from vehicles  as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 INNER JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicles
 INNER JOIN drivers as d on iddrivers = de.drivers_iddrivers
-WHERE date(f.event_date) = '2016-04-01'
+WHERE date(f.event_date) = '2016-04-05'
 GROUP BY v.idvehicle
-ORDER BY f.event_date
+ORDER BY date(f.event_date)
 
 SELECT v.idvehicle,

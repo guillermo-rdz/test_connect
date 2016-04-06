@@ -7,3 +7,7 @@
 	#http:localhost/php-laravel/index.php?action=contacts
 	#http://localhost/php-laravel/contacts
 </IfModule>
+#<Files *.md>
+#    ForceType application/octet-stream
+#    Header set Content-Disposition attachment
+#</Files>

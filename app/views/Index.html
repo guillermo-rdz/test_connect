@@ -187,6 +187,7 @@
                 $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
+                dataType: 'json',
                 data: {"type": "consulta"},
                 success: function(result){
 
@@ -198,7 +199,7 @@
                             counters: result.Frame_Vehicle
                         });
 
-                    }
+                    }.bind(this)
                 });
                 //drivers_off =["Fernando","Carlos","Jose", "Luis", "Javier"];
                 //drivers_on =["Carlos"];
@@ -208,35 +209,35 @@
                     for(var j=0; j<this.state.dvrs_on.length; j++){
 
                         if(this.state.vehicles[i].vid == this.state.dvrs_on[j].Vid){
-                            vehicles[i].conductor = this.state.dvrs_on[j].Conductor;
+                            this.state.vehicles[i].conductor = this.state.dvrs_on[j].Conductor;
                             data_driver = this.state.dvrs_on[j].Conductor;
                             break;
                         }else{
-                            //vehicles[i].conductor  = null;
+                            //this.state.vehicles[i].conductor  = '-----select a driver-----';
                         }
                     }
 
                     for(var k=0; k<this.state.counters.length;k++){
                         
                         if(this.state.vehicles[i].vid == this.state.counters[k].Vid){
-                            vehicles[i].up = this.state.counters[k].Subidas;
+                            this.state.vehicles[i].up = this.state.counters[k].Subidas;
                             data_up = this.state.counters[k].Subidas;
-                            vehicles[i].down = this.state.counters[k].Bajadas;
+                            this.state.vehicles[i].down = this.state.counters[k].Bajadas;
                             data_down = this.state.counters[k].Bajadas;
-                            vehicles[i].onboard = this.state.counters[k].Abordo;
+                            this.state.vehicles[i].onboard = this.state.counters[k].Abordo;
                             data_onboard = this.state.counters[k].Abordo;
-                            vehicles[i].sensores = this.state.counters[k].Sensor;
+                            this.state.vehicles[i].sensores = this.state.counters[k].Sensor;
                             data_sensor = this.state.counters[k].Sensor;
-                            vehicles[i].ingreso = this.state.counters[k].Ingreso;
-                            data_ingreso = this.state.counters[k].Ingreso;
+                            this.state.vehicles[i].ingreso = this.state.counters[k].Ingresos;
+                            data_ingreso = this.state.counters[k].Ingresos;
                             break;
                         }else{
 
-                            /*vehicles[i].up = 0
-                            vehicles[i].down = 0
-                            vehicles[i].onboard = 0
-                            vehicles[i].sensores = 'NA'
-                            vehicles[i].ingreso = 0*/
+                            /*this.state.vehicles[i].up = 0
+                            this.state.vehicles[i].down = 0
+                            this.state.vehicles[i].onboard = 0
+                            this.state.vehicles[i].sensores = 'NA'
+                            this.state.vehicles[i].ingreso = 0*/
                         }
                     }
                     /*data_temp.push({vid:this.state.vehicles[i].vid, nombre:this.state.vehicles[i].nombre, conductor: data_driver, ruta: 'NA', up: data_up, down: data_down, onboard: data_onboard, sensores: data_sensor, ingreso: data_ingreso, turno: 'NA'});*/
@@ -323,7 +324,7 @@
                                 /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
                                 for(var i=0; i<result.data.length; i++){
 
-                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: 'NA', ruta: 'NA', up: 0, down: 0, onboard: 0, sensores: 'NA', ingreso: 0, turno: 'NA'};
+                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: '-----select a driver-----', ruta: 'NA', up: 0, down: 0, onboard: 0, sensores: 'NA', ingreso: 0, turno: 'NA'};
                                     temp.push(item);
                                     //vid.push(result.data[i].id);
                                     //temp2.push(result.data[i].id);
@@ -422,7 +423,7 @@
                 var i=0;
                 var conductores = this.props.dvrs_off.map(function(e){
                     return(
-                        <option key={i++}>{e}</option>
+                        <option key={i++}>{e.nombre}</option>
                     );
 
                 }.bind(this));
@@ -438,7 +439,7 @@
                             <td className={e.vid}>{e.vid}</td>
                             <td className={e.vid}>{e.nombre}</td>
                             <td className={e.vid}><select>
-                            <option hidden>----Select a driver----</option>
+                            <option hidden>{e.conductor}</option>
                             {conductores}
                             </select></td>
                             <td className={e.vid}>{e.ruta}</td>

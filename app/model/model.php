@@ -85,7 +85,7 @@
 			FROM driver_events as de 
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles 
 			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers");
-			$query4 = $this->mysqli->query("SELECT v.idvehicle, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor, max(f.up) as total
+			$query4 = $this->mysqli->query("SELECT v.idvehicle, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor, max(f.up)*6 as total
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 			WHERE date(event_date) = curdate()
@@ -166,6 +166,22 @@
 
 		}*/
 
+		public function assignDriver(){
+			$assignJson = $_POST['asignar'];
+			$assign = json_decode($assignJson, true);
+
+			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', 'iddrivers')")) {
+				echo "Se asigno el Conductor";
+			}
+			else{
+				echo "No se asigno el Conductor";
+			}
+		}
+
+		public function deallocateDriver(){
+
+		}
+
 		public function sessionReport(){
 			session_start();
 			echo $_SESSION['submenu'];
@@ -195,6 +211,9 @@
 	}
 	elseif ($_POST['type']=="driver") {
 		$instance->saveDriver();
+	}
+	elseif ($_POST['type']=="asignar") {
+		$instance->assignDriver();
 	}
 	elseif ($_POST['type']=="consulta") {
 		$instance->mainQuery();
