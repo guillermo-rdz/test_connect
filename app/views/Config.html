@@ -49,7 +49,7 @@
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="/test_connect/">Home</a></li>
+                    <li><a href="/test_connect/">Home</a></li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reportes<span class="caret"></span></a>
                         <ul class="dropdown-menu">
@@ -62,7 +62,7 @@
                         </ul>
                     </li>
                     <li><a href="#">Mapas</a></li> 
-                    <li><a href="config">Configuración</a></li> 
+                    <li class="active"><a href="config">Configuración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -78,10 +78,10 @@
             <h1 id="mainheader">DATOS CONDUCTOR</h1>
             <div class="row">
                 <div class="col-sm-6">
-                    <form role="form">
+                    <form role="form" id="driverForm">
                       <div class="form-group">
                         <label for="nombre">Nombre:</label>
-                        <input type="text" class="form-control" id="nombre">
+                        <input type="text" class="form-control" id="nombre" required>
                       </div>
                       <div class="form-group">
                         <label for="ruta">Turno:</label>
@@ -89,17 +89,17 @@
                             <div class="row">
                             <div class="col-sm-6">
                                 <label>Inicio</label>
-                                <input type="time" class="form-control" id="tini">
+                                <input type="time" class="form-control" id="tini" required>
                             </div>
                             <div class="col-sm-6">
                                 <label>Fin</label>
-                                <input type="time" class="form-control" id="tfin">
+                                <input type="time" class="form-control" id="tfin" required>
                             </div>
                             </div>
                         </div>
                       </div>
 
-                      <button type="button" id="regbtn"class="btn btn-default">Registrar</button>
+                      <button type="submit" id="regbtn"class="btn btn-default">Registrar</button>
                     </form>
                 </div>
             </div>
@@ -119,6 +119,7 @@
         var vehiculos = [];
         var tramastr = '';
         var User = '';
+        var Uid = '';
 
         Setup();
         
@@ -144,17 +145,18 @@
                     
                     console.log(result);
                     
-                    $.ajax({
-                        type: "POST",
-                        url: "app/model/model.php",
-                        data: {"type": "logout" },
-                        success: function(result){
+                }
+            });
 
-                            console.log(result);
-                            window.location = "/test_connect/"
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "logout" },
+                success: function(result){
 
-                        }
-                    });
+                    console.log(result);
+                    window.location = "/test_connect/"
+
                 }
             });
 
@@ -177,6 +179,8 @@
                         type: "GET",
                         success: function (result) {
                             User = result.username;
+                            Uid = result.id;
+
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
                         }
                     });
@@ -192,7 +196,7 @@
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
-                data: {"type": "report", "submenu":seleccion },
+                data: {"type": "report", "submenu":seleccion},
                 success: function(result){
 
                     console.log(result);
@@ -207,8 +211,7 @@
             var inicio = document.getElementById("tini").value+":00";
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
-            var conductor = JSON.stringify({nombre: nombre, inicio: inicio, fin: fin});
-            console.log(conductor);
+            var conductor = JSON.stringify({nombre: nombre, inicio: inicio, fin: fin, userId: Uid});
 
             $.ajax({
                 type: "POST",
@@ -216,10 +219,10 @@
                 data: {"type": "driver", "info":conductor },
                 success: function(result){
 
-                    console.log(result);
-
+                    document.getElementById("driverForm").reset();
                 }
             });
+
         }
 
 
@@ -231,7 +234,7 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("regbtn").addEventListener('click', function(){registro();});
+        document.getElementById("regbtn").addEventListener('onsubmit', function(){registro();});
 
     </script>
 
