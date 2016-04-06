@@ -74,16 +74,46 @@ ul li{height:40px; margin:15px 0; list-style:none}
 					authMsj = "Invalid";
 				}
 
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                data: {"type": "login","login": authMsj, "token": token },
-                success: function(result){
+				$.ajax({
+                    url: source+"/api/users",
+                    headers: { Authenticate: token },
+                    type: "GET",
+                    success: function(result) {
+                            var Utemp = [];
 
-                    console.log(result);
-                    window.location = "/test_connect/";
-                }
-            });
+                            /*Armado del arreglo que contiene la información de los usuarios. (ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL)*/
+                            for(var i=0; i<result.data.length; i++){
+                                var userData = {username:result.data[i].username, id:result.data[i].id};
+                                Utemp.push(userData);
+
+                            }
+
+                            var usersData = JSON.stringify(Utemp);
+                            
+                            $.ajax({
+                                type: "POST",
+                                url: "app/model/saveAll.php",
+                                data: {"type": "usuarios", "usuarios": usersData },
+                                success: function(result){
+
+                                    console.log("Paquete Enviado");
+
+                                }
+                            });
+
+                    }
+                });
+
+	            $.ajax({
+	                type: "POST",
+	                url: "app/model/model.php",
+	                data: {"type": "login","login": authMsj, "token": token },
+	                success: function(result){
+
+	                    console.log(result);
+	                    window.location = "/test_connect/";
+	                }
+	            });
 
              });
 
