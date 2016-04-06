@@ -42,6 +42,7 @@
         #mapdiv{text-align: left}
         #maps{height:400px; width:100%; margin-top: 20px}
         .current{background-color:#CEE3F6}
+        .icon-success{color: #ffcc00;}
 
 
     </style>
@@ -116,7 +117,7 @@
         var User = '';
         var toggle_chart=false;
         var toggle_map=false;
-
+        var Uid = '';
 
         var Prueba =[
             {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
@@ -244,6 +245,20 @@
                            
                             break;
                             case "Conductor":
+                            $.ajax({
+
+                                url: "app/model/model.php",
+                                dataType: "json",
+                                data: { "type": "infoDriver", "userId":Uid},
+                                type: "POST",
+                                success: function(result) {
+                                    console.log(result);
+                                    //this.setState({nombres:elementos});
+                                    //this.setState({items:result.data});
+                                    //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                }.bind(this)//set context
+                            });
                             //document.getElementById("selectionCB").innerHTML = "Conductor";
                             break;
                             case "Ruta":
@@ -275,13 +290,13 @@
                         <ComboBox items={this.state.nombres} vehiculos={this.state.items}  submenu={this.state.opcion} eventos={this.state.ldata}/>
                         <div className="row">
                             <div id="gendiv" className="col-sm-2">
-                                    <button type="button" id="genbtn" className="btn btn-default"><span className="glyphicon glyphicon-flash"> GENERAR </span></button>
+                                    <button type="button" id="genbtn" className="btn btn-default"><span className="glyphicon glyphicon-flash"></span> GENERAR</button>
                             </div>
                             <div id="chartdiv" className="col-sm-2">
-                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"> GRÁFICA </span></button>
+                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"></span> GRÁFICA</button>
                             </div>
                             <div id="mapdiv" className="col-sm-2">
-                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"> MAPA </span></button>
+                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"></span> MAPA</button>
                             </div>
                         </div>
                         <div className="row">
@@ -472,6 +487,7 @@
                         type: "GET",
                         success: function (result) {
                             User = result.username;
+                            Uid = result.id;
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
                         }
                     });
@@ -575,6 +591,8 @@
                 zoomControl:true,
                 scrollwheel: true
             });
+            //var geocoder = new google.maps.Geocoder;
+            //geocoder.geocode('location':{lat: latitude, lng: longitude}, function(result, status){})
         }
 
 
