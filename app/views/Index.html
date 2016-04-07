@@ -202,7 +202,7 @@
                             counters: result.Frame_Vehicle
                         });
 
-                    }
+                    }.bind(this)
                 });
                 //drivers_off =["Fernando","Carlos","Jose", "Luis", "Javier"];
                 //drivers_on =["Carlos"];
@@ -250,7 +250,7 @@
                 //this.setState({vehicle:data_temp});
 
                 console.log("POST");
-
+                
             },
 
             componentDidMount: function(){
@@ -273,7 +273,7 @@
                     if(events[0].taip){
 
                         if(events[0].taip.search("RTX")){
-                            var cadena = events[0].taip.substr(4,30);
+                            var cadena = events[0].taip.substr(4,32);
                             tramastr = cadena;
                             //this.setState({txstr: tramastr});
                         }
@@ -287,12 +287,26 @@
 
                     console.log(events);
 
-                    var ev_entrante = {vid:events[0].vid, nombre: events[0].label, conductor: events[0].ky, ruta: events[0].pid, up:events[0].lat , down: events[0].lon , onboard: events[0].code , sensores: events[0].io_sign , ingreso: events[0].dev_dist , turno: events[0].ip };
+                    var ev_entrante = {vid:events[0].vid, imei:events[0].device_id, lat: latitude, lon: longitude, tx: tramastr, 
+                                    eventTime: eventTime };
                     var liveData = {data: this.state.ldata};
                     liveData.data.push(ev_entrante);
-                    
-                    this.setState({
-                        ldata: liveData.data,
+                    this.setState({ldata: liveData.data});
+                    console.log(liveData);
+
+                    var ev_entranteJ = JSON.stringify(ev_entrante);
+                    var liveDataJ = JSON.stringify(liveData.data);
+                    console.log(ev_entranteJ);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "app/model/saveAll.php",
+                        data: {"type": "evento", "data": ev_entranteJ},
+                        success: function(result){
+
+                            console.log(result);
+
+                        }
                     });
 
 
@@ -581,7 +595,7 @@
                         success: function (result) {
                             //console.log(token);
                             User = result.username;
-                            Uid = result.id
+                            Uid = result.id;
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
                         }
                     });
@@ -674,6 +688,9 @@
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
         //document.getElementById("okbtn").addEventListener('click', function(){Asignar();});
         //document.getElementById("removebtn").addEventListener('click', function(){Remover();});
+         google.maps.event.addListener(map, 'click', function(event) {
+            console.log(event.latLng);
+          });
 
     </script>
 
