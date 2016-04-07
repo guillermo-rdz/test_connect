@@ -245,20 +245,42 @@
                            
                             break;
                             case "Conductor":
+
                             $.ajax({
+                                url: source+"/api/user",
+                                headers: {Authenticate: auth},
+                                type: "GET",
+                                success: function (result) {
 
-                                url: "app/model/model.php",
-                                dataType: "json",
-                                data: { "type": "infoDriver", "userId":Uid},
-                                type: "POST",
-                                success: function(result) {
+                                    User=result.username;
+                                    Uid=result.id;
                                     console.log(result);
-                                    //this.setState({nombres:elementos});
-                                    //this.setState({items:result.data});
-                                    //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
 
-                                }.bind(this)//set context
+                                    $.ajax({
+                                        url: "app/model/model.php",
+                                        dataType: "json",
+                                        data: { "type": "infoDriver", "userId": Uid},
+                                        type: "POST",
+                                        success: function(result) {
+
+                                            var conductorNombre = [];
+                                            console.log(result);
+
+                                            for(var i=0;i<result.length; i++){
+
+                                                conductorNombre.push(result[i].name_driver);
+
+                                            }
+                                            this.setState({nombres:conductorNombre});
+                                            this.setState({items:result});
+                                            //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                        }.bind(this)//set context
+                                    });
+                                    
+                                }
                             });
+                            
                             //document.getElementById("selectionCB").innerHTML = "Conductor";
                             break;
                             case "Ruta":
@@ -486,8 +508,10 @@
                         headers: {Authenticate: auth},
                         type: "GET",
                         success: function (result) {
-                            User = result.username;
-                            Uid = result.id;
+
+                            User=result.username;
+                            Uid=result.id;
+
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
                         }
                     });
@@ -524,8 +548,7 @@
 
                     var pathname = window.location.pathname;
 
-
-                    window.location = "/test_connect/reports"; //cuando este en la misma pagina reportes que no tenga que redireccionar.
+                    window.location = "/test_connect/reports"; //cuando este en la misma pagina reportes que no tenga que redireccionar. 
                     
 
                 }
