@@ -255,7 +255,7 @@
 
             componentDidMount: function(){
 
-                this.infoUpdate();
+                setTimeout(this.infoUpdate,1000);
                 setInterval(this.infoUpdate, 5000);
 
                 socket.on ('events', function(envelope){
@@ -264,10 +264,43 @@
                     var namespace = envelope.namespace;
                     var vehicle = envelope.object;
                     var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
+                    var latitude = '';
+                    var longitude = '';
+                    var trama = '';
+                    var eventTime = '';
+
 
                     if(events[0].lat && events[0].lon){
-
                         Marker(map, events[0].lat, events[0].lon, events[0].vid, 0);
+                    }
+
+                    if(events[0].tx){
+                        trama=events[0].tx;
+                        this.setState({tx: events[0].tx}); // Este es el dato (tx/ events[0].tx) donde se encuentra cadena que se envía por el puerto serial del Syrus
+                    }
+                    else{
+                        trama=null;
+                    }
+
+                    if(events[0].lat){
+                        latitude=events[0].lat;
+                    }
+                    else{
+                        latitude=null;
+                    }
+
+                    if(events[0].lon){
+                        longitude=events[0].lon;
+                    }
+                    else{
+                        longitude=null;
+                    }
+
+                    if(events[0].event_time){
+                        eventTime=events[0].event_time;
+                    }
+                    else{
+                        eventTime=null;
                     }
 
                     if(events[0].taip){
