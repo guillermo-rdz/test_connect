@@ -41,8 +41,7 @@
         #gendiv{text-align: right}
         #mapdiv{text-align: left}
         #maps{height:400px; width:100%; margin-top: 20px}
-        .current{background-color:#CEE3F6}
-        .icon-success{color: #ffcc00;}
+        
 
 
     </style>
@@ -118,6 +117,7 @@
         var toggle_chart=false;
         var toggle_map=false;
         var Uid = '';
+        var sel_vid = '';
 
         var Prueba =[
             {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
@@ -171,6 +171,7 @@
             },
 
             componentWillMount: function(){
+                
 
                 socket.on ('events', function(envelope){
                     console.log (envelope);
@@ -266,19 +267,19 @@
                                             var conductorNombre = [];
                                             console.log(result);
 
-                                            for(var i=0;i<result.length; i++){
+                                            for(var i=0;i<result.infoDriver.length; i++){
 
-                                                conductorNombre.push(result[i].name_driver);
+                                                conductorNombre.push(result.infoDriver[i].name_driver);
 
                                             }
                                             this.setState({nombres:conductorNombre});
-                                            this.setState({items:result});
+                                            this.setState({items:result.infoDriver});
                                             //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
 
                                         }.bind(this)//set context
                                     });
                                     
-                                }
+                                }.bind(this)
                             });
                             
                             //document.getElementById("selectionCB").innerHTML = "Conductor";
@@ -339,13 +340,14 @@
               
                 for(var i=0;i<size;i++){
                     if(this.props.vehiculos[i].name== name){
-                        var sel_vid = this.props.vehiculos[i].id;
+                        sel_vid = this.props.vehiculos[i].id;
                         break;
                     }
                 }
 
-                console.log(sel_vid);
-                listen(sel_vid);
+
+                //console.log(sel_vid);
+                //listen(sel_vid);
 
 
 
@@ -366,7 +368,7 @@
                             <div className="form-group">
                               <label htmlFor="sel1" id="selectionCB">{this.props.submenu}</label>
                               <select className="form-control" id="sel1" onChange={this.handleChange}>
-                                  <option disabled hidden>----Select a vehicle----</option>
+                                  <option disabled hidden>----Select an option----</option>
                                   {Items}
                               </select>
                             </div>
@@ -557,6 +559,21 @@
         }
 
         function Generar(){
+
+            var inicio = document.getElementById("tini").value;
+            var fin = document.getElementById("tfin").value ;
+            console.log(sel_vid + " / " + inicio + " / " + fin);
+            var parametros = JSON.stringify({vid: sel_vid, tini: inicio, tfin: fin});
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                dataType: "json",
+                data: {"type": "repVehiculo", "info": parametros },
+                success: function(result){ 
+                    console.log(result);
+                }
+            });
             
         }
 
@@ -564,12 +581,13 @@
 
             toggle_chart ^= true;
             if(toggle_chart){
-                $('#chartbtn').addClass('current');
+                //$('#chartbtn').addClass('current');
+                $('#chartbtn').addClass('active');
             }else{
-                $('#chartbtn').removeClass('current');
+                //$('#chartbtn').removeClass('current');
+                $('#chartbtn').removeClass('active');
             }
 
-            console.log("Generando Reporte...");
             $('#highcharts').toggle();
             $(function () { 
                 $('#highcharts').highcharts({
@@ -602,9 +620,9 @@
             //console.log("Generando Mapa...");
             toggle_map ^= true;
             if(toggle_map){
-                $('#mapbtn').addClass('current');
+                $('#mapbtn').addClass('active');
             }else{
-                $('#mapbtn').removeClass('current');
+                $('#mapbtn').removeClass('active');
             }
 
             $('#maps').toggle();
