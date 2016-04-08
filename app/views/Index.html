@@ -15,7 +15,7 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5bziuTX-sOCYrRaRArTsjvBW469wcmGE">
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAH2Cwa5ty4cb17GwoievJfxKkrKkYuaDE">
     </script>
 
 
@@ -31,14 +31,12 @@
         .login span.un{width:10%; text-align:center; color:#0C6; border-radius:3px 0 0 3px}
         .text{background:#12192C; width:90%; border-radius:0 3px 3px 0; border:none; outline:none; color:#999; font-family: 'Source Sans Pro', sans-serif;} 
         .text,.login span.un{display:inline-block; vertical-align:top; height:40px; line-height:40px; background:#12192C;}
-
         .btn-login{height:30px; border:none; background:#0C6; width:50%; outline:none; font-family: 'Source Sans Pro', sans-serif; font-size:18px; font-weight:bold; color:#eee; border-bottom:solid 3px #093; border-radius:5px; cursor:pointer;}
         ul li{height:40px; margin:15px 0; list-style:none}
         .span{display:table; width:100%; font-size:14px;}
         .ch{display:inline-block; width:50%; color:#CCC}
         .ch a{color:#CCC; text-decoration:none}
         .ch:nth-child(2){text-align:right}
-
         #btn-listen{padding-right: 10px;}
         /*.infodiv table tbody{width: 100%; float: left; display: block; overflow-y: scroll; height:300px;}
         .infodiv table thead{display: block; float:left; width:98.29%;}
@@ -52,8 +50,8 @@
         .navbar-brand {padding-top: 30px}
         #Userlog { pointer-events: none;}
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
-
-
+        .icon-ok {color:#009900;}
+        .icon-remove {color:#cc0000; }
     </style>
 </head>
 <body> 
@@ -128,6 +126,7 @@
         var marcadores = [];
         var vehiculos = [];
         var tramastr = '';
+        var Uid = '';
 
         Setup();
         
@@ -187,8 +186,8 @@
                 $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
-                dataType: 'json',
-                data: {"type": "consulta"},
+                dataType: "json",
+                data: {"type": "consulta", "userId": Uid  },
                 success: function(result){
 
                         console.log(result);
@@ -213,7 +212,7 @@
                             data_driver = this.state.dvrs_on[j].Conductor;
                             break;
                         }else{
-                            //this.state.vehicles[i].conductor  = '-----select a driver-----';
+                            //this.state.vehicles[i].conductor  = '----Select a driver----';
                         }
                     }
 
@@ -228,7 +227,7 @@
                             data_onboard = this.state.counters[k].Abordo;
                             this.state.vehicles[i].sensores = this.state.counters[k].Sensor;
                             data_sensor = this.state.counters[k].Sensor;
-                            this.state.vehicles[i].ingreso = this.state.counters[k].Ingresos;
+                            this.state.vehicles[i].ingreso = this.state.counters[k].Ingreso;
                             data_ingreso = this.state.counters[k].Ingresos;
                             break;
                         }else{
@@ -247,14 +246,13 @@
                 //this.setState({vehicle:data_temp});
 
                 console.log("POST");
-
-
-
+                
             },
 
             componentDidMount: function(){
 
-                setInterval(this.infoUpdate, 5000);
+                setTimeout(this.infoUpdate,1000);
+                //setInterval(this.infoUpdate, 5000);
 
                 socket.on ('events', function(envelope){
                     console.log (envelope);
@@ -262,16 +260,49 @@
                     var namespace = envelope.namespace;
                     var vehicle = envelope.object;
                     var events = envelope.payload; //En esta variable se guarda el payload que es paquete de datos que pertenecen al evento. Donde esta el dato "tx".
+                    var latitude = '';
+                    var longitude = '';
+                    var trama = '';
+                    var eventTime = '';
+
 
                     if(events[0].lat && events[0].lon){
-
                         Marker(map, events[0].lat, events[0].lon, events[0].vid, 0);
+                    }
+
+                    if(events[0].tx){
+                        trama=events[0].tx;
+                        this.setState({tx: events[0].tx}); // Este es el dato (tx/ events[0].tx) donde se encuentra cadena que se envía por el puerto serial del Syrus
+                    }
+                    else{
+                        trama=null;
+                    }
+
+                    if(events[0].lat){
+                        latitude=events[0].lat;
+                    }
+                    else{
+                        latitude=null;
+                    }
+
+                    if(events[0].lon){
+                        longitude=events[0].lon;
+                    }
+                    else{
+                        longitude=null;
+                    }
+
+                    if(events[0].event_time){
+                        eventTime=events[0].event_time;
+                    }
+                    else{
+                        eventTime=null;
                     }
 
                     if(events[0].taip){
 
                         if(events[0].taip.search("RTX")){
-                            var cadena = events[0].taip.substr(4,30);
+                            var cadena = events[0].taip.substr(4,32);
                             tramastr = cadena;
                             //this.setState({txstr: tramastr});
                         }
@@ -285,17 +316,30 @@
 
                     console.log(events);
 
-                    var ev_entrante = {vid:events[0].vid, nombre: events[0].label, conductor: events[0].ky, ruta: events[0].pid, up:events[0].lat , down: events[0].lon , onboard: events[0].code , sensores: events[0].io_sign , ingreso: events[0].dev_dist , turno: events[0].ip };
+                    var ev_entrante = {vid:events[0].vid, imei:events[0].device_id, lat: latitude, lon: longitude, tx: trama, 
+                                    eventTime: eventTime };
                     var liveData = {data: this.state.ldata};
                     liveData.data.push(ev_entrante);
-                    
-                    this.setState({
-                        ldata: liveData.data,
+                    this.setState({ldata: liveData.data});
+                    console.log(liveData);
+
+                    var ev_entranteJ = JSON.stringify(ev_entrante);
+                    var liveDataJ = JSON.stringify(liveData.data);
+                    console.log(ev_entranteJ);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "app/model/saveAll.php",
+                        data: {"type": "evento", "data": ev_entranteJ},
+                        success: function(result){
+
+                            console.log(result);
+
+                        }
                     });
 
 
                 }.bind(this));
-                
 
             },
 
@@ -324,7 +368,7 @@
                                 /*Armado del arreglo que contiene la información de los vehículos. (NAME, ID, IMEI, MAKE, MODEL)*/
                                 for(var i=0; i<result.data.length; i++){
 
-                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: '-----select a driver-----', ruta: 'NA', up: 0, down: 0, onboard: 0, sensores: 'NA', ingreso: 0, turno: 'NA'};
+                                    var item = {vid:result.data[i].id, nombre:result.data[i].name, conductor: '----Select a driver----', ruta: 'NA', up: 0, down: 0, onboard: 0, sensores: 'NA', ingreso: 0, turno: 'NA'};
                                     temp.push(item);
                                     //vid.push(result.data[i].id);
                                     //temp2.push(result.data[i].id);
@@ -341,8 +385,6 @@
 
                     }.bind(this)
                 });
-
-                
 
             },
 
@@ -418,6 +460,22 @@
 
             },
 
+            handleAssign: function(event){
+                event.preventDefault();
+                console.log("Asigno");
+            },
+
+            handleRemove: function(event){
+                event.preventDefault();
+                console.log("Desasigno");
+
+            },
+
+            handleHover: function(){
+                console.log("Hover");
+
+            },
+
             render: function(){
 
                 var i=0;
@@ -432,16 +490,15 @@
                 var up='';
                 var down='';
                 var Items = this.props.item.map(function(e){
-                    
                     return(
                         <tr key={j++}>
                             <td><input type="checkbox" onClick={this.handleSelection} className="check_item" value={e.vid}/></td>
                             <td className={e.vid}>{e.vid}</td>
                             <td className={e.vid}>{e.nombre}</td>
-                            <td className={e.vid}><select>
+                            <td className={e.vid}><select >
                             <option hidden>{e.conductor}</option>
                             {conductores}
-                            </select></td>
+                            </select><a href="#" onClick = {this.handleAssign}><span className="glyphicon glyphicon-ok icon-ok"></span></a> <a href="#" onClick = {this.handleRemove}><span className="glyphicon glyphicon-remove icon-remove"></span></a></td>
                             <td className={e.vid}>{e.ruta}</td>
                             <td className={e.vid}>{e.up}</td>
                             <td className={e.vid}>{e.down}</td>
@@ -549,28 +606,31 @@
         }
 
         function Setup(){
-                $.ajax({
-                    type: "POST",
-                    url: "app/model/model.php",
-                    data: {"type":"token"},
-                    success: function(result){
 
-                        auth = result;
-                        console.log(result);
-                        connect(result);
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type":"token"},
+                success: function(result){
 
-                        $.ajax({
-                            url: source+"/api/user",
-                            headers: {Authenticate: auth},
-                            type: "GET",
-                            success: function (result) {
-                                User = result.username;
-                                document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
-                            }
-                        });
+                    auth = result;
+                    console.log(result);
+                    connect(result);
 
-                    }
-                });
+                    $.ajax({
+                        url: source+"/api/user",
+                        headers: {Authenticate: auth},
+                        type: "GET",
+                        success: function (result) {
+                            //console.log(token);
+                            User = result.username;
+                            Uid = result.id;
+                            document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+                        }
+                    });
+
+                }
+            });
         }
 
         function Logout(token){
@@ -644,24 +704,6 @@
 
         }
 
-        /*function infoUpdate(){
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                data: {"type": "consulta"},
-                success: function(result){
-                    console.log(result);
-                    drivers_off = result.Inactivo ;
-                    drivers_on = result.Driver_Vehicle;
-                    tramas = result.Frame_Vehicle;
-
-                }
-            });
-            drivers_off =["Fernando","Carlos","Jose", "Luis", "Javier"];
-            drivers_on =["Carlos"];
-            console.log("POST");
-        }*/
-
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
@@ -673,6 +715,11 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
+        //document.getElementById("okbtn").addEventListener('click', function(){Asignar();});
+        //document.getElementById("removebtn").addEventListener('click', function(){Remover();});
+         google.maps.event.addListener(map, 'click', function(event) {
+            console.log(event.latLng);
+          });
 
     </script>
 

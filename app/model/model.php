@@ -31,45 +31,56 @@
 			$driverJson = $_POST['info'];
 			$driverData = json_decode($driverJson, true);
 			$name = utf8_decode($driverData["nombre"]);
+			$ap = utf8_decode($driverData["apellido"]);
 			$start_turn = $driverData['inicio'];
 			$end_turn = $driverData['fin'];
+			$iduser = $driverData['userId'];
 			$active = 0;
-			
-			if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$active', current_timestamp)")) {
-				echo "Se ingreso el Conductor";
-				$query = $this->mysqli->query("SELECT *  from drivers WHERE name_driver = '$name' ORDER BY date_driver DESC LIMIT 1");
-				//print_r($row = $query->fetch_array());
-				while ($row = $query->fetch_array()) {
-					$iddrivers = $row['iddrivers'];
-					if ($this->mysqli->query("INSERT INTO turn values (default, null, '$start_turn', '$end_turn', current_timestamp)")) {
-						echo "Se ingreso el turno";
-						$query1 = $this->mysqli->query("SELECT idturn_driver, start_turn, end_turn FROM turn ORDER BY date_turn DESC LIMIT 1");
-						//print_r($query1);
-						while ($row1 = $query1->fetch_array()) {
-							$idturn = $row1['idturn_driver'];
-							if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', '$idturn')")) {
-								echo "Se ingreso el turno correspondiente";
+			//$name_driver = "Guillermo";
+			$query3 = $this->mysqli->query("SELECT name_driver, ap_driver from drivers WHERE name_driver='$name' and ap_driver='$ap' and users_idusers='$iduser'");
+				if ($query3->num_rows < 1) {
+					if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$ap','$active', current_timestamp, '$iduser')")) {
+						echo "Se ingreso el Conductor";
+						$query = $this->mysqli->query("SELECT *  from drivers WHERE name_driver = '$name' and users_idusers='$iduser' ORDER BY date_driver DESC LIMIT 1");
+						//print_r($row = $query->fetch_array());
+						while ($row = $query->fetch_array()) {
+							$iddrivers = $row['iddrivers'];
+							if ($this->mysqli->query("INSERT INTO turn values (default, null, '$start_turn', '$end_turn', current_timestamp)")) {
+								echo "Se ingreso el turno";
+								$query1 = $this->mysqli->query("SELECT idturn_driver, start_turn, end_turn FROM turn ORDER BY date_turn DESC LIMIT 1");
+								//print_r($query1);
+								while ($row1 = $query1->fetch_array()) {
+									$idturn = $row1['idturn_driver'];
+									if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', '$idturn')")) {
+										echo "Se ingreso el turno correspondiente";
+									}
+									else{
+										echo "No se ingreso el turno correspondiente";
+									}
+								}
 							}
 							else{
-								echo "No se ingreso el turno correspondiente";
+								$query1 = $this->mysqli->query("SELECT idturn_driver, start_turn, end_turn FROM turn ORDER BY date_turn DESC LIMIT 1");
 							}
 						}
+
 					}
 					else{
-						$query1 = $this->mysqli->query("SELECT idturn_driver, start_turn, end_turn FROM turn ORDER BY date_turn DESC LIMIT 1");
+						echo "No se ingreso el Conductor";
 					}
 				}
+				
+				else{
+					echo "Ya existe un conductor con ese nombre";
+				}
 
-			}
-			else{
-				echo "No se ingreso el Conductor";
-			}
+			//echo "No esta funcionando";
 		}
 
 		public function mainQuery(){
 
-			//$idvehicle = $_POST['idvehicle'];
-			//$array_vehicles  = json_decode($array_vehicles, false, 512, JSON_BIGINT_AS_STRING);
+			$userIdJson = $_POST['userId'];
+			$userId  = json_decode($userIdJson, false, 512, JSON_BIGINT_AS_STRING);
     	 	//$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, d.turn, max(f.up) as mxup, f.down, f.onboard, f.sensor_state, max(f.up) as total from driver_events as de INNER JOIN vehicles as v on de.vehicles_idvehicle = v.idvehicle INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle group by d.name_driver");
     	 	/*$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor_state, max(f.up) as total, t.name_turn
 			FROM driver_events as de
@@ -80,7 +91,8 @@
 			INNER JOIN turn as t on dt.turn_driver = t.idturn_driver
 			GROUP BY d.name_driver
 			ORDER BY f.event_date DESC");*/
-			$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0");
+			$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0 and users_idusers = '$userId'");
+			//$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0");
 			$query3 = $this->mysqli->query("SELECT v.idvehicle, d.name_driver 
 			FROM driver_events as de 
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles 
@@ -145,32 +157,79 @@
 			echo $_SESSION['token'];
 		}
 
-		/*public function last7Days(){
-			$vidJson = $_POST['vid'];
-			$vid = json_decode($vidJson, true);
-			$query = $this->mysqli->("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+		public function vehicleReport(){
+			$infoJ = $_POST['info'];
+			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+			$vid = $info->vid;
+			$start = $info->tini;
+			$end = $info->tfin;
+
+			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up as ingreso, f.event_date
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 7 DAY) and curdate() AND v.idvehicle = '$vid'
+			WHERE date (f.event_date) between '$start' and '$end' and v.idvehicle = '$vid'
 			ORDER BY f.event_date DESC");
+			if ($query->num_rows > 1) {
+				$output = '{"infoVehicle":[';
+	    	 	while ($row = $query->fetch_array()) {
+	    	 		if ($output!='{"infoVehicle":[') {$output .= ",";}
+	    	 		$output .= '{"vid":"'.utf8_encode($row["idvehicle"]).'",';
+	    	 		$output .= '"vehiculo":"'.$row["name_vehicle"].'",';
+	    	 		$output .= '"lat":"'.$row["lat"].'",';
+	    	 		$output .= '"lon":"'.$row["lon"].'",';
+	    	 		$output .= '"up":"'.$row["up"].'",';
+	    	 		$output .= '"down":"'.$row["down"].'",';
+	    	 		$output .= '"onboard":"'.$row["onboard"].'",';
+	    	 		$output .= '"ingreso":"'.$row["ingreso"].'",';
+	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
+	    	 	}
+	    	 	$output .= "]}";
+	    	 	echo $output;
+			}
+			else{
+				$output2 = '{"infoVehicle":[';
+	    	 	
+	    	 		if ($output2!='{"infoVehicle":[') {$output2 .= ",";}
+	    	 		$output2 .= '{"vid":"'."0".'",';
+	    	 		$output2 .= '"vehiculo":"'."0".'",';
+	    	 		$output2 .= '"lat":"'."0".'",';
+	    	 		$output2 .= '"lon":"'."0".'",';
+	    	 		$output2 .= '"up":"'."0".'",';
+	    	 		$output2 .= '"down":"'."0".'",';
+	    	 		$output2 .= '"onboard":"'."0".'",';
+	    	 		$output2 .= '"ingreso":"'."0".'",';
+	    	 		$output2 .= '"fecha":"'."0000-00-00 00:00:00".'"}';
+	    	 	
+	    	 	$output2 .= "]}";
+	    	 	echo $output2;
+			}
 
-			$output = '{"ultimos7dias":[';
+		}
+
+
+		public function allDrivers(){
+			$userId = $_POST['userId'];
+			//$userId  = json_decode($userIdJson, false, 512, JSON_BIGINT_AS_STRING);
+			$query = $this->mysqli->query("SELECT *  FROM drivers WHERE users_idusers = '$userId'");
+
+    	 	$output = '{"infoDriver":[';
     	 	while ($row = $query->fetch_array()) {
-    	 		if ($output!='{"ultimos7dias":[') {$output .= ",";}
-    	 		$output .= '{"vid":"'.$row["idvehicle"].'",';
-    	 		$output .= '"vehiculo":"'.$row["name_vehicle"].'",';
-    	 		$output .= '"lat":"'.$row["lat"].'",';
-    	 		$output .= '"lon":"'.$row["lo"].'",';
+    	 		if ($output!='{"infoDriver":[') {$output .= ",";}
+    	 		$output .= '{"id":"'.$row["iddrivers"].'",';
+    	 		$output .= '"name_driver":"'.utf8_encode($row["name_driver"]).'",';
+    	 		$output .= '"ap_driver":"'.utf8_encode($row["ap_driver"]).'",';
+    	 		$output .= '"active":"'.$row["active"].'",';
+    	 		$output .= '"date_driver":"'.$row["date_driver"].'"}';
     	 	}
-    	 	$output2 .= "]}";
-
-		}*/
+    	 	$output .= "]}";
+    	 	echo $output;
+		}
 
 		public function assignDriver(){
 			$assignJson = $_POST['asignar'];
 			$assign = json_decode($assignJson, true);
 
-			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', 'iddrivers')")) {
+			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', 'iddrivers', current_timestamp)")) {
 				echo "Se asigno el Conductor";
 			}
 			else{
@@ -211,6 +270,13 @@
 	}
 	elseif ($_POST['type']=="driver") {
 		$instance->saveDriver();
+	}
+	elseif ($_POST['type']=="infoDriver") {
+		//$instance->vehicleReport();
+		$instance->allDrivers();
+	}
+	elseif ($_POST['type']=="repVehiculo") {
+		$instance->vehicleReport();
 	}
 	elseif ($_POST['type']=="asignar") {
 		$instance->assignDriver();

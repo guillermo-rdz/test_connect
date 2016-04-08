@@ -8,11 +8,11 @@ SET FOREIGN_KEY_CHECKS=1;
 insert into data_frame values(default, 12, 2, 10, 1, 0, 11, 4, 1, 0, current_timestamp, 19.14, -19.14, 356612024653182, 106);
 
 
-SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block from data_frame where vehicle_idvehicle = 106 order by event_date desc limit 1
+SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block FROM data_frame where vehicle_idvehicle = 106 order by event_date desc limit 1
 
 
 ################################## CONSULTAS PARA LAS TABLAS Y GRÁFICAS ######################################
-SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon from data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = 106 order by event_date
+SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon FROM data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = 106 order by event_date
 
 #COUNSULTA PARA TODOS LOS CAMPOS PASANDOLE COMO PARAMETRO idvehicle y event_date(FECHA)
 SELECT v.name_vehicle, f.up, f.down, f.onboard, f.false_up, f.false_down, f.event_date, f.lat, f.lon 
@@ -25,7 +25,7 @@ ORDER BY event_date DESC;
 
 #CONSULTA PARA SUBIDA POR ID VEHICULO, DÍA Y HORA 
 SELECT b.name_vehicle, sum(a.up), a.event_date
-from data_frame as a
+FROM data_frame as a
 RIGHT JOIN vehicles as b
 on a.vehicle_idvehicle = b.idvehicle 
 where b.idvehicle = 106 and date(event_date) = "2016-03-10" and hour(event_date)= "16"
@@ -33,15 +33,15 @@ order by event_date;
 
 #CONSULTA PARA SUBIDA POR ID VEHICULO EN INTERVALOS DE TIEMPO (Usar las Terminaciones :59:59 para que tome la hora completa)
 SELECT b.name_vehicle, a.up, a.event_date
-from data_frame as a
-Left JOIN vehicles as b
+FROM data_frame as a
+LEFT JOIN vehicles as b
 on a.vehicle_idvehicle = b.idvehicle 
 where b.idvehicle = 106 and event_date between "2016-03-10:16:00:00" and "2016-03-10:18:30:59"
 order by event_date DESC
 LIMIT 1;
 
 SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up), f.down, f.onboard, f.sensor_state, max(f.up)*6 as total
-from driver_events as de
+FROM driver_events as de
 INNER JOIN vehicles as v on de.vehicles_idvehicle = v.idvehicle
 INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
@@ -72,7 +72,7 @@ ORDER BY f.event_date DESC
 SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
 FROM vehicles as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-WHERE date(event_date) = curdate() and v.idvehicle = 106
+WHERE date (f.event_date) = curdate() and v.idvehicle in (17)
 ORDER BY f.event_date DESC
 
 ##################### CONSULTA REPORTE POR SEMANA #############################
@@ -104,9 +104,18 @@ WHERE date(f.event_date) between "2016-04-02" and "2016-04-04" AND v.idvehicle =
 ORDER BY f.event_date DESC
 
 
+SELECT v.idvehicle, v.name_vehicle, d.name_driver
+FROM driver_events as de
+INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+RIGHT JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles
+
+SELECT v.idvehicle, v.name_vehicle,  d.name_driver, f.up
+FROM vehicles as v
+INNER JOIN data_frame as f on f.vehicle_idvehicle = v.idvehicle
+LEFT JOIN 
 
 SELECT v.name_vehicle, d.name_driver, max(f.up), max(f.event_date)
-from vehicles  as v
+FROM vehicles  as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 INNER JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicles
 INNER JOIN drivers as d on iddrivers = de.drivers_iddrivers
@@ -114,4 +123,4 @@ WHERE date(f.event_date) = '2016-04-05'
 GROUP BY v.idvehicle
 ORDER BY date(f.event_date)
 
-SELECT v.idvehicle,
+SELECT v.idvehicle, v.name_vehicle, 
