@@ -104,15 +104,15 @@ WHERE date(f.event_date) between "2016-04-02" and "2016-04-04" AND v.idvehicle =
 ORDER BY f.event_date DESC
 
 
-SELECT v.idvehicle, v.name_vehicle, d.name_driver
+SELECT v.idvehicle, v.name_vehicle, d.name_driver, f.up, f.down, f.onboard, f.up*6, t.name_turn
 FROM driver_events as de
-INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+RIGHT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 RIGHT JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles
-
-SELECT v.idvehicle, v.name_vehicle,  d.name_driver, f.up
-FROM vehicles as v
 INNER JOIN data_frame as f on f.vehicle_idvehicle = v.idvehicle
-LEFT JOIN 
+INNER JOIN driver_turn as dt on d.iddrivers = dt.drivers_iddrivers
+INNER JOIN turn as t on t.idturn_driver = dt.drivers_iddrivers
+WHERE d.name_driver = "Guillermo"
+ORDER BY f.event_date DESC
 
 SELECT v.name_vehicle, d.name_driver, max(f.up), max(f.event_date)
 FROM vehicles  as v

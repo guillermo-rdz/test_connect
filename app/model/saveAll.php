@@ -129,6 +129,8 @@
     	}*/
 
     	public function saveAllFrames(){
+    		//setlocale(LC_TIME, "es_MX");
+    		date_default_timezone_set('America/Mexico_City');
     		$infoJson = $_POST['data'];
     		$info = json_decode($infoJson, false, 512, JSON_BIGINT_AS_STRING);
 
@@ -137,12 +139,13 @@
     		$lat = $info->lat;
     		$lon = $info->lon;
     		$eventTime = $info->eventTime;
+    		echo $eventTime = date("Y-m-d H:i:s");
     		//Elementos de la tama
-    		echo $tx = $info->tx;
+    		$tx = $info->tx;
     		//$tx = "3,1,2,1,0,0,0,0,0";
 
 			//Si no hay trama guardar evento de parada
-			if (empty($tx)){
+			/*if (empty($tx)){
 				echo "Trama vacia";
 				if ($this->mysqli->query("INSERT INTO volatile_stop VALUES ('$vid', '$lat', '$lon', '$eventTime')")) {
 					echo "Se ingreso el evento de parada";
@@ -156,9 +159,9 @@
 						echo "No se actualizo, ocurrio algun error";
 					}
 				}
-			}
+			}*/
 			//Si hay trama para comparar con la parada 
-			else{
+			//else{
 				$trama = explode(",", $tx);
 				$up = $trama[0];
 				$down = $trama[1];
@@ -169,9 +172,9 @@
 				$false_down = $trama[6];
 				$block_up = $trama[7];
 				$block_down = $trama[8];
-				$query = $this->mysqli->query("SELECT * FROM volatile_stop");
+				$query = $this->mysqli->query("SELECT * FROM volatile_stop WHERE vehicles_idvehicle = '$vid'");
 				//Si hay evento de parada se fusionan
-				if ($query->num_rows > 0) {
+				/*if ($query->num_rows > 0) {
 					while ($row = $query->fetch_array()) {
 						$latV = $row['lat'];
 						$lonV = $row['lon'];
@@ -185,25 +188,26 @@
 						}
 
 					}
-				}
+				}*/
 				//Si no hay evento de parada que se guarde el paquete entrante
-				else{
-					$query2 = $this->mysqli->query("SELECT *  FROM data_frame");
+				//else{
+					$query2 = $this->mysqli->query("SELECT *  FROM data_frame WHERE vehicle_idvehicle = '$vid' ORDER BY event_date DESC LIMIT 1");
 					while ($row2 = $query2->fetch_array()) {
 						if ($up == $row2['up'] && $down == $row2['down'] && $onboard == $row2['onboard'] && $sensor_state == $row2['sensor_state'] && $error == $row2['error'] && $false_up == $row2['false_up'] && $false_down == $row2['false_down'] && $block_up == $row2['up_block'] && $block_down == $row2['down_block']) {
+						//if ($up == 6) {	
 							echo "Tramas iguales";
 						}
 						else{
-							if($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error', '$false_up', '$false_down', '$block_up', '$block_down', '$eventTime','$lat', '$lon', '$imei', '$vid'")){
+							if($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")){
 								echo "Se guardo la trama completa";
 							}
 							else{
-								//echo "Se descarto la trama o ocurrio algun error";
+								echo "---Se descarto la trama o ocurrio algun error---";
 							}
 						}
 					}
-				}
-			}
+				//}
+			//}
 
     	}
     }

@@ -91,7 +91,7 @@
 			INNER JOIN turn as t on dt.turn_driver = t.idturn_driver
 			GROUP BY d.name_driver
 			ORDER BY f.event_date DESC");*/
-			$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0 and users_idusers = '$userId'");
+			$query2 = $this->mysqli->query("SELECT iddrivers, name_driver FROM drivers WHERE active = 0 and users_idusers = '$userId'");
 			//$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0");
 			$query3 = $this->mysqli->query("SELECT v.idvehicle, d.name_driver 
 			FROM driver_events as de 
@@ -123,7 +123,9 @@
     	 	$output2 = '{"Inactivo":[';
     	 	while ($row2 = $query2->fetch_array()) {
     	 		if ($output2!='{"Inactivo":[') {$output2 .= ",";}
-    	 		$output2 .= '{"nombre":"'.utf8_encode($row2["name_driver"]).'"}';
+    	 		//$output2 .= '{"nombre":"'.utf8_encode($row2["name_driver"]).'"}';
+    	 		$output2 .= '{"nombre":"'.utf8_encode($row2["name_driver"]).'",';
+    	 		$output2 .= '"driverid":"'.$row2["iddrivers"].'"}';
     	 	}
     	 	$output2 .= "],";
 
@@ -229,8 +231,9 @@
 			$assignJson = $_POST['asignar'];
 			$assign = json_decode($assignJson, true);
 
-			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', 'iddrivers', current_timestamp)")) {
+			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', '$iddrivers', current_timestamp)")) {
 				echo "Se asigno el Conductor";
+				$this->mysqli->query("UPDATE drivers SET active = 1 WHERE iddrivers = '$iddrivers' ");
 			}
 			else{
 				echo "No se asigno el Conductor";

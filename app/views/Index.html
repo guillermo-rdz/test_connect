@@ -252,7 +252,7 @@
             componentDidMount: function(){
 
                 setTimeout(this.infoUpdate,1000);
-                //setInterval(this.infoUpdate, 5000);
+                setInterval(this.infoUpdate, 5000);
 
                 socket.on ('events', function(envelope){
                     console.log (envelope);
@@ -264,6 +264,7 @@
                     var longitude = '';
                     var trama = '';
                     var eventTime = '';
+                    var flagTrama = '';
 
 
                     if(events[0].lat && events[0].lon){
@@ -272,10 +273,12 @@
 
                     if(events[0].tx){
                         trama=events[0].tx;
-                        this.setState({tx: events[0].tx}); // Este es el dato (tx/ events[0].tx) donde se encuentra cadena que se envía por el puerto serial del Syrus
+                        flagTrama = true;
+                        //this.setState({tx: events[0].tx}); // Este es el dato (tx/ events[0].tx) donde se encuentra cadena que se envía por el puerto serial del Syrus
                     }
                     else{
                         trama=null;
+                        flagTrama = false;
                     }
 
                     if(events[0].lat){
@@ -327,16 +330,18 @@
                     var liveDataJ = JSON.stringify(liveData.data);
                     console.log(ev_entranteJ);
 
-                    $.ajax({
-                        type: "POST",
-                        url: "app/model/saveAll.php",
-                        data: {"type": "evento", "data": ev_entranteJ},
-                        success: function(result){
+                    if(flagTrama){
+                        $.ajax({
+                            type: "POST",
+                            url: "app/model/saveAll.php",
+                            data: {"type": "evento", "data": ev_entranteJ},
+                            success: function(result){
 
-                            console.log(result);
+                                console.log(result);
 
-                        }
-                    });
+                            }
+                        });
+                    }
 
 
                 }.bind(this));
