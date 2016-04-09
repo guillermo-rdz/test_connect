@@ -8,11 +8,11 @@ SET FOREIGN_KEY_CHECKS=1;
 insert into data_frame values(default, 12, 2, 10, 1, 0, 11, 4, 1, 0, current_timestamp, 19.14, -19.14, 356612024653182, 106);
 
 
-SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block FROM data_frame where vehicle_idvehicle = 106 order by event_date desc limit 1
+SELECT up, down, onboard, sensor_state, error, false_up, false_down, up_block, down_block FROM data_frame where vehicle_idvehicle = 106 order BY event_date desc limit 1
 
 
 ################################## CONSULTAS PARA LAS TABLAS Y GRÁFICAS ######################################
-SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon FROM data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = 106 order by event_date
+SELECT vehicles.name_vehicle, data_frame.up, data_frame.down, data_frame.aboart,data_frame.false_up, data_frame.false_down, data_frame.event_date, data_frame.lat, data_frame.lon FROM data_frame INNER JOIN vehicles on data_frame.vehicle_idvehicle = vehicles.idvehicle where vehicles.idvehicle = 106 order BY event_date
 
 #COUNSULTA PARA TODOS LOS CAMPOS PASANDOLE COMO PARAMETRO idvehicle y event_date(FECHA)
 SELECT v.name_vehicle, f.up, f.down, f.onboard, f.false_up, f.false_down, f.event_date, f.lat, f.lon 
@@ -29,7 +29,7 @@ FROM data_frame as a
 RIGHT JOIN vehicles as b
 on a.vehicle_idvehicle = b.idvehicle 
 where b.idvehicle = 106 and date(event_date) = "2016-03-10" and hour(event_date)= "16"
-order by event_date;
+order BY event_date;
 
 #CONSULTA PARA SUBIDA POR ID VEHICULO EN INTERVALOS DE TIEMPO (Usar las Terminaciones :59:59 para que tome la hora completa)
 SELECT b.name_vehicle, a.up, a.event_date
@@ -37,7 +37,7 @@ FROM data_frame as a
 LEFT JOIN vehicles as b
 on a.vehicle_idvehicle = b.idvehicle 
 where b.idvehicle = 106 and event_date between "2016-03-10:16:00:00" and "2016-03-10:18:30:59"
-order by event_date DESC
+order BY event_date DESC
 LIMIT 1;
 
 SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up), f.down, f.onboard, f.sensor_state, max(f.up)*6 as total
@@ -46,7 +46,7 @@ INNER JOIN vehicles as v on de.vehicles_idvehicle = v.idvehicle
 INNER JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 #where f.event_date between time("14:00:00") and time("22:59:59")
-group by d.name_driver
+group BY d.name_driver
 
 
 SELECT v.idvehicle, v.name_vehicle, d.name_driver, v.route, max(f.up), f.down, max(f.onboard), max(f.sensor_state), f.up, t.name_turn
@@ -114,13 +114,14 @@ INNER JOIN turn as t on t.idturn_driver = dt.drivers_iddrivers
 WHERE d.name_driver = "Guillermo"
 ORDER BY f.event_date DESC
 
-SELECT v.name_vehicle, d.name_driver, max(f.up), max(f.event_date)
-FROM vehicles  as v
+SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date
+FROM vehicles as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-INNER JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicles
-INNER JOIN drivers as d on iddrivers = de.drivers_iddrivers
-WHERE date(f.event_date) = '2016-04-05'
-GROUP BY v.idvehicle
-ORDER BY date(f.event_date)
+WHERE date(event_date) = curdate() and v.idvehicle = 17
+#GROUP BY v.idvehicle
+ORDER BY event_date DESC LIMIT 1
 
-SELECT v.idvehicle, v.name_vehicle, 
+SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date
+FROM vehicles as v
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(event_date) = curdate() and v.idvehicle = 106 ORDER BY f.event_date DESC) evento GROUP BY idvehicle

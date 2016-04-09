@@ -97,11 +97,10 @@
 			FROM driver_events as de 
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicles 
 			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers");
-			$query4 = $this->mysqli->query("SELECT v.idvehicle, max(f.up) as up, max(f.down) as down, max(f.onboard) as onboard, max(f.sensor_state) as sensor, max(f.up)*6 as total
+			$query4 = $this->mysqli->query("SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date(event_date) = curdate()
-			GROUP BY v.idvehicle");
+			WHERE date(event_date) = curdate() and v.idvehicle = 106 ORDER BY f.event_date DESC) evento GROUP BY idvehicle");
 
     	 	/*$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
@@ -229,7 +228,9 @@
 
 		public function assignDriver(){
 			$assignJson = $_POST['asignar'];
-			$assign = json_decode($assignJson, true);
+			$assign = json_decode($assignJson, false, 512, JSON_BIGINT_AS_STRING);
+			$vid = $assign->vid;
+			$iddrivers = $assign->iddrivers;
 
 			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', '$iddrivers', current_timestamp)")) {
 				echo "Se asigno el Conductor";
