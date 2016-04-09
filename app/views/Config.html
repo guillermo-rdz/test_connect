@@ -31,7 +31,10 @@
         .navbar-brand {padding-top: 30px}
         #Userlog { pointer-events: none;}
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
-
+        .container {margin-left: 0px; padding-left: 0px}
+        #shiftData, #routesData{display: none}
+        #gmaps {height:300px; width: 600px; margin-bottom: 15px}
+        #shiftOpt{margin-bottom: 10px}
 
     </style>
 </head>
@@ -49,7 +52,7 @@
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="/test_connect/">Home</a></li>
+                    <li><a href="/test_connect/">Home</a></li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reportes<span class="caret"></span></a>
                         <ul class="dropdown-menu">
@@ -57,12 +60,11 @@
                             <li><a href="#" id="conductor">Conductor</a></li>
                             <li><a href="#" id="ruta">Ruta</a></li>
                             <li><a href="#" id="turno">Turno</a></li>
-                            <li><a href="#" id="hora">Hora</a></li>
                             <li><a href="#" id="geo">Geocerca</a></li>
                         </ul>
                     </li>
                     <li><a href="#">Mapas</a></li> 
-                    <li><a href="config">Configuración</a></li> 
+                    <li class="active"><a href="config">Configuración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -72,42 +74,115 @@
         </div>
     </nav>
 
+    
+
     <div class="pageContent container-fluid">
 
         <div id="main-content">
-            <h1 id="mainheader">DATOS CONDUCTOR</h1>
+            <h1 id="mainheader"></h1>
+            <div class="container">
             <div class="row">
-                <div class="col-sm-6">
-                    <form role="form">
+                <div class="col-sm-3" id="vertical_nav">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li class='active' id="driver_pill"><a href="#"><b>Conductores</b></a></li>
+                        <li id="shift_pill"><a href="#"><b>Horarios</b></a></li>
+                        <li id="routes_pill"><a href="#"><b>Rutas</b></a></li>
+                    </ul>
+                </div>
+                <div id="driverData" class="col-sm-6">
+                    <h3>DATOS CONDUCTOR</h3>
+                    <form role="form" id="driverForm">
                       <div class="form-group">
-                        <label for="nombre">Nombre:</label>
-                        <input type="text" class="form-control" id="nombre">
+                        <label for="nombre">Nombre(s):</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="nombre">Apellido(s):</label>
+                        <input type="text" class="form-control" id="apellido" required>
                       </div>
                       <div class="form-group">
                         <label for="ruta">Turno:</label>
+                        <select id="shiftOpt" class="form-control"><option disabled hidden>----Select Shift----</option></select>
                         <div class="form-group">
                             <div class="row">
                             <div class="col-sm-6">
                                 <label>Inicio</label>
-                                <input type="time" class="form-control" id="tini">
+                                <input type="time" class="form-control" id="tini" required>
                             </div>
                             <div class="col-sm-6">
                                 <label>Fin</label>
-                                <input type="time" class="form-control" id="tfin">
+                                <input type="time" class="form-control" id="tfin" required>
                             </div>
                             </div>
                         </div>
                       </div>
 
-                      <button type="button" id="regbtn"class="btn btn-default">Registrar</button>
+                      <button type="submit" id="driverbtn"class="btn btn-default">Registrar</button>
                     </form>
                 </div>
+
+                <div id="shiftData" class="col-sm-6">
+                    <h3>DATOS HORARIO</h3>
+                    <form role="form" id="shiftForm">
+                      <div class="form-group">
+                        <label for="nombre">Nombre del Turno:</label>
+                        <input type="text" class="form-control" id="turno" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="ruta">Lapso:</label>
+                        <div class="form-group">
+                            <div class="row">
+                            <div class="col-sm-6">
+                                <label>Inicio</label>
+                                <input type="time" class="form-control" id="shini" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label>Fin</label>
+                                <input type="time" class="form-control" id="shfin" required>
+                            </div>
+                            </div>
+                        </div>
+                      </div>
+
+                      <button type="submit" id="shiftbtn"class="btn btn-default">Registrar</button>
+                    </form>
+                </div>
+
+                <div id="routesData" class="col-sm-6">
+                    <h3>DATOS RUTAS</h3>
+                    <form role="form" id="routesForm">
+                      <div class="form-group">
+                        <label for="nombre">Ruta:</label>
+                        <input type="text" class="form-control" id="rutanom" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="nombre">Vehiculo(s):</label>
+                        <select class="form-control" id="vehiclesOpt"><option disabled hidden>----Select Vehicle----</option></select>
+                      </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Punto Inicial:</label>
+                                    <input type="text" class="form-control" id="ptini" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label>Punto Final:</label>
+                                    <input type="text" class="form-control" id="ptfin" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="gmaps"></div>
+                      <button type="submit" id="routebtn"class="btn btn-default">Registrar</button>
+                    </form>
+                    
+                </div>
+
             </div>
         </div>
     </div> 
 
     
-    <script type="text/babel" type="text/javascript">
+    <script type="text/javascript">
 
         var source = "https://diesel.grupoitsur.com";//URL our pegasus site
         var socket = io("https://live.pegasusgateway.com/socket");
@@ -119,8 +194,11 @@
         var vehiculos = [];
         var tramastr = '';
         var User = '';
+        var Uid = '';
+        var i=0;
 
         Setup();
+        Gmap(16.7516009, -93.1029939);
         
         
         function stopListen(vehicle){
@@ -128,6 +206,59 @@
             socket.emit ('stop', envelope);
 
             console.log('emitting stop to server', envelope);
+        }
+
+        function Gmap(latitude, longitude){
+
+            map = new google.maps.Map(document.getElementById('gmaps'), {
+                center: {lat: latitude, lng: longitude},
+                zoom: 13,
+                zoomControl:true,
+                scrollwheel: true
+            });
+
+        }
+
+         function Marker(map, ubicacion, count){
+            
+            var marker;
+            //var imageIni = "icons/phantom.png";
+            //var imageFin = "icons/alien.png";
+            
+
+            if(i==0){
+                markerIni= new google.maps.Marker({
+                
+                    map: map,
+                    position: ubicacion,
+                    title: "INICIO",
+                    draggable: true,
+                    label: "A"
+
+                });
+            }
+
+            if(i==1){
+                markerFin= new google.maps.Marker({
+                
+                    map: map,
+                    position: ubicacion,
+                    title: "FIN",
+                    draggable: true,
+                    label: "B"
+
+                });
+            }
+
+            
+            /*marcadores.push(marker);
+
+            if(marcadores.length>2){
+                marcadores[0].setMap(null);
+                marcadores.splice(0,1);
+            }*/
+ 
+
         }
 
         function Logout(token){
@@ -144,17 +275,18 @@
                     
                     console.log(result);
                     
-                    $.ajax({
-                        type: "POST",
-                        url: "app/model/model.php",
-                        data: {"type": "logout" },
-                        success: function(result){
+                }
+            });
 
-                            console.log(result);
-                            window.location = "/test_connect/"
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "logout" },
+                success: function(result){
 
-                        }
-                    });
+                    console.log(result);
+                    window.location = "/test_connect/"
+
                 }
             });
 
@@ -177,7 +309,31 @@
                         type: "GET",
                         success: function (result) {
                             User = result.username;
+                            Uid = result.id;
+
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+                        }
+                    });
+
+                    $.ajax({
+                        url: source+"/api/vehicles",
+                        headers: { Authenticate: auth},
+                        type: "GET",
+                        success: function(result) {
+
+                            var temp = [];
+                            var vid = [];
+
+                            for(var i=0; i<result.data.length; i++){
+
+                                var x = document.getElementById("vehiclesOpt");
+                                var option = document.createElement("option");
+                                option.text = result.data[i].name;
+                                x.add(option);
+                            }
+
+                            console.log(result);
+
                         }
                     });
 
@@ -192,7 +348,7 @@
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
-                data: {"type": "report", "submenu":seleccion },
+                data: {"type": "report", "submenu":seleccion},
                 success: function(result){
 
                     console.log(result);
@@ -203,12 +359,15 @@
 
         }
 
-        function registro(){
+        $("#driverForm").submit(function (event){
+
+            event.preventDefault();
+
             var inicio = document.getElementById("tini").value+":00";
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
-            var conductor = JSON.stringify({nombre: nombre, inicio: inicio, fin: fin});
-            console.log(conductor);
+            var apellido = document.getElementById("apellido").value;
+            var conductor = JSON.stringify({nombre: nombre, apellido: apellido, inicio: inicio, fin: fin, userId: Uid});
 
             $.ajax({
                 type: "POST",
@@ -217,10 +376,55 @@
                 success: function(result){
 
                     console.log(result);
-
+                    document.getElementById("driverForm").reset();
                 }
             });
-        }
+        });
+
+        $("#routesForm").submit(function(event){
+            event.preventDefault();
+            var posInicio = markerIni.getPosition();
+            var posFinal = markerFin.getPosition();
+            var ubicacion = {inicio:{lat: posInicio.lat(), lon: posInicio.lng() } , fin:{lat:posFinal.lat() ,lon: posFinal.lng()} }
+            var nomInicio = document.getElementById("ptini").value;
+            var nomFin = document.getElementById("ptfin").value;
+            var ruta = document.getElementById("rutanom").value;
+            console.log(ubicacion);
+            console.log(nomInicio + " " + nomFin + " " + ruta);
+
+        });
+
+        $("#driver_pill").click(function (){
+
+            $(this).addClass("active");
+            $("#shift_pill").removeClass("active");
+            $("#routes_pill").removeClass("active");
+            $("#driverData").show();
+            $("#shiftData").hide();
+            $("#routesData").hide();
+            //$("#driverData").show();
+        });
+        $("#shift_pill").click(function (){
+
+            $(this).addClass("active");
+            $("#driver_pill").removeClass("active");
+            $("#routes_pill").removeClass("active");
+            $("#shiftData").show();
+            $("#driverData").hide();
+            $("#routesData").hide();
+            console.log("HOLA");
+            //$("#shiftData").show();
+        });
+        $("#routes_pill").click(function (){
+
+            $(this).addClass("active");
+            $("#shift_pill").removeClass("active");
+            $("#driver_pill").removeClass("active");
+            $("#routesData").show();
+            $("#shiftData").hide();
+            $("#driverData").hide();
+            //$("#routeData").show();
+        });
 
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
@@ -229,9 +433,13 @@
         document.getElementById("ruta").addEventListener('click', function(){reporteSel("Ruta");});
         document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
-        document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("regbtn").addEventListener('click', function(){registro();});
+        //document.getElementById("regbtn").addEventListener('click', function(){registro();});
+        var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
+            if(i>1)google.maps.event.removeListener(listener); 
+            Marker(map, event.latLng, i);
+            i++;
+        });
 
     </script>
 
