@@ -35,6 +35,7 @@
         #shiftData, #routesData{display: none}
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
+        #divTini,#divTfin {display: none;}
 
     </style>
 </head>
@@ -105,13 +106,13 @@
                         <select id="shiftOpt" class="form-control"><option disabled hidden>----Select Shift----</option></select>
                         <div class="form-group">
                             <div class="row">
-                            <div class="col-sm-6">
+                            <div id="divTini"class="col-sm-6">
                                 <label>Inicio</label>
-                                <input type="time" class="form-control" id="tini" required>
+                                <input type="time" class="form-control" id="tini" >
                             </div>
-                            <div class="col-sm-6">
+                            <div id="divTfin"class="col-sm-6">
                                 <label>Fin</label>
-                                <input type="time" class="form-control" id="tfin" required>
+                                <input type="time" class="form-control" id="tfin" >
                             </div>
                             </div>
                         </div>
@@ -126,7 +127,7 @@
                     <form role="form" id="shiftForm">
                       <div class="form-group">
                         <label for="nombre">Nombre del Turno:</label>
-                        <input type="text" class="form-control" id="turno" required>
+                        <input type="text" class="form-control" id="shift" required>
                       </div>
                       <div class="form-group">
                         <label for="ruta">Lapso:</label>
@@ -391,6 +392,28 @@
             var ruta = document.getElementById("rutanom").value;
             console.log(ubicacion);
             console.log(nomInicio + " " + nomFin + " " + ruta);
+
+        });
+
+        $("#shiftForm").submit(function(event){
+            event.preventDefault();
+            var shiftName = document.getElementById("shift").value;
+            var shiftIni = document.getElementById("shini").value;
+            var shiftFin = document.getElementById("shfin").value;
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "turno", "turno": shiftName, "inicio": shiftIni, "fin": shiftFin, "userid": Uid },
+                success: function(result){
+
+                    console.log(result);
+                    document.getElementById("shiftForm").reset();
+                }
+            });
+
+
+            console.log(shiftName + " " + shiftIni + " " + shiftFin);
 
         });
 
