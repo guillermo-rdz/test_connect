@@ -33,7 +33,7 @@
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
         .container {margin-left: 0px; padding-left: 0px}
         #shiftData, #routesData{display: none}
-        #gmaps {height:300px; width: 100%; margin-bottom: 15px}
+        #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
 
@@ -108,11 +108,11 @@
                             <div class="row">
                             <div id="divTini"class="col-sm-6">
                                 <label>Inicio</label>
-                                <input type="time" class="form-control" id="tini" >
+                                <input type="time" class="form-control" id="tini"  disabled>
                             </div>
                             <div id="divTfin"class="col-sm-6">
                                 <label>Fin</label>
-                                <input type="time" class="form-control" id="tfin" >
+                                <input type="time" class="form-control" id="tfin" disabled>
                             </div>
                             </div>
                         </div>
@@ -198,11 +198,7 @@
         var User = '';
         var Uid = '';
         var i=0;
-<<<<<<< HEAD
-        var shiftId = 0;
-=======
 
->>>>>>> origin/master
         Setup();
         Gmap(16.7516009, -93.1029939);
         
@@ -225,7 +221,7 @@
 
         }
 
-         function Marker(map, ubicacion, count){
+        function Marker(map, ubicacion, count){
             
             var marker;
             //var imageIni = "icons/phantom.png";
@@ -255,16 +251,12 @@
 
                 });
             }
-
-            
             /*marcadores.push(marker);
 
             if(marcadores.length>2){
                 marcadores[0].setMap(null);
                 marcadores.splice(0,1);
             }*/
- 
-
         }
 
         function Logout(token){
@@ -318,14 +310,18 @@
                             Uid = result.id;
 
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
-                                dataType: 'json',
+                                dataType: "json",
                                 data: {"type": "infoTurn" , "userid": Uid},
                                 success: function(result){
+
                                     turnos = result.infoTurn;
+
                                     for(var i=0; i<result.infoTurn.length; i++){
+
                                         var x = document.getElementById("shiftOpt");
                                         var option = document.createElement("option");
                                         option.text = result.infoTurn[i].nombre;
@@ -338,25 +334,6 @@
                         }
                     });
 
-                    $.ajax({
-                        type: "POST",
-                        url: "app/model/model.php",
-                        data: {"type": "infoTurn" , "userid": Uid},
-                        success: function(result){
-
-                            turnos = result;
-
-                            for(var i=0; i<result.length; i++){
-
-                                var x = document.getElementById("shiftOpt");
-                                var option = document.createElement("option");
-                                option.text = result[i].nombre;
-                                x.add(option);
-                            }
-                            
-                            console.log(result);
-                        }
-                    });
 
                     $.ajax({
                         url: source+"/api/vehicles",
@@ -410,12 +387,8 @@
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
             var apellido = document.getElementById("apellido").value;
-<<<<<<< HEAD
             var conductor = JSON.stringify({nombre: nombre, apellido: apellido, shiftId: shiftId, userId: Uid});
-=======
-            var conductor = JSON.stringify({nombre: nombre, apellido: apellido, inicio: inicio, fin: fin, userId: Uid});
 
->>>>>>> origin/master
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
@@ -440,15 +413,23 @@
             console.log(nomInicio + " " + nomFin + " " + ruta);
 
         });
-<<<<<<< HEAD
-        
-=======
 
-        $("shiftOpt").change(function(){
-            console.log("TURNO!!");
+        $("#shiftOpt").change(function(event){
+
+            var selShift = event.target.value;
+
+            for(var i=0; i<turnos.length; i++){
+
+                shiftId = turnos[i].id
+            }
+
+            document.getElementById("tini").value = "08:00 a.m.";
+            document.getElementById("tfin").value = "05:00 p.m."; 
+
+            $("#tini").show();
+            $("#tfin").show();
 
         });
->>>>>>> origin/master
 
         $("#shiftForm").submit(function(event){
             event.preventDefault();
@@ -482,6 +463,7 @@
             $("#routesData").hide();
             //$("#driverData").show();
         });
+
         $("#shift_pill").click(function (){
 
             $(this).addClass("active");
@@ -493,6 +475,7 @@
             console.log("HOLA");
             //$("#shiftData").show();
         });
+
         $("#routes_pill").click(function (){
 
             $(this).addClass("active");
@@ -504,20 +487,7 @@
             //$("#routeData").show();
         });
 
-<<<<<<< HEAD
-        $("#shiftOpt").change(function(event) {
-            /* Act on the event */
-            var selShift = event.target.value;
-            for(var i=0; i<turnos.length;i++){
-                if(selShift == turnos[i].nombre){
-                    shiftId = turnos[i].id;
-                }
-            }
-            console.log(selShift);
-        });
-=======
 
->>>>>>> origin/master
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
@@ -525,7 +495,7 @@
         document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        //document.getElementById("regbtn").addEventListener('click', function(){registro();});
+        document.getElementById("shiftOpt").addEventListener('change', function(){shiftSelection(event);});
         
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
             if(i>1)google.maps.event.removeListener(listener); 
