@@ -169,7 +169,7 @@
 	    	 		$name = utf8_decode($vehicles[$i]->name);
 	    	 		//$capacitance = $vehicles[$i]->loquesea;
 	    	 		//$max_capacitance = $vehicles[$i]->loquesea;
-	    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei', default)")) {
+	    	 		if ($this->mysqli->query("INSERT INTO vehicles VALUES ('$id', '$name', default, default, '$imei')")) {
 						echo "---Se ingresaron los registros---";
 					}
 					else{

@@ -16,12 +16,13 @@
 				$name = utf8_decode($users[$i]->username);
 				$active = 0;
 				$status = 1;
+				//$this->mysqli->query("INSERT INTO users values('$id', '$name', '$active', '$status', current_timestamp)");
 
-				if ($this->mysqli->query("INSERT INTO users values('$id', '$name', '$active', '$status')")) {
-					//echo "Se ingresaron usuarios";
+				if ($this->mysqli->query("INSERT INTO users values('$id', '$name', '$active', '$status', current_timestamp)")) {
+					echo "Se ingresaron usuarios";
 				}
 				else{
-					//echo "No se ingresaron usuarios";
+					echo "No se ingresaron usuarios";
 				}
 			}
 		}

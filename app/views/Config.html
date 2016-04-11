@@ -33,7 +33,7 @@
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
         .container {margin-left: 0px; padding-left: 0px}
         #shiftData, #routesData{display: none}
-        #gmaps {height:300px; width: 600px; margin-bottom: 15px}
+        #gmaps {height:300px; width: 100%; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
     </style>
@@ -85,7 +85,7 @@
                 <div class="col-sm-3" id="vertical_nav">
                     <ul class="nav nav-pills nav-stacked">
                         <li class='active' id="driver_pill"><a href="#"><b>Conductores</b></a></li>
-                        <li id="shift_pill"><a href="#"><b>Horarios</b></a></li>
+                        <li id="shift_pill"><a href="#"><b>Turnos</b></a></li>
                         <li id="routes_pill"><a href="#"><b>Rutas</b></a></li>
                     </ul>
                 </div>
@@ -122,7 +122,7 @@
                 </div>
 
                 <div id="shiftData" class="col-sm-6">
-                    <h3>DATOS HORARIO</h3>
+                    <h3>DATOS TURNO</h3>
                     <form role="form" id="shiftForm">
                       <div class="form-group">
                         <label for="nombre">Nombre del Turno:</label>
@@ -191,10 +191,12 @@
         var map = null;
         var marcadores = [];
         var vehiculos = [];
+        var turnos = [];
         var tramastr = '';
         var User = '';
         var Uid = '';
         var i=0;
+        var shiftId = 0;
         Setup();
         Gmap(16.7516009, -93.1029939);
         
@@ -287,6 +289,23 @@
                             User = result.username;
                             Uid = result.id;
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+                            $.ajax({
+                                type: "POST",
+                                url: "app/model/model.php",
+                                dataType: 'json',
+                                data: {"type": "infoTurn" , "userid": Uid},
+                                success: function(result){
+                                    turnos = result.infoTurn;
+                                    for(var i=0; i<result.infoTurn.length; i++){
+                                        var x = document.getElementById("shiftOpt");
+                                        var option = document.createElement("option");
+                                        option.text = result.infoTurn[i].nombre;
+                                        x.add(option);
+                                    }
+                                    
+                                    console.log(result);
+                                }
+                            });
                         }
                     });
                     $.ajax({
@@ -326,7 +345,7 @@
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
             var apellido = document.getElementById("apellido").value;
-            var conductor = JSON.stringify({nombre: nombre, apellido: apellido, inicio: inicio, fin: fin, userId: Uid});
+            var conductor = JSON.stringify({nombre: nombre, apellido: apellido, shiftId: shiftId, userId: Uid});
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
@@ -348,6 +367,8 @@
             console.log(ubicacion);
             console.log(nomInicio + " " + nomFin + " " + ruta);
         });
+        
+
         $("#shiftForm").submit(function(event){
             event.preventDefault();
             var shiftName = document.getElementById("shift").value;
@@ -392,6 +413,17 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
+
+        $("#shiftOpt").change(function(event) {
+            /* Act on the event */
+            var selShift = event.target.value;
+            for(var i=0; i<turnos.length;i++){
+                if(selShift == turnos[i].nombre){
+                    shiftId = turnos[i].id;
+                }
+            }
+            console.log(selShift);
+        });
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
@@ -400,6 +432,7 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
         //document.getElementById("regbtn").addEventListener('click', function(){registro();});
+        
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
             if(i>1)google.maps.event.removeListener(listener); 
             Marker(map, event.latLng, i);
