@@ -317,17 +317,17 @@
 				echo "Error al cambiar estado del conductor";
 			}
 		}
+		public function logout(){
+			session_start();
+			session_unset();
+			session_destroy();
+		}
 
 		public function sessionReport(){
 			session_start();
 			echo $_SESSION['submenu'];
 		}
 
-		public function logout(){
-			session_start();
-			session_unset();
-			session_destroy();
-		}
 
 	}
 
