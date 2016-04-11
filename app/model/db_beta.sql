@@ -105,6 +105,7 @@ WHERE date(f.event_date) between "2016-04-02" and "2016-04-04" AND v.idvehicle =
 ORDER BY f.event_date DESC
 
 
+
 SELECT v.idvehicle, v.name_vehicle, d.name_driver, f.up, f.down, f.onboard, f.up*6, t.name_turn
 FROM driver_events as de
 RIGHT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
