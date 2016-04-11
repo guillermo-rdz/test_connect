@@ -10,21 +10,95 @@
 		public function login(){
 			$login = $_POST['login'];
 			$token = $_POST['token'];
-			if ($login == "Valid") {
-				session_start();
-				$_SESSION['token'] = $token;
-				$_SESSION['conectado']=true;
-				echo $_SESSION['token'];
-			} 
-			else {
-				echo "Usuario y contraseña equivocados";
-			}
+				if ($login == "Valid") {
+					session_start();
+					$_SESSION['token'] = $token;
+					$_SESSION['conectado']=true;
+					echo $_SESSION['token'];
+				} 
+				else {
+					echo "Usuario y contraseña equivocados";
+				}
 		}
 
 		public function reports(){
 			session_start();
 			$value = $_POST['submenu'];
 			$_SESSION['submenu'] = $value;
+		}
+
+		public function insertDriver(){
+			$driverJson = $_POST['info'];
+			$driverData = json_decode($driverJson, true);
+			$name = utf8_decode($driverData['nombre']);
+			$ap = utf8_decode($driverData['apellido']);
+			$iduser = $driverData['userId'];
+			$idturn = $driverData['turnId'];
+			$active = 0;
+
+			$query = $this->mysqli->query("SELECT name_driver, ap_driver from drivers WHERE name_driver='$name' and ap_driver='$ap' and users_idusers='$iduser'");
+			if ($query->num_rows < 1) {
+				if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$ap','$active', current_timestamp, '$iduser')")) {
+					echo "Se ingreso el conductor---";
+					$query2 = $this->mysqli->query("SELECT * from drivers WHERE name_driver = '$name' and users_idusers = '$iduser' ORDER BY date_driver DESC LIMIT 1");
+					while ($row2 = $query2->fetch_array()) {
+						//$iddrivers = $row2['iddrivers'];
+						$iddrivers = $this->mysqli->insert_id;
+						if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', '$idturn')")) {
+							echo "Se guardo correcto";
+						}
+						else{
+							echo "No se guardo, hubo algun error";
+						}
+					}
+				}
+				else{
+					echo "No se ingreso el conductor";
+				}
+			}
+			else{
+				echo "Ya existe un conductor con ese nombre";
+			}
+		}
+
+		public function insertTurn(){
+			$name_turn = utf8_decode($_POST['turno']);
+			$start_turn = $_POST['inicio'];
+			$end_turn = $_POST['fin'];
+			$iduser = $_POST['userid'];
+
+			if ($this->mysqli->query("INSERT INTO turn values(default, '$name_turn', '$start_turn', '$end_turn', current_timestamp, '$iduser')")) {
+				echo "Se guardo el turno";
+			}
+			else{
+				echo "No se guardo el turno";
+			}
+
+		}
+
+		public function insertRoute(){
+			$name_rotue = utf8_decode($_POST['ruta']);
+			$name_start = utf8_decode($_POST['nombreInicio']);
+			$start_route = $_POST['inicio'];
+			$name_end = utf8_decode($_POST['nombreFin']);
+			$end_route = $_POST['fin'];
+			$iduser = $_POST['userid'];
+			$vid = $_POST['vid'];
+
+			if ($this->mysqli->query("INSERT INTO route values (default, '$name_rotue', '$name_start', '$start_route', '$name_end', '$end_route', current_timestamp, '$iduser')")) {
+				echo "Se ingreso la ruta";
+				$idroute = $this->mysqli->insert_id;
+				if ($this->mysqli->query("INSERT INTO vehicle_route values('$vid', '$idroute')")) {
+					echo "Se asigno la ruta al vehiculo";
+				}
+				else{
+					echo "No se asigno la ruta al vehiculo";
+				}
+
+			}
+			else{
+				echo "No se ingreso la ruta";
+			}
 		}
 
 		public function saveDriver(){
@@ -100,7 +174,7 @@
 			$query4 = $this->mysqli->query("SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date(event_date) = curdate() and v.idvehicle = 106 ORDER BY f.event_date DESC) evento GROUP BY idvehicle");
+			WHERE date(event_date) = curdate() ORDER BY f.event_date DESC) evento GROUP BY idvehicle");
 
     	 	/*$output = '{"data":[';
     	 	while ($row = $query->fetch_array()) {
@@ -226,15 +300,39 @@
     	 	echo $output;
 		}
 
+		public function allTurns(){
+			$userid = $_POST['userid'];
+			$query = $this->mysqli->query("SELECT *  FROM drivers WHERE users_idusers = '$userId'");
+
+    	 	$output = '{"infoTurn":[';
+    	 	while ($row = $query->fetch_array()) {
+    	 		if ($output!='{"infoTurn":[') {$output .= ",";}
+    	 		$output .= '{"id":"'.$row["id_turn"].'",';
+    	 		$output .= '"nombre":"'.utf8_encode($row["name_turn"]).'",';
+    	 		$output .= '"incio":"'.$row["start_turn"].'",';
+    	 		$output .= '"fin":"'.$row["end_turn"].'",';
+    	 		$output .= '"fecha":"'.$row["date_turn"].'"}';
+    	 	}
+    	 	$output .= "]}";
+    	 	echo $output;
+		}
+
 		public function assignDriver(){
-			$assignJson = $_POST['asignar'];
+			/*$assignJson = $_POST['asignar'];
 			$assign = json_decode($assignJson, false, 512, JSON_BIGINT_AS_STRING);
 			$vid = $assign->vid;
-			$iddrivers = $assign->iddrivers;
+			$iddrivers = $assign->iddrivers;*/
+			$vid = $_POST['vid'];
+			$iddrivers = $_POST['cid'];
 
 			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', '$iddrivers', current_timestamp)")) {
 				echo "Se asigno el Conductor";
-				$this->mysqli->query("UPDATE drivers SET active = 1 WHERE iddrivers = '$iddrivers' ");
+				if ($this->mysqli->query("UPDATE drivers SET active = 1 WHERE iddrivers = '$iddrivers' ")) {
+					echo "Se cambio el estado a activo";
+				}
+				else{
+					echo "Error al cambiar estado del conductor";
+				}
 			}
 			else{
 				echo "No se asigno el Conductor";
@@ -260,6 +358,7 @@
 
 	$instance = new model();
 	//$instance->mainQuery();
+	
 	if ($_POST['type']=="login") {
 		$instance->login();
 	}
@@ -275,9 +374,18 @@
 	elseif ($_POST['type']=="driver") {
 		$instance->saveDriver();
 	}
+	elseif ($_POST['type']=="turno") {
+		$instance->insertTurn();
+	}
+	/*elseif ($_POST['type']=="driver") {
+		$instance->insertDriver();
+	}*/
 	elseif ($_POST['type']=="infoDriver") {
 		//$instance->vehicleReport();
 		$instance->allDrivers();
+	}
+	elseif ($_POST['type']=="infoTurn"){
+		$instance->allTurns();
 	}
 	elseif ($_POST['type']=="repVehiculo") {
 		$instance->vehicleReport();
@@ -294,5 +402,4 @@
 	else{
 		echo "Error al llamar a la funcion";
 	}
-	
  ?>

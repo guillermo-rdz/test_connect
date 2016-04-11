@@ -4,6 +4,7 @@ TRUNCATE turn;
 TRUNCATE driver_events; 
 TRUNCATE driver_turn;
 SET FOREIGN_KEY_CHECKS=1;
+
 ######################################################
 insert into data_frame values(default, 12, 2, 10, 1, 0, 11, 4, 1, 0, current_timestamp, 19.14, -19.14, 356612024653182, 106);
 
@@ -124,4 +125,4 @@ ORDER BY event_date DESC LIMIT 1
 SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date
 FROM vehicles as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-WHERE date(event_date) = curdate() and v.idvehicle = 106 ORDER BY f.event_date DESC) evento GROUP BY idvehicle
+WHERE date(event_date) = curdate() ORDER BY f.event_date DESC) evento GROUP BY idvehicle
