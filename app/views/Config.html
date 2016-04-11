@@ -36,6 +36,7 @@
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
+
     </style>
 </head>
 <body> 
@@ -85,7 +86,7 @@
                 <div class="col-sm-3" id="vertical_nav">
                     <ul class="nav nav-pills nav-stacked">
                         <li class='active' id="driver_pill"><a href="#"><b>Conductores</b></a></li>
-                        <li id="shift_pill"><a href="#"><b>Horarios</b></a></li>
+                        <li id="shift_pill"><a href="#"><b>Turnos</b></a></li>
                         <li id="routes_pill"><a href="#"><b>Rutas</b></a></li>
                     </ul>
                 </div>
@@ -122,7 +123,7 @@
                 </div>
 
                 <div id="shiftData" class="col-sm-6">
-                    <h3>DATOS HORARIO</h3>
+                    <h3>DATOS TURNO</h3>
                     <form role="form" id="shiftForm">
                       <div class="form-group">
                         <label for="nombre">Nombre del Turno:</label>
@@ -183,6 +184,7 @@
 
     
     <script type="text/javascript">
+
         var source = "https://diesel.grupoitsur.com";//URL our pegasus site
         var socket = io("https://live.pegasusgateway.com/socket");
         var auth = '';
@@ -191,10 +193,12 @@
         var map = null;
         var marcadores = [];
         var vehiculos = [];
+        var turnos = [];
         var tramastr = '';
         var User = '';
         var Uid = '';
         var i=0;
+
         Setup();
         Gmap(16.7516009, -93.1029939);
         
@@ -202,22 +206,28 @@
         function stopListen(vehicle){
             var envelope = {namespace:"vehicle-events", objects: vehicle};
             socket.emit ('stop', envelope);
+
             console.log('emitting stop to server', envelope);
         }
+
         function Gmap(latitude, longitude){
+
             map = new google.maps.Map(document.getElementById('gmaps'), {
                 center: {lat: latitude, lng: longitude},
                 zoom: 13,
                 zoomControl:true,
                 scrollwheel: true
             });
+
         }
+
          function Marker(map, ubicacion, count){
             
             var marker;
             //var imageIni = "icons/phantom.png";
             //var imageFin = "icons/alien.png";
             
+
             if(i==0){
                 markerIni= new google.maps.Marker({
                 
@@ -226,8 +236,10 @@
                     title: "INICIO",
                     draggable: true,
                     label: "A"
+
                 });
             }
+
             if(i==1){
                 markerFin= new google.maps.Marker({
                 
@@ -236,20 +248,27 @@
                     title: "FIN",
                     draggable: true,
                     label: "B"
+
                 });
             }
+
             
             /*marcadores.push(marker);
+
             if(marcadores.length>2){
                 marcadores[0].setMap(null);
                 marcadores.splice(0,1);
             }*/
  
+
         }
+
         function Logout(token){
+
             stopListen("all");
             socket.disconnect();
             console.log(auth);
+
             $.ajax({
                 url: source + "/api/logout",
                 headers: { Authenticate: auth},
@@ -260,25 +279,32 @@
                     
                 }
             });
+
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type": "logout" },
                 success: function(result){
+
                     console.log(result);
                     window.location = "/test_connect/"
+
                 }
             });
+
         }
+
         function Setup(){
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type":"token"},
                 success: function(result){
+
                     auth = result;
                     console.log(result);
                     //connect(result);
+
                     $.ajax({
                         url: source+"/api/user",
                         headers: {Authenticate: auth},
@@ -286,28 +312,59 @@
                         success: function (result) {
                             User = result.username;
                             Uid = result.id;
+
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
                         }
                     });
+
+                    $.ajax({
+                        type: "POST",
+                        url: "app/model/model.php",
+                        data: {"type": "infoTurn" , "userid": Uid},
+                        success: function(result){
+
+                            turnos = result;
+
+                            for(var i=0; i<result.length; i++){
+
+                                var x = document.getElementById("shiftOpt");
+                                var option = document.createElement("option");
+                                option.text = result[i].nombre;
+                                x.add(option);
+                            }
+                            
+                            console.log(result);
+                        }
+                    });
+
                     $.ajax({
                         url: source+"/api/vehicles",
                         headers: { Authenticate: auth},
                         type: "GET",
                         success: function(result) {
+
                             var temp = [];
                             var vid = [];
+
                             for(var i=0; i<result.data.length; i++){
+
                                 var x = document.getElementById("vehiclesOpt");
                                 var option = document.createElement("option");
                                 option.text = result.data[i].name;
                                 x.add(option);
                             }
+
                             console.log(result);
+
                         }
                     });
+
                 }
             });
+
+
         }
+
         function reporteSel(seleccion){
             console.log(seleccion);
             $.ajax({
@@ -315,28 +372,37 @@
                 url: "app/model/model.php",
                 data: {"type": "report", "submenu":seleccion},
                 success: function(result){
+
                     console.log(result);
                     window.location = "/test_connect/reports"
+
                 }
             });
+
         }
+
         $("#driverForm").submit(function (event){
+
             event.preventDefault();
+
             var inicio = document.getElementById("tini").value+":00";
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
             var apellido = document.getElementById("apellido").value;
             var conductor = JSON.stringify({nombre: nombre, apellido: apellido, inicio: inicio, fin: fin, userId: Uid});
+
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type": "driver", "info":conductor },
                 success: function(result){
+
                     console.log(result);
                     document.getElementById("driverForm").reset();
                 }
             });
         });
+
         $("#routesForm").submit(function(event){
             event.preventDefault();
             var posInicio = markerIni.getPosition();
@@ -347,24 +413,38 @@
             var ruta = document.getElementById("rutanom").value;
             console.log(ubicacion);
             console.log(nomInicio + " " + nomFin + " " + ruta);
+
         });
+
+        $("shiftOpt").change(function(){
+            console.log("TURNO!!");
+
+        });
+
         $("#shiftForm").submit(function(event){
             event.preventDefault();
             var shiftName = document.getElementById("shift").value;
             var shiftIni = document.getElementById("shini").value;
             var shiftFin = document.getElementById("shfin").value;
+
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type": "turno", "turno": shiftName, "inicio": shiftIni, "fin": shiftFin, "userid": Uid },
                 success: function(result){
+
                     console.log(result);
                     document.getElementById("shiftForm").reset();
                 }
             });
+
+
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
+
         });
+
         $("#driver_pill").click(function (){
+
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#routes_pill").removeClass("active");
@@ -374,6 +454,7 @@
             //$("#driverData").show();
         });
         $("#shift_pill").click(function (){
+
             $(this).addClass("active");
             $("#driver_pill").removeClass("active");
             $("#routes_pill").removeClass("active");
@@ -384,6 +465,7 @@
             //$("#shiftData").show();
         });
         $("#routes_pill").click(function (){
+
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#driver_pill").removeClass("active");
@@ -392,6 +474,8 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
+
+
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
@@ -400,11 +484,13 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
         //document.getElementById("regbtn").addEventListener('click', function(){registro();});
+        
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
             if(i>1)google.maps.event.removeListener(listener); 
             Marker(map, event.latLng, i);
             i++;
         });
+
     </script>
 
 </body>
