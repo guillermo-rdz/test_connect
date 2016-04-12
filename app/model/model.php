@@ -80,13 +80,23 @@
 		}
 
 		public function insertRoute(){
-			$name_rotue = utf8_decode($_POST['ruta']);
+			$infoJ = $_POST["info"];
+			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+			$vid = $info->vid;
+			$name_rotue = utf8_decode($info->ruta);
+			$name_start = utf8_decode($info->nombreInicio)
+			$start_route = $info->inicio;
+			$name_end = utf8_decode($info->nombreFin);
+			$end_route = $info->fin;
+			$iduser = $info->userid;
+
+			/*$name_rotue = utf8_decode($_POST['ruta']);
 			$name_start = utf8_decode($_POST['nombreInicio']);
 			$start_route = $_POST['inicio'];
 			$name_end = utf8_decode($_POST['nombreFin']);
 			$end_route = $_POST['fin'];
 			$iduser = $_POST['userid'];
-			$vid = $_POST['vid'];
+			$vid = $_POST['vid'];*/
 
 			if ($this->mysqli->query("INSERT INTO route values (default, '$name_rotue', '$name_start', '$start_route', '$name_end', '$end_route', current_timestamp, '$iduser')")) {
 				echo "Se ingreso la ruta";
@@ -101,6 +111,54 @@
 			}
 			else{
 				echo "No se ingreso la ruta";
+			}
+		}
+
+		public function updateDriver(){
+			$driverJson = $_POST['info'];
+			$driverData = json_decode($driverJson, true);
+			$name = utf8_decode($driverData['nombre']);
+			$ap = utf8_decode($driverData['apellido']);
+			$idturn = $driverData['shiftId'];
+			$iddriver = $driverData['cid'];
+			$active = 0;
+
+			if ($name != "" && $ap != "") {
+				if ($this->mysqli->query("UPDATE drivers SET name_driver = '$name', ap_driver ='$ap' WHERE iddrivers = '$iddriver' ")) {
+					if ($idturn !=0) {
+						if ($this->mysqli->query("UPDATE driver_turn SET drivers_iddrivers = '$iddriver', idturn_driver = '$idturn' ")) {
+							echo "Se actualizo el turno";
+						}
+						else{
+							echo "No se actualizo el turno";
+						}
+					}
+					else{
+						echo "No hay cambio en el turno";
+					}
+				}
+				else{
+					echo "No se actualizo el registro";
+				}
+
+			}
+			else{
+				echo "Error en los datos de entrada";
+			}
+		}
+
+		public function updateTurn(){
+			$name_turn = utf8_decode($_POST['turno']);
+			$start_turn = $_POST['inicio'];
+			$end_turn = $_POST['fin'];
+			$idturn = $_POST['idturn'];
+			if ($name_turn != "" && $start_turn != "" && $end_turn != "" && $idturn != 0) {
+				if ($this->mysqli->query("UPDATE turn SET name_turn = '$name_turn', start_turn = '$start_turn', $end_turn = '$end_turn' WHERE idturn='$idturn_driver'")) {
+					echo "Se actualizo el turno";
+				}
+				else{
+					echo "No se actualizo el turno";
+				}
 			}
 		}
 

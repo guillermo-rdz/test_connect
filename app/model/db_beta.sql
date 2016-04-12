@@ -127,3 +127,8 @@ SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f
 FROM vehicles as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 WHERE date(event_date) = curdate() ORDER BY f.event_date DESC) evento GROUP BY idvehicle
+
+SELECT * FROM (SELECT d.iddrivers, v.idvehicle, d.name_driver, de.date_driver_event FROM driver_events as de 
+INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle 
+INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers 
+ORDER BY de.date_driver_event DESC) conductor GROUP BY iddrivers;
