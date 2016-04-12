@@ -35,7 +35,7 @@
         #shiftData, #routesData{display: none}
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
-        #divTini, #divTfin {display: none;}
+        #divTini,#divTfin {display: none;}
 
     </style>
 </head>
@@ -103,16 +103,18 @@
                       </div>
                       <div class="form-group">
                         <label for="ruta">Turno:</label>
-                        <select id="shiftOpt" class="form-control"><option disabled hidden>----Select Shift----</option></select>
+                        <select id="shiftOpt" class="form-control" required>
+                            <option value ="" hidden disabled>----Select Shift----</option>
+                        </select>
                         <div class="form-group">
                             <div class="row">
                             <div id="divTini"class="col-sm-6">
                                 <label>Inicio</label>
-                                <input type="time" class="form-control" id="tini"  disabled required>
+                                <input type="time" class="form-control" id="tini"  disabled>
                             </div>
                             <div id="divTfin"class="col-sm-6">
                                 <label>Fin</label>
-                                <input type="time" class="form-control" id="tfin" disabled required>
+                                <input type="time" class="form-control" id="tfin" disabled>
                             </div>
                             </div>
                         </div>
@@ -158,7 +160,7 @@
                       </div>
                       <div class="form-group">
                         <label for="nombre">Vehiculo(s):</label>
-                        <select class="form-control" id="vehiclesOpt" required><option disabled hidden>----Select Vehicle----</option></select>
+                        <select class="form-control" id="vehiclesOpt" required><option value="" disabled hidden>----Select Vehicle----</option></select>
                       </div>
                         <div class="form-group">
                             <div class="row">
@@ -197,7 +199,6 @@
         var tramastr = '';
         var User = '';
         var Uid = '';
-        var shiftId = 0;
         var i=0;
 
         Setup();
@@ -342,8 +343,6 @@
                         type: "GET",
                         success: function(result) {
 
-                            var temp = [];
-                            var vid = [];
 
                             for(var i=0; i<result.data.length; i++){
 
@@ -351,9 +350,10 @@
                                 var option = document.createElement("option");
                                 option.text = result.data[i].name;
                                 x.add(option);
+                                vehiculos.push(result.data[i]);
                             }
 
-                            console.log(result);
+                            console.log(vehiculos);
 
                         }
                     });
@@ -398,7 +398,6 @@
 
                     console.log(result);
                     document.getElementById("driverForm").reset();
-                    shiftId=0;
                 }
             });
         });
@@ -411,33 +410,33 @@
             var nomInicio = document.getElementById("ptini").value;
             var nomFin = document.getElementById("ptfin").value;
             var ruta = document.getElementById("rutanom").value;
-            console.log(ubicacion);
+            var rutaVehiculo = document.getElementById("vehiclesOpt").value;
+
+            for(var i=0; i<vehiculos.length; i++){
+                if(vehiculos[i].name == rutaVehiculo ){
+                    var vid = vehiculos[i].id;
+                    break;
+                }
+            }
+
+            var infoRuta = {"rutaNom": ruta ,"nomInicio": nomInicio ,"nomFin": nomFin, "ubicacion": ubicacion, "vid": vid  , "userId": Uid }
+            
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "ruta", "infoRuta": infoRuta},
+                success: function(result){
+
+                    console.log(result);
+                    document.getElementById("shiftForm").reset();
+                }
+            });
+            console.log(rutaVehiculo);
             console.log(nomInicio + " " + nomFin + " " + ruta);
 
         });
 
-        $("#shiftOpt").change(function(event){
-
-            var selShift = event.target.value;
-
-            for(var i=0; i<turnos.length; i++){
-
-                if(selShift == turnos[i].nombre){
-                    shiftId = turnos[i].id;
-                    var inicio = turnos[i].inicio;
-                    var fin = turnos[i].fin;
-                }
-            }
-
-            document.getElementById("tini").value = inicio;
-            document.getElementById("tfin").value = fin;
-
-            console.log(shiftId); 
-
-            $("#divTini").show();
-            $("#divTfin").show();
-
-        });
+       
 
         $("#shiftForm").submit(function(event){
             event.preventDefault();
@@ -458,6 +457,27 @@
 
 
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
+
+        });
+
+        $("#shiftOpt").change(function(event){
+
+            var selShift = event.target.value;
+
+            for(var i=0; i<turnos.length; i++){
+
+                if(selShift == turnos[i].nombres){
+                    shiftId = turnos[i].id
+                    var inicio = turnos[i].inicio;
+                    var fin = turnos[i].fin;
+                }
+            }
+
+            document.getElementById("tini").value = inicio;
+            document.getElementById("tfin").value = fin; 
+
+            $("#divTini").show();
+            $("#divTfin").show();
 
         });
 
@@ -503,7 +523,7 @@
         document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        
+        document.getElementById("shiftOpt").addEventListener('change', function(){shiftSelection(event);});
         
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
             if(i>1)google.maps.event.removeListener(listener); 
