@@ -36,26 +36,31 @@
 			$idturn = $driverData['shiftId'];
 			$active = 0;
 
-			$query = $this->mysqli->query("SELECT name_driver, ap_driver from drivers WHERE name_driver='$name' and ap_driver='$ap' and users_idusers='$iduser'");
-			if ($query->num_rows < 1) {
-				if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$ap','$active', current_timestamp, '$iduser')")) {
-					echo "Se ingreso el conductor---";
-					$iddrivers = $this->mysqli->insert_id;
-					$query2 = $this->mysqli->query("SELECT * from drivers WHERE name_driver = '$name' and users_idusers = '$iduser' ORDER BY date_driver DESC LIMIT 1");
-					echo $iddrivers;
-					if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', '$idturn')")) {
-						echo "Se guardo correcto";
+			if ($name != "" && $ap != "" && $iduser != 0 && $idturn !=0) {
+				$query = $this->mysqli->query("SELECT name_driver, ap_driver from drivers WHERE name_driver='$name' and ap_driver='$ap' and users_idusers='$iduser'");
+				if ($query->num_rows < 1) {
+					if ($this->mysqli->query("INSERT INTO drivers values (default, '$name', '$ap','$active', current_timestamp, '$iduser')")) {
+						echo "Se ingreso el conductor---";
+						$iddrivers = $this->mysqli->insert_id;
+						$query2 = $this->mysqli->query("SELECT * from drivers WHERE name_driver = '$name' and users_idusers = '$iduser' ORDER BY date_driver DESC LIMIT 1");
+						echo $iddrivers;
+						if ($this->mysqli->query("INSERT INTO driver_turn values ('$iddrivers', '$idturn')")) {
+							echo "Se guardo correcto";
+						}
+						else{
+							echo "No se guardo, hubo algun error";
+						}
 					}
 					else{
-						echo "No se guardo, hubo algun error";
+						echo "No se ingreso el conductor";
 					}
 				}
 				else{
-					echo "No se ingreso el conductor";
+					echo "Ya existe un conductor con ese nombre";
 				}
 			}
 			else{
-				echo "Ya existe un conductor con ese nombre";
+				echo "Error al ingresa valores";
 			}
 		}
 
@@ -277,7 +282,7 @@
     	 		if ($output!='{"infoTurn":[') {$output .= ",";}
     	 		$output .= '{"id":"'.$row["idturn_driver"].'",';
     	 		$output .= '"nombre":"'.utf8_encode($row["name_turn"]).'",';
-    	 		$output .= '"incio":"'.$row["start_turn"].'",';
+    	 		$output .= '"inicio":"'.$row["start_turn"].'",';
     	 		$output .= '"fin":"'.$row["end_turn"].'",';
     	 		$output .= '"fecha":"'.$row["date_turn"].'"}';
     	 	}

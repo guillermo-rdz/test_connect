@@ -35,7 +35,7 @@
         #shiftData, #routesData{display: none}
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
-        #divTini,#divTfin {display: none;}
+        #divTini, #divTfin {display: none;}
 
     </style>
 </head>
@@ -108,11 +108,11 @@
                             <div class="row">
                             <div id="divTini"class="col-sm-6">
                                 <label>Inicio</label>
-                                <input type="time" class="form-control" id="tini"  disabled>
+                                <input type="time" class="form-control" id="tini"  disabled required>
                             </div>
                             <div id="divTfin"class="col-sm-6">
                                 <label>Fin</label>
-                                <input type="time" class="form-control" id="tfin" disabled>
+                                <input type="time" class="form-control" id="tfin" disabled required>
                             </div>
                             </div>
                         </div>
@@ -158,7 +158,7 @@
                       </div>
                       <div class="form-group">
                         <label for="nombre">Vehiculo(s):</label>
-                        <select class="form-control" id="vehiclesOpt"><option disabled hidden>----Select Vehicle----</option></select>
+                        <select class="form-control" id="vehiclesOpt" required><option disabled hidden>----Select Vehicle----</option></select>
                       </div>
                         <div class="form-group">
                             <div class="row">
@@ -197,6 +197,7 @@
         var tramastr = '';
         var User = '';
         var Uid = '';
+        var shiftId = 0;
         var i=0;
 
         Setup();
@@ -397,6 +398,7 @@
 
                     console.log(result);
                     document.getElementById("driverForm").reset();
+                    shiftId=0;
                 }
             });
         });
@@ -420,14 +422,20 @@
 
             for(var i=0; i<turnos.length; i++){
 
-                shiftId = turnos[i].id
+                if(selShift == turnos[i].nombre){
+                    shiftId = turnos[i].id;
+                    var inicio = turnos[i].inicio;
+                    var fin = turnos[i].fin;
+                }
             }
 
-            document.getElementById("tini").value = "08:00 a.m.";
-            document.getElementById("tfin").value = "05:00 p.m."; 
+            document.getElementById("tini").value = inicio;
+            document.getElementById("tfin").value = fin;
 
-            $("#tini").show();
-            $("#tfin").show();
+            console.log(shiftId); 
+
+            $("#divTini").show();
+            $("#divTfin").show();
 
         });
 
@@ -495,7 +503,7 @@
         document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("shiftOpt").addEventListener('change', function(){shiftSelection(event);});
+        
         
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
             if(i>1)google.maps.event.removeListener(listener); 
