@@ -103,7 +103,9 @@
                       </div>
                       <div class="form-group">
                         <label for="ruta">Turno:</label>
-                        <select id="shiftOpt" class="form-control"><option disabled hidden>----Select Shift----</option></select>
+                        <select id="shiftOpt" class="form-control" required>
+                            <option value ="" hidden disabled>----Select Shift----</option>
+                        </select>
                         <div class="form-group">
                             <div class="row">
                             <div id="divTini"class="col-sm-6">
@@ -158,7 +160,7 @@
                       </div>
                       <div class="form-group">
                         <label for="nombre">Vehiculo(s):</label>
-                        <select class="form-control" id="vehiclesOpt"><option disabled hidden>----Select Vehicle----</option></select>
+                        <select class="form-control" id="vehiclesOpt" required><option value="" disabled hidden>----Select Vehicle----</option></select>
                       </div>
                         <div class="form-group">
                             <div class="row">
@@ -414,22 +416,7 @@
 
         });
 
-        $("#shiftOpt").change(function(event){
-
-            var selShift = event.target.value;
-
-            for(var i=0; i<turnos.length; i++){
-
-                shiftId = turnos[i].id
-            }
-
-            document.getElementById("tini").value = "08:00 a.m.";
-            document.getElementById("tfin").value = "05:00 p.m."; 
-
-            $("#tini").show();
-            $("#tfin").show();
-
-        });
+       
 
         $("#shiftForm").submit(function(event){
             event.preventDefault();
@@ -450,6 +437,27 @@
 
 
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
+
+        });
+
+        $("#shiftOpt").change(function(event){
+
+            var selShift = event.target.value;
+
+            for(var i=0; i<turnos.length; i++){
+
+                if(selShift == turnos[i].nombres){
+                    shiftId = turnos[i].id
+                    var inicio = turnos[i].inicio;
+                    var fin = turnos[i].fin;
+                }
+            }
+
+            document.getElementById("tini").value = inicio;
+            document.getElementById("tfin").value = fin; 
+
+            $("#divTini").show();
+            $("#divTfin").show();
 
         });
 
