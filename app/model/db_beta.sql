@@ -98,11 +98,24 @@ WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 1 MONTH) and curda
 ORDER BY f.event_date DESC
 
 #################### CONSULTA REPORTE PERSONALIZADO ############################
-SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up*6, f.event_date
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up*6, f.event_date
 FROM vehicles as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-WHERE date(f.event_date) between "2016-04-02" and "2016-04-04" AND v.idvehicle = 106
+WHERE date(f.event_date) between "2016-04-11" and "2016-04-12" AND v.idvehicle = 106
 ORDER BY f.event_date DESC
+
+SELECT d.iddrivers, d.name_driver, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up*6,f.event_date
+FROM driver_events as de
+INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle
+INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between "2016-04-11" and "2016-04-13" and d.iddrivers = 1
+ORDER BY f.event_date DESC
+#SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up*6, f.event_date
+#FROM vehicles as v
+#INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+#WHERE date(f.event_date) between "2016-04-11" and "2016-04-12" AND v.idvehicle = 106
+#ORDER BY f.event_date DESC
 
 
 

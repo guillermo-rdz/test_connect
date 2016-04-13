@@ -1,5 +1,5 @@
 <?php 
-class conexion{
+class Conexion{
 	protected $mysqli;
 	public function __construct(){
 		$this->mysqli = new mysqli("localhost","root","qaz","db_frames2");

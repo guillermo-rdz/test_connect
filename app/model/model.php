@@ -1,7 +1,7 @@
 <?php 
 	require_once "conexion.php";
 
-	class model extends conexion{
+	class Model extends Conexion{
 
 		public function _construct(){
 			parent:: _construct();
@@ -254,6 +254,7 @@
     	 	while ($row3 = $query3->fetch_array()) {
     	 		if ($output3!='"Driver_Vehicle":[') {$output3 .= ",";}
     	 		$output3 .= '{"Vid":"'.$row3["idvehicle"].'",';
+    	 		$output3 .= '"Cid":"'.$row3['iddrivers'].'",';
     	 		$output3 .= '"Conductor":"'.utf8_encode($row3["name_driver"]).'"}';
     	 	}
     	 	$output3 .= "],";
@@ -280,54 +281,6 @@
 			echo $_SESSION['token'];
 		}
 
-		public function vehicleReport(){
-			$infoJ = $_POST['info'];
-			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
-			$vid = $info->vid;
-			$start = $info->tini;
-			$end = $info->tfin;
-
-			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up as ingreso, f.event_date
-			FROM vehicles as v
-			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date (f.event_date) between '$start' and '$end' and v.idvehicle = '$vid'
-			ORDER BY f.event_date DESC");
-			if ($query->num_rows > 1) {
-				$output = '{"infoVehicle":[';
-	    	 	while ($row = $query->fetch_array()) {
-	    	 		if ($output!='{"infoVehicle":[') {$output .= ",";}
-	    	 		$output .= '{"vid":"'.$row["idvehicle"].'",';
-	    	 		$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
-	    	 		$output .= '"lat":"'.$row["lat"].'",';
-	    	 		$output .= '"lon":"'.$row["lon"].'",';
-	    	 		$output .= '"up":"'.$row["up"].'",';
-	    	 		$output .= '"down":"'.$row["down"].'",';
-	    	 		$output .= '"onboard":"'.$row["onboard"].'",';
-	    	 		$output .= '"ingreso":"'.$row["ingreso"].'",';
-	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
-	    	 	}
-	    	 	$output .= "]}";
-	    	 	echo $output;
-			}
-			else{
-				$output2 = '{"infoVehicle":[';
-	    	 	
-	    	 		if ($output2!='{"infoVehicle":[') {$output2 .= ",";}
-	    	 		$output2 .= '{"vid":"'."0".'",';
-	    	 		$output2 .= '"vehiculo":"'."0".'",';
-	    	 		$output2 .= '"lat":"'."0".'",';
-	    	 		$output2 .= '"lon":"'."0".'",';
-	    	 		$output2 .= '"up":"'."0".'",';
-	    	 		$output2 .= '"down":"'."0".'",';
-	    	 		$output2 .= '"onboard":"'."0".'",';
-	    	 		$output2 .= '"ingreso":"'."0".'",';
-	    	 		$output2 .= '"fecha":"'."0000-00-00 00:00:00".'"}';
-	    	 	
-	    	 	$output2 .= "]}";
-	    	 	echo $output2;
-			}
-		}
-
 		public function allDrivers(){
 			$userId = $_POST['userId'];
 			//$userId  = json_decode($userIdJson, false, 512, JSON_BIGINT_AS_STRING);
@@ -347,8 +300,8 @@
 		}
 
 		public function allTurns(){
-			//$userid = $_POST['userid'];
-			$userid = 8;
+			$userid = $_POST['userid'];
+			//$userid = 8;
 			$query = $this->mysqli->query("SELECT *  FROM turn WHERE users_idusers = '$userid'");
     	 	$output = '{"infoTurn":[';
     	 	while ($row = $query->fetch_array()) {
@@ -414,6 +367,93 @@
 				echo "Error al cambiar estado del conductor";
 			}
 		}
+		public function vehicleReport(){
+			$infoJ = $_POST['info'];
+			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+			$vid = $info->vid;
+			$start = $info->tini;
+			$end = $info->tfin;
+
+			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up as ingreso, f.event_date
+			FROM vehicles as v
+			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+			WHERE date (f.event_date) between '$start' and '$end' and v.idvehicle = '$vid'
+			ORDER BY f.event_date DESC");
+			if ($query->num_rows > 1) {
+				$output = '{"infoVehicle":[';
+	    	 	while ($row = $query->fetch_array()) {
+	    	 		if ($output!='{"infoVehicle":[') {$output .= ",";}
+	    	 		$output .= '{"vid":"'.$row["idvehicle"].'",';
+	    	 		$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"lat":"'.$row["lat"].'",';
+	    	 		$output .= '"lon":"'.$row["lon"].'",';
+	    	 		$output .= '"up":"'.$row["up"].'",';
+	    	 		$output .= '"down":"'.$row["down"].'",';
+	    	 		$output .= '"onboard":"'.$row["onboard"].'",';
+	    	 		$output .= '"ingreso":"'.$row["ingreso"].'",';
+	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
+	    	 	}
+	    	 	$output .= "]}";
+	    	 	echo $output;
+			}
+			else{
+				$output2 = '{"infoVehicle":[';
+	    	 	
+	    	 		if ($output2!='{"infoVehicle":[') {$output2 .= ",";}
+	    	 		$output2 .= '{"vid":"'."0".'",';
+	    	 		$output2 .= '"vehiculo":"'."0".'",';
+	    	 		$output2 .= '"lat":"'."0".'",';
+	    	 		$output2 .= '"lon":"'."0".'",';
+	    	 		$output2 .= '"up":"'."0".'",';
+	    	 		$output2 .= '"down":"'."0".'",';
+	    	 		$output2 .= '"onboard":"'."0".'",';
+	    	 		$output2 .= '"ingreso":"'."0".'",';
+	    	 		$output2 .= '"fecha":"'."0000-00-00 00:00:00".'"}';
+	    	 	
+	    	 	$output2 .= "]}";
+	    	 	echo $output2;
+			}
+		}
+
+		public function driverReport(){
+			$infoJ = $_POST['info'];
+			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+			$cid = $info->cid;
+			$start = $info->tini;
+			$end = $info->tfin;
+
+			$query = $this->mysqli->query("SELECT d.iddrivers, d.name_driver, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up*6 as ingreso,f.event_date
+			FROM driver_events as de
+			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle
+			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+			WHERE date(f.event_date) between '$start' and '$end' and d.iddrivers = '$cid'
+			ORDER BY f.event_date DESC");
+
+			if ($query->num_rows > 1) {
+				$output = '{"infoDriver":[';
+	    	 	while ($row = $query->fetch_array()) {
+	    	 		if ($output!='{"infoDriver":[') {$output .= ",";}
+	    	 		$output .= '{"cid":"'.$row["iddrivers"].'",';
+	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"conductor":"'.$row["name_driver"].'",';
+	    	 		$output .= '"vehiculo":"'.$row["name_vehicle"].'",';
+	    	 		$output .= '"lat":"'.$row["lat"].'",';
+	    	 		$output .= '"lon":"'.$row["lon"].'",';
+	    	 		$output .= '"up":"'.$row["up"].'",';
+	    	 		$output .= '"down":"'.$row["down"].'",';
+	    	 		$output .= '"onboard":"'.$row["onboard"].'",';
+	    	 		$output .= '"ingreso":"'.$row["ingreso"].'",';
+	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
+	    	 	}
+	    	 	$output .= "]}";
+	    	 	echo $output;
+			}
+			else{
+
+			}
+		}
 
 		public function logout(){
 			session_start();
@@ -429,10 +469,10 @@
 
 	}
 
-	$instance = new model();
-	$instance->allTurns();
+	$instance = new Model();
+	//$instance->driverReport();
 	
-/*	if ($_POST['type']=="login") {
+	if ($_POST['type']=="login") {
 		$instance->login();
 	}
 	elseif ($_POST['type']=="token") {
@@ -480,5 +520,5 @@
 	}
 	else{
 		echo "Error al llamar a la funcion";
-	}*/
+	}
  ?>
