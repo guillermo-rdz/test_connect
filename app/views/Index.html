@@ -3,13 +3,14 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>VEHICULOS_GPS</title>
+    <title>GrupoITSolutions</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script type="text/javascript" src="/path/to/jquery.tablesorter.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <!-- Latest compiled JavaScript -->
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
@@ -50,8 +51,9 @@
         .navbar-brand {padding-top: 30px}
         #Userlog { pointer-events: none;}
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
-        .icon-ok {color:#009900;}
-        .icon-remove {color:#cc0000; }
+        .icon-ok {color:#009900; display:none; padding-left: 5px}
+        .icon-remove {color:#cc0000; display:none; padding-left: 5px;}
+        .icon-edit {padding-left: 5px}
     </style>
 </head>
 <body> 
@@ -469,8 +471,12 @@
 
             handleAssign: function(event){
                 event.preventDefault();
+
                 var driverVehicle = event.currentTarget.className;
                 var selectedDriver = document.getElementsByClassName(driverVehicle)[3].value;
+                var iconOk = document.getElementsByClassName(driverVehicle)[5].firstChild;
+                var iconRemove = document.getElementsByClassName(driverVehicle)[6].firstChild;
+                var iconEdit = document.getElementsByClassName(driverVehicle)[4].firstChild;
                 var driversOff = this.props.dvrs_off;
 
                 for(var i=0; i<driversOff.length; i++){
@@ -492,18 +498,40 @@
                     success: function(result){
 
                         console.log(result);
+                        $(iconOk).hide();
+                        $(iconRemove).hide();
+                        $(iconEdit).show();
+                        $(document.getElementsByClassName(driverVehicle)[3]).prop("disabled", true);
                     }
                 });
             },
 
             handleRemove: function(event){
                 event.preventDefault();
-                console.log("Desasigno");
+                var clase = event.target.parentNode.className;
+                var iconOk = document.getElementsByClassName(clase)[5].firstChild;
+                var iconRemove = document.getElementsByClassName(clase)[6].firstChild;
+                var iconEdit = document.getElementsByClassName(clase)[4].firstChild;
+                $(iconOk).hide();
+                $(iconRemove).hide();
+                $(iconEdit).show();
+                $(document.getElementsByClassName(clase)[3]).prop("disabled", true);
+                console.log(clase);
 
             },
 
-            handleHover: function(){
-                console.log("Hover");
+            handleEdit: function(event){
+                event.preventDefault();
+                var clase = event.target.parentNode.className;
+                var iconOk = document.getElementsByClassName(clase)[5].firstChild;
+                var iconRemove = document.getElementsByClassName(clase)[6].firstChild;
+                var iconEdit = document.getElementsByClassName(clase)[4].firstChild;
+                console.log(document.getElementsByClassName(clase)[2]);
+                $(iconOk).show();
+                $(iconEdit).hide();
+
+                $(document.getElementsByClassName(clase)[3]).prop("disabled", false);
+                $(iconRemove).show();
 
             },
 
@@ -526,10 +554,10 @@
                             <td><input type="checkbox" onClick={this.handleSelection} className="check_item" value={e.vid}/></td>
                             <td className={e.vid}>{e.vid}</td>
                             <td className={e.vid}>{e.nombre}</td>
-                            <td className={e.vid}><select className={e.vid}>
+                            <td className={e.vid}><select className={e.vid} disabled>
                             <option hidden>{e.conductor}</option>
                             {conductores}
-                            </select><a href="#" className={e.vid} onClick = {this.handleAssign}><span className="glyphicon glyphicon-ok icon-ok"></span></a> <a href="#" className={e.vid} onClick = {this.handleRemove}><span className="glyphicon glyphicon-remove icon-remove"></span></a></td>
+                            </select><a href="#" className={e.vid} onClick = {this.handleEdit}><span className="glyphicon glyphicon-edit icon-edit"></span></a> <a href="#" className={e.vid} onClick = {this.handleAssign}><span className="glyphicon glyphicon-ok icon-ok"></span></a> <a href="#" className={e.vid} onClick = {this.handleRemove}><span className="glyphicon glyphicon-remove icon-remove"></span></a></td>
                             <td className={e.vid}>{e.ruta}</td>
                             <td className={e.vid}>{e.up}</td>
                             <td className={e.vid}>{e.down}</td>
@@ -607,7 +635,7 @@
         function Marker(map, lat, lon, vid, flag){
             
             var marker;
-            var image = "icons/phantom.png";
+            var image = "app/views/icons/phantom.png";
             marker= new google.maps.Marker({
                 map: map,
                 position: {lat: lat , lng: lon},
@@ -745,6 +773,13 @@
             console.log("Milisegundos: "+tiempoMili+", Fecha: "+fecha.toLocaleString());
 
         }
+
+        /*function hoverSel(event){
+            var clase = event.target.className;
+            var iconEdit = document.getElementsByClassName(clase)[4].firstChild;
+            $(iconEdit).toggle();
+        }*/
+
 
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.

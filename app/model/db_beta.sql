@@ -98,7 +98,7 @@ WHERE date(f.event_date) between DATE_sub(curdate(), INTERVAL 1 MONTH) and curda
 ORDER BY f.event_date DESC
 
 #################### CONSULTA REPORTE PERSONALIZADO ############################
-SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up, f.event_date
+SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up*6, f.event_date
 FROM vehicles as v
 INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 WHERE date(f.event_date) between "2016-04-02" and "2016-04-04" AND v.idvehicle = 106

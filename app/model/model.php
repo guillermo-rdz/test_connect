@@ -80,38 +80,51 @@
 		}
 
 		public function insertRoute(){
-			$infoJ = $_POST["info"];
+			$infoJ = $_POST["infoRuta"];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
 			$vid = $info->vid;
-			$name_rotue = utf8_decode($info->ruta);
-			$name_start = utf8_decode($info->nombreInicio)
-			$start_route = $info->inicio;
-			$name_end = utf8_decode($info->nombreFin);
-			$end_route = $info->fin;
-			$iduser = $info->userid;
+			$name_rotue = utf8_decode($info->rutaNom);
+			$name_start = utf8_decode($info->nomInicio);
+			$start_lat = $info->ubicacion->inicio->lat;
+			$start_lon = $info->ubicacion->inicio->lon;
+			$name_end = utf8_decode($info->nomFin);
+			$end_lat = $info->ubicacion->fin->lat;
+			$end_lon = $info->ubicacion->fin->lon;
+			$iduser = $info->userId;
 
-			/*$name_rotue = utf8_decode($_POST['ruta']);
-			$name_start = utf8_decode($_POST['nombreInicio']);
-			$start_route = $_POST['inicio'];
-			$name_end = utf8_decode($_POST['nombreFin']);
-			$end_route = $_POST['fin'];
-			$iduser = $_POST['userid'];
-			$vid = $_POST['vid'];*/
+			if ($name_rotue != "" && $name_start != "" && $name_end != "") {
+				//$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_rotue' and name_start = '$name_start' and name_end = '$name_end' ");
+				$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_rotue' and users_idusers = '$iduser'");
+				if ($query->num_rows < 1) {
+					if ($this->mysqli->query("INSERT INTO route values (default, '$name_rotue', '$name_start', '$start_lat', '$start_lon', '$name_end', '$end_lat', '$end_lon', current_timestamp, '$iduser')")) {
+						echo "Se ingreso la ruta";
+						$idroute = $this->mysqli->insert_id;
+						if ($this->mysqli->query("INSERT INTO vehicle_route values('$vid', '$idroute')")) {
+							echo "Se asigno la ruta al vehiculo";
+						}
+						else{
+							echo "No se asigno la ruta al vehiculo";
+						}
 
-			if ($this->mysqli->query("INSERT INTO route values (default, '$name_rotue', '$name_start', '$start_route', '$name_end', '$end_route', current_timestamp, '$iduser')")) {
-				echo "Se ingreso la ruta";
-				$idroute = $this->mysqli->insert_id;
-				if ($this->mysqli->query("INSERT INTO vehicle_route values('$vid', '$idroute')")) {
-					echo "Se asigno la ruta al vehiculo";
+					}
+					else{
+						echo "No se ingreso la ruta";
+					}
 				}
 				else{
-					echo "No se asigno la ruta al vehiculo";
+					echo "Ya existe una ruta con ese nombre";
 				}
-
 			}
 			else{
-				echo "No se ingreso la ruta";
+				echo "Ocurrio algún error";
 			}
+		}
+
+		public function insertRate(){
+			$infoJ = $_POST['tarifa'];
+			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+			$vid = $info->vid;
+			$iduser = $info->userId;
 		}
 
 		public function updateDriver(){
@@ -223,7 +236,7 @@
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle 
 			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers 
 			ORDER BY de.date_driver_event DESC) conductor GROUP BY iddrivers;");
-			$query4 = $this->mysqli->query("SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date
+			$query4 = $this->mysqli->query("SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date as fecha
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 			WHERE date(event_date) = curdate() ORDER BY f.event_date DESC) evento GROUP BY idvehicle");
@@ -253,7 +266,8 @@
     	 		$output4 .= '"Bajadas":"'.$row4["down"].'",';
     	 		$output4 .= '"Abordo":"'.$row4["onboard"].'",';
     	 		$output4 .= '"Sensor":"'.$row4["sensor"].'",';
-    	 		$output4 .= '"Ingreso":"'.$row4["total"].'"}';
+    	 		$output4 .= '"Ingreso":"'.$row4["total"].'",';
+    	 		$output4 .= '"Fecha":"'.$row4["fecha"].'"}';
     	 	}
     	 	$output4 .= "]}";
     	 	
@@ -273,7 +287,7 @@
 			$start = $info->tini;
 			$end = $info->tfin;
 
-			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.sensor_state, f.up as ingreso, f.event_date
+			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up as ingreso, f.event_date
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
 			WHERE date (f.event_date) between '$start' and '$end' and v.idvehicle = '$vid'
@@ -282,8 +296,8 @@
 				$output = '{"infoVehicle":[';
 	    	 	while ($row = $query->fetch_array()) {
 	    	 		if ($output!='{"infoVehicle":[') {$output .= ",";}
-	    	 		$output .= '{"vid":"'.utf8_encode($row["idvehicle"]).'",';
-	    	 		$output .= '"vehiculo":"'.$row["name_vehicle"].'",';
+	    	 		$output .= '{"vid":"'.$row["idvehicle"].'",';
+	    	 		$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
 	    	 		$output .= '"lat":"'.$row["lat"].'",';
 	    	 		$output .= '"lon":"'.$row["lon"].'",';
 	    	 		$output .= '"up":"'.$row["up"].'",';
@@ -333,7 +347,8 @@
 		}
 
 		public function allTurns(){
-			$userid = $_POST['userid'];
+			//$userid = $_POST['userid'];
+			$userid = 8;
 			$query = $this->mysqli->query("SELECT *  FROM turn WHERE users_idusers = '$userid'");
     	 	$output = '{"infoTurn":[';
     	 	while ($row = $query->fetch_array()) {
@@ -343,6 +358,25 @@
     	 		$output .= '"inicio":"'.$row["start_turn"].'",';
     	 		$output .= '"fin":"'.$row["end_turn"].'",';
     	 		$output .= '"fecha":"'.$row["date_turn"].'"}';
+    	 	}
+    	 	$output .= "]}";
+    	 	echo $output;
+		}
+
+		public function allRoutes(){
+			$userid = $_POST["userid"];
+			//$userid = 8;
+			$query = $this->mysqli->query("SELECT * FROM route WHERE users_idusers = '$userid'");
+			$output = '{"infoRoute":[';
+			while ($row = $query->fetch_array()) {
+    	 		if ($output!='{"infoRoute":[') {$output .= ",";}
+    	 		$output .= '{"id":"'.$row["idroute"].'",';
+    	 		$output .= '"rutaNom":"'.utf8_encode($row["name_route"]).'",';
+    	 		$output .= '"nomInicio":"'.utf8_encode($row["name_start"]).'",';
+    	 		$output .= '"nomFin":"'.utf8_encode($row["name_end"]).'",';
+    	 		$output .= '"ubicacion": { "incio": { "lat":'.$row['start_lat'].',"lat":'.$row['start_lon'].'},';
+    	 		$output .= '"fin": { "lat":'.$row['end_lat'].',"lon":'.$row['end_lon'].'}},';
+    	 		$output .= '"fecha":"'.$row["date_route"].'"}';
     	 	}
     	 	$output .= "]}";
     	 	echo $output;
@@ -380,6 +414,7 @@
 				echo "Error al cambiar estado del conductor";
 			}
 		}
+
 		public function logout(){
 			session_start();
 			session_unset();
@@ -395,9 +430,9 @@
 	}
 
 	$instance = new model();
-	//$instance->mainQuery();
+	$instance->allTurns();
 	
-	if ($_POST['type']=="login") {
+/*	if ($_POST['type']=="login") {
 		$instance->login();
 	}
 	elseif ($_POST['type']=="token") {
@@ -415,15 +450,21 @@
 	elseif ($_POST['type']=="turno") {
 		$instance->insertTurn();
 	}
-	/*elseif ($_POST['type']=="driver") {
-		$instance->insertDriver();
-	}*/
+	elseif ($_POST['type']=="ruta") {
+		$instance->insertRoute();
+	}
+	//elseif ($_POST['type']=="driver") {
+	//	$instance->insertDriver();
+	//}
 	elseif ($_POST['type']=="infoDriver") {
 		//$instance->vehicleReport();
 		$instance->allDrivers();
 	}
 	elseif ($_POST['type']=="infoTurn"){
 		$instance->allTurns();
+	}
+	elseif ($_POST['type']=="infoRoutes"){
+		$instance->allRoutes();
 	}
 	elseif ($_POST['type']=="repVehiculo") {
 		$instance->vehicleReport();
@@ -439,5 +480,5 @@
 	}
 	else{
 		echo "Error al llamar a la funcion";
-	}
+	}*/
  ?>

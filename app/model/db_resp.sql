@@ -2,10 +2,10 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-CREATE SCHEMA IF NOT EXISTS `db_frames2` DEFAULT CHARACTER SET utf8 ;
-USE `db_frames2` ;
+CREATE SCHEMA IF NOT EXISTS `db_frames` DEFAULT CHARACTER SET utf8 ;
+USE `db_frames` ;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`vehicles` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`vehicles` (
   `idvehicle` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name_vehicle` VARCHAR(45) NULL,
   `capacitance` INT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`vehicles` (
   PRIMARY KEY (`idvehicle`))
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`data_frame` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`data_frame` (
   `iddata_frame` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `up` INT NULL,
   `down` INT NULL,
@@ -29,17 +29,17 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`data_frame` (
   `lat` FLOAT NULL,
   `lon` FLOAT NULL,
   `imei` DOUBLE NULL,
-  `vehicle_idvehicle` BIGINT UNSIGNED NOT NULL,
+  `vehicle_idvehicle` DOUBLE NOT NULL,
   PRIMARY KEY (`iddata_frame`),
   INDEX `fk_data_frame_vehicles_idx` (`vehicle_idvehicle` ASC),
   CONSTRAINT `fk_data_frame_vehicles`
     FOREIGN KEY (`vehicle_idvehicle`)
-    REFERENCES `db_frames2`.`vehicles` (`idvehicle`)
+    REFERENCES `db_frames`.`vehicles` (`idvehicle`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`volatile_stop` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`volatile_stop` (
   `vehicles_idvehicle` BIGINT UNSIGNED NOT NULL,
   `lat` FLOAT NULL,
   `lon` FLOAT NULL,
@@ -48,20 +48,21 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`volatile_stop` (
   PRIMARY KEY (`vehicles_idvehicle`),
   CONSTRAINT `fk_volatile_stop_vehicles1`
     FOREIGN KEY (`vehicles_idvehicle`)
-    REFERENCES `db_frames2`.`vehicles` (`idvehicle`)
+    REFERENCES `db_frames`.`vehicles` (`idvehicle`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`users` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`users` (
   `idusers` INT UNSIGNED NOT NULL,
   `name_user` VARCHAR(45) NULL,
   `active` TINYINT(1) NULL,
   `status` TINYINT(1) NULL,
+  `date_user` DATETIME NULL,
   PRIMARY KEY (`idusers`))
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`drivers` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`drivers` (
   `iddrivers` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name_driver` VARCHAR(45) NULL,
   `ap_driver` VARCHAR(45) NULL,
@@ -72,12 +73,12 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`drivers` (
   INDEX `fk_drivers_users1_idx` (`users_idusers` ASC),
   CONSTRAINT `fk_drivers_users1`
     FOREIGN KEY (`users_idusers`)
-    REFERENCES `db_frames2`.`users` (`idusers`)
+    REFERENCES `db_frames`.`users` (`idusers`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`turn` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`turn` (
   `idturn_driver` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name_turn` VARCHAR(45) NULL,
   `start_turn` TIME NULL,
@@ -88,35 +89,46 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`turn` (
   INDEX `fk_turn_users1_idx` (`users_idusers` ASC),
   CONSTRAINT `fk_turn_users1`
     FOREIGN KEY (`users_idusers`)
-    REFERENCES `db_frames2`.`users` (`idusers`)
+    REFERENCES `db_frames`.`users` (`idusers`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`route` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`route` (
   `idroute` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name_route` VARCHAR(45) NULL,
   `name_start` VARCHAR(30) NULL,
-  `start_route` FLOAT NULL,
+  `start_lat` CHAR(18) NULL,
+  `start_lon` CHAR(18) NULL,
   `name_end` VARCHAR(30) NULL,
-  `end_route` FLOAT NULL,
+  `end_lat` CHAR(18) NULL,
+  `end_lon` CHAR(18) NULL,
   `date_route` DATETIME NULL,
   `users_idusers` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`idroute`),
   INDEX `fk_route_users1_idx` (`users_idusers` ASC),
   CONSTRAINT `fk_route_users1`
     FOREIGN KEY (`users_idusers`)
-    REFERENCES `db_frames2`.`users` (`idusers`)
+    REFERENCES `db_frames`.`users` (`idusers`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`rate` (
-)
+CREATE TABLE IF NOT EXISTS `db_frames`.`rate` (
+  `idrate` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name_rate` VARCHAR(45) NULL,
+  `users_idusers` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`idrate`),
+  INDEX `fk_rate_users1_idx` (`users_idusers` ASC),
+  CONSTRAINT `fk_rate_users1`
+    FOREIGN KEY (`users_idusers`)
+    REFERENCES `db_frames`.`users` (`idusers`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`driver_events` (
-  `iddriver_events` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `db_frames`.`driver_events` (
+  `iddriver_events` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `vehicles_idvehicle` BIGINT UNSIGNED NOT NULL,
   `drivers_iddrivers` BIGINT UNSIGNED NOT NULL,
   `date_driver_event` DATETIME NULL,
@@ -125,17 +137,17 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`driver_events` (
   INDEX `fk_vehicles_has_drivers_vehicles1_idx` (`vehicles_idvehicle` ASC),
   CONSTRAINT `fk_vehicles_has_drivers_vehicles1`
     FOREIGN KEY (`vehicles_idvehicle`)
-    REFERENCES `db_frames2`.`vehicles` (`idvehicle`)
+    REFERENCES `db_frames`.`vehicles` (`idvehicle`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_vehicles_has_drivers_drivers1`
     FOREIGN KEY (`drivers_iddrivers`)
-    REFERENCES `db_frames2`.`drivers` (`iddrivers`)
+    REFERENCES `db_frames`.`drivers` (`iddrivers`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`vehicle_route` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`vehicle_route` (
   `vehicles_idvehicle` BIGINT UNSIGNED NOT NULL,
   `route_idroute` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`vehicles_idvehicle`, `route_idroute`),
@@ -143,17 +155,17 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`vehicle_route` (
   INDEX `fk_vehicles_has_route_vehicles1_idx` (`vehicles_idvehicle` ASC),
   CONSTRAINT `fk_vehicles_has_route_vehicles1`
     FOREIGN KEY (`vehicles_idvehicle`)
-    REFERENCES `db_frames2`.`vehicles` (`idvehicle`)
+    REFERENCES `db_frames`.`vehicles` (`idvehicle`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_vehicles_has_route_route1`
     FOREIGN KEY (`route_idroute`)
-    REFERENCES `db_frames2`.`route` (`idroute`)
+    REFERENCES `db_frames`.`route` (`idroute`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `db_frames2`.`driver_turn` (
+CREATE TABLE IF NOT EXISTS `db_frames`.`driver_turn` (
   `drivers_iddrivers` BIGINT UNSIGNED NOT NULL,
   `idturn_driver` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`drivers_iddrivers`, `idturn_driver`),
@@ -161,12 +173,12 @@ CREATE TABLE IF NOT EXISTS `db_frames2`.`driver_turn` (
   INDEX `fk_drivers_has_turn_drivers1_idx` (`drivers_iddrivers` ASC),
   CONSTRAINT `fk_drivers_has_turn_drivers1`
     FOREIGN KEY (`drivers_iddrivers`)
-    REFERENCES `db_frames2`.`drivers` (`iddrivers`)
+    REFERENCES `db_frames`.`drivers` (`iddrivers`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_drivers_has_turn_turn1`
     FOREIGN KEY (`idturn_driver`)
-    REFERENCES `db_frames2`.`turn` (`idturn_driver`)
+    REFERENCES `db_frames`.`turn` (`idturn_driver`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
