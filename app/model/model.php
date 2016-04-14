@@ -376,6 +376,7 @@
 				echo "Error al cambiar estado del conductor";
 			}
 		}
+
 		public function vehicleReport(){
 			$infoJ = $_POST['info'];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
@@ -463,11 +464,13 @@
 
 			}
 		}
+
 		public function logout(){
 			session_start();
 			session_unset();
 			session_destroy();
 		}
+
 		public function sessionReport(){
 			session_start();
 			echo $_SESSION['submenu'];
@@ -498,6 +501,9 @@
 	elseif ($_POST['type']=="ruta") {
 		$instance->insertRoute();
 	}
+	//elseif ($_POST['type']=="driver") {
+	//	$instance->insertDriver();
+	//}
 	//elseif ($_POST['type']=="driver") {
 	//	$instance->insertDriver();
 	//}
