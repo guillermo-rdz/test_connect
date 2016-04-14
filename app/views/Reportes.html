@@ -117,7 +117,7 @@
         var toggle_chart=false;
         var toggle_map=false;
         var Uid = '';
-        var sel_vid = '';
+        var sel_id = '';
 
         var Prueba =[
             {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
@@ -165,9 +165,53 @@
                     opcion: submenu,
                     nombres: [],
                     items: [],
-                    ldata: []
+                    ldata: [],
+                    campos: '',
+                    infoReport: []
 
                 };
+            },
+
+            handleGenerar: function(){
+
+                console.log("Generar!!");
+                var inicio = document.getElementById("tini").value;
+                var fin = document.getElementById("tfin").value ;
+                console.log(sel_id + " / " + inicio + " / " + fin);
+                var parametros = JSON.stringify({id: sel_id, tini: inicio, tfin: fin});
+                var type = '';
+                var comboSel= '';
+
+                switch(this.state.opcion){
+                    case "Vehiculo":
+                        type = "repVehiculo";
+                        comboSel = {elemA: "CONDUCTOR" , elemB: "RUTA"}
+                    break;
+                    case "Conductor":
+                        type = "repConductor";
+                        comboSel = {elemA: "VEHICULO" , elemB: "RUTA"}
+                    break;
+                    case "Ruta":
+                        type = "repRuta";
+                        comboSel = {elemA: "VEHICULO" , elemB: "CONDUCTOR"}
+                    break;
+                    default:
+                        console.log("Error! handleGenerar");
+                    break;
+                }
+
+                this.setState({campos: comboSel});
+
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    dataType: "json",
+                    data: {"type": type, "info": parametros },
+                    success: function(result){ 
+                        console.log(result);
+                        this.setState({infoReport: result.infoReport});
+                    }
+                });
             },
 
             componentWillMount: function(){
@@ -205,7 +249,7 @@
                         ldata: liveData.data
                     });
                     console.log(liveData);
-
+                    reverseGeo(events[0].lat,events[0].lon );
 
                 }.bind(this));
 
@@ -355,17 +399,17 @@
                         <ComboBox nombres={this.state.nombres} elementos={this.state.items}  submenu={this.state.opcion} eventos={this.state.ldata}/>
                         <div className="row">
                             <div id="gendiv" className="col-sm-2">
-                                    <button type="button" id="genbtn" className="btn btn-default"><span className="glyphicon glyphicon-flash"></span> GENERAR</button>
+                                    <button type="button" id="genbtn" className="btn btn-default" onClick={this.handleGenerar}><span className="glyphicon glyphicon-flash"></span> GENERAR</button>
                             </div>
                             <div id="chartdiv" className="col-sm-2">
-                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"></span> GRÁFICA</button>
+                                    <button type="button" id="chartbtn" className="btn btn-default" ><span className="glyphicon glyphicon-stats"></span> GRÁFICA</button>
                             </div>
                             <div id="mapdiv" className="col-sm-2">
                                     <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"></span> MAPA</button>
                             </div>
                         </div>
-                        <div className="row">
-                            <ReportTable item={Prueba}/>
+                        <div className="row" id="reportTable">
+                            <ReportTable item={this.state.infoReport} campo={this.state.campos}/>
                         </div>
                     </div>
                     );
@@ -444,22 +488,25 @@
             render: function(){
                 var j='';
                 var Items = this.props.item.map(function(e){
+                    
+                    var ubicacion = reverseGeo(e.lat, e.lon);
+
                     return(
                         <tr key={j++}>
-                            <td className={e.vid}>{e.vid}</td>
-                            <td className={e.vid}>{e.nombre}</td>
-                            <td className={e.vid}>{e.lat}</td>
-                            <td className={e.vid}>{e.lon}</td>
-                            <td className={e.vid}>{e.up}</td>
-                            <td className={e.vid}>{e.down}</td>
-                            <td className={e.vid}>{e.onboard}</td>
-                            <td className={e.vid}>{e.ingreso}</td>
-                            <td className={e.vid}>{e.turno}</td>
+                            <td className={e.id}>{e.id}</td>
+                            <td className={e.id}>{e.nombre1}</td>
+                            <td className={e.id}>{e.nombre2}</td>
+                            <td className={e.id}>{e.nombre2}</td>
+                            <td className={e.id}>{ubicacion}</td>
+                            <td className={e.id}>{e.subidas}</td>
+                            <td className={e.id}>{e.bajadas}</td>
+                            <td className={e.id}>{e.abordo}</td>
+                            <td className={e.id}>{e.ingresos}</td>
+                            <td className={e.id}>{e.fecha}</td>
                         </tr>
                     );
 
                 }.bind(this));
-
 
                 return(
                     <div className="infodiv table-responsive">
@@ -467,14 +514,15 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>VEHÍCULO</th>
-                                <th>LAT</th>
-                                <th>LON</th>
+                                <th>NOMBRE</th>
+                                <th>{this.props.campo.elemA}</th>
+                                <th>{this.props.campo.elemB}</th>
+                                <th>UBICACIÓN</th>
                                 <th>SUBIDAS</th>
                                 <th>BAJADAS</th>
                                 <th>ABORDO</th>
                                 <th>INGRESO</th>
-                                <th>TURNO</th>
+                                <th>TIEMPO</th>
                             </tr>
                         </thead>
                         <tbody >{Items}</tbody>
@@ -493,9 +541,6 @@
             socket.emit ('stop', envelope);
 
             console.log('emitting stop to server', envelope);
-        }
-
-        function Logout(token){
 
             stopListen("all");
             socket.disconnect();
@@ -595,24 +640,10 @@
 
         }
 
-        function Generar(){
+        /*function Generar(){
 
-            var inicio = document.getElementById("tini").value;
-            var fin = document.getElementById("tfin").value ;
-            console.log(sel_id + " / " + inicio + " / " + fin);
-            var parametros = JSON.stringify({vid: sel_id, tini: inicio, tfin: fin});
-
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                dataType: "json",
-                data: {"type": "repVehiculo", "info": parametros },
-                success: function(result){ 
-                    console.log(result);
-                }
-            });
             
-        }
+        }*/
 
         function Chart(){
 
@@ -669,8 +700,6 @@
                 zoomControl:true,
                 scrollwheel: true
             });
-            //var geocoder = new google.maps.Geocoder;
-            //geocoder.geocode('location':{lat: latitude, lng: longitude}, function(result, status){})
         }
 
         function Lapso(event){
@@ -725,6 +754,28 @@
             console.log(seleccion);
         }
 
+        function reverseGeo(lat, lng){
+
+            var geocoder = new google.maps.Geocoder;
+            var latlng = {lat: lat ,lng: lng };
+
+            geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+                  
+                  if (results[1]) {
+
+                    console.log(results[0].formatted_address);
+
+                  } else {
+                    window.alert('No results found');
+                  }
+
+                } else {
+                  window.alert('Geocoder failed due to: ' + status);
+                }
+            });
+        }
+
 
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
@@ -734,7 +785,7 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("genbtn").addEventListener('click', function(){Generar();});
+        //document.getElementById("genbtn").addEventListener('click', function(){Generar();});
         document.getElementById("chartbtn").addEventListener('click', function(){Chart();});
         document.getElementById("mapbtn").addEventListener('click', function(){Maps(16.7516009, -93.1029939);});
         document.getElementById("lapsoSel").addEventListener('change', function(){Lapso(event);});
