@@ -36,6 +36,7 @@
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
+        .alert-ruta{display: none;}
 
     </style>
 </head>
@@ -174,6 +175,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="alert alert-warning alert-ruta"></div>
                         <div id="gmaps"></div>
                       <button type="submit" id="routebtn"class="btn btn-default">Registrar</button>
                     </form>
@@ -199,7 +201,9 @@
         var tramastr = '';
         var User = '';
         var Uid = '';
-        var i=0;
+        var imarker=0;
+        var markerIni = '';
+        var markerFin = '';
 
         Setup();
         Gmap(16.7516009, -93.1029939);
@@ -230,7 +234,7 @@
             //var imageFin = "icons/alien.png";
             
 
-            if(i==0){
+            if(imarker==0){
                 markerIni= new google.maps.Marker({
                 
                     map: map,
@@ -242,7 +246,7 @@
                 });
             }
 
-            if(i==1){
+            if(imarker==1){
                 markerFin= new google.maps.Marker({
                 
                     map: map,
@@ -253,12 +257,6 @@
 
                 });
             }
-            /*marcadores.push(marker);
-
-            if(marcadores.length>2){
-                marcadores[0].setMap(null);
-                marcadores.splice(0,1);
-            }*/
         }
 
         function Logout(token){
@@ -390,6 +388,7 @@
             var apellido = document.getElementById("apellido").value;
             var conductor = JSON.stringify({nombre: nombre, apellido: apellido, shiftId: shiftId, userId: Uid});
 
+
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
@@ -404,36 +403,51 @@
 
         $("#routesForm").submit(function(event){
             event.preventDefault();
-            var posInicio = markerIni.getPosition();
-            var posFinal = markerFin.getPosition();
-            var ubicacion = {inicio:{lat: posInicio.lat(), lon: posInicio.lng() } , fin:{lat:posFinal.lat() ,lon: posFinal.lng()} }
-            var nomInicio = document.getElementById("ptini").value;
-            var nomFin = document.getElementById("ptfin").value;
-            var ruta = document.getElementById("rutanom").value;
-            var rutaVehiculo = document.getElementById("vehiclesOpt").value;
 
-            for(var i=0; i<vehiculos.length; i++){
-                if(vehiculos[i].name == rutaVehiculo ){
-                    var vid = vehiculos[i].id;
-                    break;
+            if(markerFin && markerIni){
+
+                var posInicio = markerIni.getPosition();
+                var posFinal = markerFin.getPosition();
+                var ubicacion = {inicio:{lat: posInicio.lat(), lon: posInicio.lng() } , fin:{lat:posFinal.lat() ,lon: posFinal.lng()} }
+                var nomInicio = document.getElementById("ptini").value;
+                var nomFin = document.getElementById("ptfin").value;
+                var ruta = document.getElementById("rutanom").value;
+                var rutaVehiculo = document.getElementById("vehiclesOpt").value;
+
+                for(var i=0; i<vehiculos.length; i++){
+                    if(vehiculos[i].name == rutaVehiculo ){
+                        var vid = vehiculos[i].id;
+                        break;
+                    }
                 }
+
+                var infoRuta = JSON.stringify({"rutaNom": ruta ,"nomInicio": nomInicio ,"nomFin": nomFin, "ubicacion": ubicacion, "vid": vid  , "userId": Uid });
+                
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type": "ruta", "infoRuta": infoRuta},
+                    success: function(result){
+
+                        console.log(result);
+                        document.getElementById("routesForm").reset();
+                        markerFin.setMap(null);
+                        markerIni.setMap(null);
+                        markerIni = '';
+                        markerFin = '';
+                        imarker=0;
+                        $(".alert-ruta").hide();
+                    }
+                });
+                console.log(rutaVehiculo);
+                console.log(nomInicio + " " + nomFin + " " + ruta);
+            }else{
+
+                console.log("Por favor, introduzca los puntos de inicio y fin en el Mapa.");
+                $(".alert-ruta").html("<strong>INCOMPLETO!</strong> Por favor, introduzca los puntos de inicio y fin en el Mapa.");
+                $(".alert-ruta").show();
             }
-
-            var infoRuta = {"rutaNom": ruta ,"nomInicio": nomInicio ,"nomFin": nomFin, "ubicacion": ubicacion, "vid": vid  , "userId": Uid }
             
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                data: {"type": "ruta", "infoRuta": infoRuta},
-                success: function(result){
-
-                    console.log(result);
-                    document.getElementById("shiftForm").reset();
-                }
-            });
-            console.log(rutaVehiculo);
-            console.log(nomInicio + " " + nomFin + " " + ruta);
-
         });
 
        
@@ -466,13 +480,12 @@
 
             for(var i=0; i<turnos.length; i++){
 
-                if(selShift == turnos[i].nombres){
+                if(selShift == turnos[i].nombre){
                     shiftId = turnos[i].id
                     var inicio = turnos[i].inicio;
                     var fin = turnos[i].fin;
                 }
             }
-
             document.getElementById("tini").value = inicio;
             document.getElementById("tfin").value = fin; 
 
@@ -523,12 +536,13 @@
         document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("shiftOpt").addEventListener('change', function(){shiftSelection(event);});
+        
         
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
-            if(i>1)google.maps.event.removeListener(listener); 
-            Marker(map, event.latLng, i);
-            i++;
+            if(imarker>500) imarker=0;
+            if(imarker <2) Marker(map, event.latLng, imarker);
+            imarker++;
+            console.log(imarker);
         });
 
     </script>
