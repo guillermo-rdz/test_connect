@@ -36,7 +36,7 @@
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
-
+        .alert-ruta{display: none;}
     </style>
 </head>
 <body> 
@@ -174,6 +174,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="alert alert-warning alert-ruta"></div>
                         <div id="gmaps"></div>
                       <button type="submit" id="routebtn"class="btn btn-default">Registrar</button>
                     </form>
@@ -186,7 +187,6 @@
 
     
     <script type="text/javascript">
-
         var source = "https://diesel.grupoitsur.com";//URL our pegasus site
         var socket = io("https://live.pegasusgateway.com/socket");
         var auth = '';
@@ -199,8 +199,9 @@
         var tramastr = '';
         var User = '';
         var Uid = '';
-        var i=0;
-
+        var imarker=0;
+        var markerIni = '';
+        var markerFin = '';
         Setup();
         Gmap(16.7516009, -93.1029939);
         
@@ -208,29 +209,23 @@
         function stopListen(vehicle){
             var envelope = {namespace:"vehicle-events", objects: vehicle};
             socket.emit ('stop', envelope);
-
             console.log('emitting stop to server', envelope);
         }
-
         function Gmap(latitude, longitude){
-
             map = new google.maps.Map(document.getElementById('gmaps'), {
                 center: {lat: latitude, lng: longitude},
                 zoom: 13,
                 zoomControl:true,
                 scrollwheel: true
             });
-
         }
-
         function Marker(map, ubicacion, count){
             
             var marker;
             //var imageIni = "icons/phantom.png";
             //var imageFin = "icons/alien.png";
             
-
-            if(i==0){
+            if(imarker==0){
                 markerIni= new google.maps.Marker({
                 
                     map: map,
@@ -238,11 +233,9 @@
                     title: "INICIO",
                     draggable: true,
                     label: "A"
-
                 });
             }
-
-            if(i==1){
+            if(imarker==1){
                 markerFin= new google.maps.Marker({
                 
                     map: map,
@@ -250,23 +243,13 @@
                     title: "FIN",
                     draggable: true,
                     label: "B"
-
                 });
             }
-            /*marcadores.push(marker);
-
-            if(marcadores.length>2){
-                marcadores[0].setMap(null);
-                marcadores.splice(0,1);
-            }*/
         }
-
         function Logout(token){
-
             stopListen("all");
             socket.disconnect();
             console.log(auth);
-
             $.ajax({
                 url: source + "/api/logout",
                 headers: { Authenticate: auth},
@@ -277,32 +260,25 @@
                     
                 }
             });
-
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type": "logout" },
                 success: function(result){
-
                     console.log(result);
                     window.location = "/test_connect/"
-
                 }
             });
-
         }
-
         function Setup(){
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type":"token"},
                 success: function(result){
-
                     auth = result;
                     console.log(result);
                     //connect(result);
-
                     $.ajax({
                         url: source+"/api/user",
                         headers: {Authenticate: auth},
@@ -310,20 +286,15 @@
                         success: function (result) {
                             User = result.username;
                             Uid = result.id;
-
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
-
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
                                 dataType: "json",
                                 data: {"type": "infoTurn" , "userid": Uid},
                                 success: function(result){
-
                                     turnos = result.infoTurn;
-
                                     for(var i=0; i<result.infoTurn.length; i++){
-
                                         var x = document.getElementById("shiftOpt");
                                         var option = document.createElement("option");
                                         option.text = result.infoTurn[i].nombre;
@@ -335,35 +306,24 @@
                             });
                         }
                     });
-
-
                     $.ajax({
                         url: source+"/api/vehicles",
                         headers: { Authenticate: auth},
                         type: "GET",
                         success: function(result) {
-
-
                             for(var i=0; i<result.data.length; i++){
-
                                 var x = document.getElementById("vehiclesOpt");
                                 var option = document.createElement("option");
                                 option.text = result.data[i].name;
                                 x.add(option);
                                 vehiculos.push(result.data[i]);
                             }
-
                             console.log(vehiculos);
-
                         }
                     });
-
                 }
             });
-
-
         }
-
         function reporteSel(seleccion){
             console.log(seleccion);
             $.ajax({
@@ -371,118 +331,102 @@
                 url: "app/model/model.php",
                 data: {"type": "report", "submenu":seleccion},
                 success: function(result){
-
                     console.log(result);
                     window.location = "/test_connect/reports"
-
                 }
             });
-
         }
-
         $("#driverForm").submit(function (event){
-
             event.preventDefault();
-
             var inicio = document.getElementById("tini").value+":00";
             var fin = document.getElementById("tfin").value+":00";
             var nombre = document.getElementById("nombre").value;
             var apellido = document.getElementById("apellido").value;
             var conductor = JSON.stringify({nombre: nombre, apellido: apellido, shiftId: shiftId, userId: Uid});
-
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type": "driver", "info":conductor },
                 success: function(result){
-
                     console.log(result);
                     document.getElementById("driverForm").reset();
                 }
             });
         });
-
         $("#routesForm").submit(function(event){
             event.preventDefault();
-            var posInicio = markerIni.getPosition();
-            var posFinal = markerFin.getPosition();
-            var ubicacion = {inicio:{lat: posInicio.lat(), lon: posInicio.lng() } , fin:{lat:posFinal.lat() ,lon: posFinal.lng()} }
-            var nomInicio = document.getElementById("ptini").value;
-            var nomFin = document.getElementById("ptfin").value;
-            var ruta = document.getElementById("rutanom").value;
-            var rutaVehiculo = document.getElementById("vehiclesOpt").value;
-
-            for(var i=0; i<vehiculos.length; i++){
-                if(vehiculos[i].name == rutaVehiculo ){
-                    var vid = vehiculos[i].id;
-                    break;
+            if(markerFin && markerIni){
+                var posInicio = markerIni.getPosition();
+                var posFinal = markerFin.getPosition();
+                var ubicacion = {inicio:{lat: posInicio.lat(), lon: posInicio.lng() } , fin:{lat:posFinal.lat() ,lon: posFinal.lng()} }
+                var nomInicio = document.getElementById("ptini").value;
+                var nomFin = document.getElementById("ptfin").value;
+                var ruta = document.getElementById("rutanom").value;
+                var rutaVehiculo = document.getElementById("vehiclesOpt").value;
+                for(var i=0; i<vehiculos.length; i++){
+                    if(vehiculos[i].name == rutaVehiculo ){
+                        var vid = vehiculos[i].id;
+                        break;
+                    }
                 }
+                var infoRuta = JSON.stringify({"rutaNom": ruta ,"nomInicio": nomInicio ,"nomFin": nomFin, "ubicacion": ubicacion, "vid": vid  , "userId": Uid });
+                
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type": "ruta", "infoRuta": infoRuta},
+                    success: function(result){
+                        console.log(result);
+                        document.getElementById("routesForm").reset();
+                        markerFin.setMap(null);
+                        markerIni.setMap(null);
+                        markerIni = '';
+                        markerFin = '';
+                        imarker=0;
+                        $(".alert-ruta").hide();
+                    }
+                });
+                console.log(rutaVehiculo);
+                console.log(nomInicio + " " + nomFin + " " + ruta);
+            }else{
+                console.log("Por favor, introduzca los puntos de inicio y fin en el Mapa.");
+                $(".alert-ruta").html("<strong>INCOMPLETO!</strong> Por favor, introduzca los puntos de inicio y fin en el Mapa.");
+                $(".alert-ruta").show();
             }
-
-            var infoRuta = {"rutaNom": ruta ,"nomInicio": nomInicio ,"nomFin": nomFin, "ubicacion": ubicacion, "vid": vid  , "userId": Uid }
             
-            $.ajax({
-                type: "POST",
-                url: "app/model/model.php",
-                data: {"type": "ruta", "infoRuta": infoRuta},
-                success: function(result){
-
-                    console.log(result);
-                    document.getElementById("shiftForm").reset();
-                }
-            });
-            console.log(rutaVehiculo);
-            console.log(nomInicio + " " + nomFin + " " + ruta);
-
         });
-
        
-
         $("#shiftForm").submit(function(event){
             event.preventDefault();
             var shiftName = document.getElementById("shift").value;
             var shiftIni = document.getElementById("shini").value;
             var shiftFin = document.getElementById("shfin").value;
-
             $.ajax({
                 type: "POST",
                 url: "app/model/model.php",
                 data: {"type": "turno", "turno": shiftName, "inicio": shiftIni, "fin": shiftFin, "userid": Uid },
                 success: function(result){
-
                     console.log(result);
                     document.getElementById("shiftForm").reset();
                 }
             });
-
-
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
-
         });
-
         $("#shiftOpt").change(function(event){
-
             var selShift = event.target.value;
-
             for(var i=0; i<turnos.length; i++){
-
-                if(selShift == turnos[i].nombres){
+                if(selShift == turnos[i].nombre){
                     shiftId = turnos[i].id
                     var inicio = turnos[i].inicio;
                     var fin = turnos[i].fin;
                 }
             }
-
             document.getElementById("tini").value = inicio;
             document.getElementById("tfin").value = fin; 
-
             $("#divTini").show();
             $("#divTfin").show();
-
         });
-
         $("#driver_pill").click(function (){
-
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#routes_pill").removeClass("active");
@@ -491,9 +435,7 @@
             $("#routesData").hide();
             //$("#driverData").show();
         });
-
         $("#shift_pill").click(function (){
-
             $(this).addClass("active");
             $("#driver_pill").removeClass("active");
             $("#routes_pill").removeClass("active");
@@ -503,9 +445,7 @@
             console.log("HOLA");
             //$("#shiftData").show();
         });
-
         $("#routes_pill").click(function (){
-
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#driver_pill").removeClass("active");
@@ -514,8 +454,6 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
-
-
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
@@ -523,14 +461,14 @@
         document.getElementById("conductor").addEventListener('click', function(){reporteSel("Conductor");});
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("shiftOpt").addEventListener('change', function(){shiftSelection(event);});
+        
         
         var listener = google.maps.event.addListener(map, 'rightclick', function(event) {
-            if(i>1)google.maps.event.removeListener(listener); 
-            Marker(map, event.latLng, i);
-            i++;
+            if(imarker>500) imarker=0;
+            if(imarker <2) Marker(map, event.latLng, imarker);
+            imarker++;
+            console.log(imarker);
         });
-
     </script>
 
 </body>

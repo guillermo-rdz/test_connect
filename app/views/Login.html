@@ -98,22 +98,22 @@ ul li{height:40px; margin:15px 0; list-style:none}
 
                                     console.log("Paquete Enviado");
 
+					            $.ajax({
+					                type: "POST",
+					                url: "app/model/model.php",
+					                data: {"type": "login","login": authMsj, "token": token },
+					                success: function(result){
+
+					                    console.log(result);
+					                    window.location = "/test_connect/";
+					                }
+					            });
                                 }
                             });
 
                     }
                 });
 
-	            $.ajax({
-	                type: "POST",
-	                url: "app/model/model.php",
-	                data: {"type": "login","login": authMsj, "token": token },
-	                success: function(result){
-
-	                    console.log(result);
-	                    window.location = "/test_connect/";
-	                }
-	            });
 
              });
 

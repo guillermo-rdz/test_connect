@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS `db_frames`.`data_frame` (
   `up_block` INT NULL,
   `down_block` INT NULL,
   `event_date` DATETIME NULL,
-  `lat` FLOAT NULL,
-  `lon` FLOAT NULL,
+  `lat` CHAR(18) NULL,
+  `lon` CHAR(18) NULL,
   `imei` DOUBLE NULL,
   `vehicle_idvehicle` DOUBLE NOT NULL,
   PRIMARY KEY (`iddata_frame`),
@@ -182,7 +182,6 @@ CREATE TABLE IF NOT EXISTS `db_frames`.`driver_turn` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
-
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

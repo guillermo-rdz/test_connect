@@ -14,8 +14,8 @@
 			$tx = $frame->tx;
 			$imei = $frame->imei;
 			$vid = $frame->vid;
-			$lat = $frame->lat+rand(0, 8);
-			$lon = $frame->lon+rand(0, 8);
+			$lat = $frame->lat+rand(0, 12);
+			$lon = $frame->lon+rand(0, 12);
 			//$arrayFrame = "0000,0000,000,0,00,0000,0000,0000,0001";
 
 			if (empty($tx)) {

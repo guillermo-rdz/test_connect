@@ -36,6 +36,9 @@
 			$idturn = $driverData['shiftId'];
 			$active = 0;
 
+			$name = $this->mysqli->real_escape_string($name);
+			$ap = $this->mysqli->real_escape_string($ap);
+
 			if ($name != "" && $ap != "" && $iduser != 0 && $idturn !=0) {
 				$query = $this->mysqli->query("SELECT name_driver, ap_driver from drivers WHERE name_driver='$name' and ap_driver='$ap' and users_idusers='$iduser'");
 				if ($query->num_rows < 1) {
@@ -69,6 +72,8 @@
 			$start_turn = $_POST['inicio'];
 			$end_turn = $_POST['fin'];
 			$iduser = $_POST['userid'];
+
+			$name_turn = $this->mysqli->real_escape_string($name_turn);
 			$query = "INSERT INTO turn values(default, '$name_turn', '$start_turn', '$end_turn', current_timestamp, '$iduser')";
 			if ($this->mysqli->query($query)) {
 				echo "Se guardo el turno";
@@ -91,6 +96,10 @@
 			$end_lat = $info->ubicacion->fin->lat;
 			$end_lon = $info->ubicacion->fin->lon;
 			$iduser = $info->userId;
+
+			$name_rotue = $this->mysqli->real_escape_string($name_rotue);
+			$name_start = $this->mysqli->real_escape_string($name_start);
+			$name_end = $this->mysqli->real_escape_string($name_end);
 
 			if ($name_rotue != "" && $name_start != "" && $name_end != "") {
 				//$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_rotue' and name_start = '$name_start' and name_end = '$name_end' ");
@@ -454,19 +463,15 @@
 
 			}
 		}
-
 		public function logout(){
 			session_start();
 			session_unset();
 			session_destroy();
 		}
-
 		public function sessionReport(){
 			session_start();
 			echo $_SESSION['submenu'];
 		}
-
-
 	}
 
 	$instance = new Model();
