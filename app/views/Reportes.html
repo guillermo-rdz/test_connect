@@ -41,9 +41,7 @@
         #gendiv{text-align: right}
         #mapdiv{text-align: left}
         #maps{height:400px; width:100%; margin-top: 20px}
-        .current{background-color:#CEE3F6}
-
-
+        
     </style>
 </head>
 <body> 
@@ -116,7 +114,8 @@
         var User = '';
         var toggle_chart=false;
         var toggle_map=false;
-
+        var Uid = '';
+        var sel_id = '';
 
         var Prueba =[
             {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
@@ -164,12 +163,60 @@
                     opcion: submenu,
                     nombres: [],
                     items: [],
-                    ldata: []
+                    ldata: [],
+                    campos: '',
+                    infoReport: []
 
                 };
             },
 
+            handleGenerar: function(){
+
+                console.log("Generar!!");
+                console.log(sel_id);
+                var inicio = document.getElementById("tini").value;
+                var fin = document.getElementById("tfin").value ;
+                console.log(sel_id + " / " + inicio + " / " + fin);
+                var parametros = JSON.stringify({id: sel_id, tini: inicio, tfin: fin});
+                var type = '';
+                var comboSel= '';
+
+                switch(this.state.opcion){
+                    case "Vehiculo":
+                        type = "repVehiculo";
+                        comboSel = {elemA: "CONDUCTOR" , elemB: "RUTA"}
+                    break;
+                    case "Conductor":
+                        type = "repConductor";
+                        comboSel = {elemA: "VEHICULO" , elemB: "RUTA"}
+                    break;
+                    case "Ruta":
+                        type = "repRuta";
+                        comboSel = {elemA: "VEHICULO" , elemB: "CONDUCTOR"}
+                    break;
+                    default:
+                        console.log("Error! handleGenerar");
+                    break;
+                }
+
+                this.setState({campos: comboSel});
+                console.log(parametros);
+
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    dataType: "json",
+                    data: {"type": type, "info": parametros },
+                    success: function(result){ 
+                        console.log(result);
+                        this.setState({infoReport: result.infoReport});
+
+                    }.bind(this)
+                });
+            },
+
             componentWillMount: function(){
+                
 
                 socket.on ('events', function(envelope){
                     console.log (envelope);
@@ -203,7 +250,7 @@
                         ldata: liveData.data
                     });
                     console.log(liveData);
-
+                    reverseGeo(events[0].lat,events[0].lon );
 
                 }.bind(this));
 
@@ -244,13 +291,118 @@
                            
                             break;
                             case "Conductor":
+
+                            $.ajax({
+                                url: source+"/api/user",
+                                headers: {Authenticate: auth},
+                                type: "GET",
+                                success: function (result) {
+
+                                    User=result.username;
+                                    Uid=result.id;
+                                    console.log(result);
+
+                                    $.ajax({
+                                        url: "app/model/model.php",
+                                        dataType: "json",
+                                        data: { "type": "infoDriver", "userId": Uid},
+                                        type: "POST",
+                                        success: function(result) {
+
+                                            var conductorNombre = [];
+                                            console.log(result);
+
+                                            for(var i=0;i<result.infoDriver.length; i++){
+
+                                                conductorNombre.push(result.infoDriver[i].name);
+
+                                            }
+                                            this.setState({nombres:conductorNombre});
+                                            this.setState({items:result.infoDriver});
+                                            //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                        }.bind(this)//set context
+                                    });
+                                    
+                                }.bind(this)
+                            });
+                            
                             //document.getElementById("selectionCB").innerHTML = "Conductor";
                             break;
                             case "Ruta":
-                            //document.getElementById("selectionCB").innerHTML = "Ruta";
+
+                            $.ajax({
+                                url: source+"/api/user",
+                                headers: {Authenticate: auth},
+                                type: "GET",
+                                success: function (result) {
+
+                                    User=result.username;
+                                    Uid=result.id;
+                                    console.log(result);
+
+                                    $.ajax({
+                                        url: "app/model/model.php",
+                                        dataType: "json",
+                                        data: { "type": "infoRoutes", "userId": Uid},
+                                        type: "POST",
+                                        success: function(result) {
+
+                                            var rutaNombre = [];
+                                            console.log(result);
+
+                                            for(var i=0;i<result.infoRoute.length; i++){
+
+                                                rutaNombre.push(result.infoRoute[i].name);
+
+                                            }
+                                            this.setState({nombres:rutaNombre});
+                                            this.setState({items:result.infoRoute});
+                                            //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                        }.bind(this)//set context
+                                    });
+
+                                }.bind(this)
+                            });
+                            
                             break;
                             case "Turno":
-                            //document.getElementById("selectionCB").innerHTML = "Turno";
+
+                            $.ajax({
+                                url: source+"/api/user",
+                                headers: {Authenticate: auth},
+                                type: "GET",
+                                success: function (result) {
+
+                                    User=result.username;
+                                    Uid=result.id;
+                                    console.log(result);
+
+                                    $.ajax({
+                                        url: "app/model/model.php",
+                                        dataType: "json",
+                                        data: { "type": "infoTurn", "userId": Uid},
+                                        type: "POST",
+                                        success: function(result) {
+
+                                            var turnoNombre = [];
+                                            console.log(result);
+
+                                            for(var i=0;i<result.infoTurn.length; i++){
+
+                                                turnoNombre.push(result.infoTurn[i].nombre);
+
+                                            }
+                                            this.setState({nombres:turnoNombre});
+                                            this.setState({items:result.infoTurn});
+                                            //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                        }.bind(this)//set context
+                                    });
+                                }.bind(this)
+                            });
+
                             break;
                             case "Hora":
                             //document.getElementById("selectionCB").innerHTML = "Hora";
@@ -272,20 +424,20 @@
             render: function(){
                 return(
                     <div>
-                        <ComboBox items={this.state.nombres} vehiculos={this.state.items}  submenu={this.state.opcion} eventos={this.state.ldata}/>
+                        <ComboBox nombres={this.state.nombres} elementos={this.state.items}  submenu={this.state.opcion} eventos={this.state.ldata}/>
                         <div className="row">
                             <div id="gendiv" className="col-sm-2">
-                                    <button type="button" id="genbtn" className="btn btn-default"><span className="glyphicon glyphicon-flash"> GENERAR </span></button>
+                                    <button type="button" id="genbtn" className="btn btn-default" onClick={this.handleGenerar}><span className="glyphicon glyphicon-flash"></span> GENERAR</button>
                             </div>
                             <div id="chartdiv" className="col-sm-2">
-                                    <button type="button" id="chartbtn" className="btn btn-default"><span className="glyphicon glyphicon-stats"> GRÁFICA </span></button>
+                                    <button type="button" id="chartbtn" className="btn btn-default" ><span className="glyphicon glyphicon-stats"></span> GRÁFICA</button>
                             </div>
                             <div id="mapdiv" className="col-sm-2">
-                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"> MAPA </span></button>
+                                    <button type="button" id="mapbtn" className="btn btn-default"><span className="glyphicon glyphicon-globe"></span> MAPA</button>
                             </div>
                         </div>
-                        <div className="row">
-                            <ReportTable item={Prueba}/>
+                        <div className="row" id="reportTable">
+                            <ReportTable item={this.state.infoReport} campo={this.state.campos}/>
                         </div>
                     </div>
                     );
@@ -298,25 +450,25 @@
                 var name = e.target.value;
                 console.log(name);
 
-                var size=this.props.vehiculos.length;
+                var size=this.props.elementos.length;
               
                 for(var i=0;i<size;i++){
-                    if(this.props.vehiculos[i].name== name){
-                        var sel_vid = this.props.vehiculos[i].id;
+                    
+                    if(this.props.elementos[i].name == name){
+                        
+                        console.log(this.props.elementos[i].id);
+                        sel_id = this.props.elementos[i].id;
+                         
                         break;
                     }
                 }
-
-                console.log(sel_vid);
-                listen(sel_vid);
-
-
+                console.log(sel_id);
 
             },
             
             render: function(){
                 var j='';
-                var Items = this.props.items.map(function(e){
+                var Items = this.props.nombres.map(function(e){
                     //console.log(e);
                     return(
                         <option key={j++}>{e}</option>
@@ -329,32 +481,33 @@
                             <div className="form-group">
                               <label htmlFor="sel1" id="selectionCB">{this.props.submenu}</label>
                               <select className="form-control" id="sel1" onChange={this.handleChange}>
-                                  <option disabled hidden>----Select a vehicle----</option>
+                                  <option disabled hidden>----Select an option----</option>
                                   {Items}
                               </select>
                             </div>
                         </div>
                         <div className="col-sm-3">
                             <div className="form-group">
-                              <label htmlFor="dt">Inicio</label>
+                              <label htmlFor="dt">Desde</label>
                               <input type="date" className="form-control" id="tini"/>
                             </div>
                         </div>
                         <div className="col-sm-3">
                            <div className="form-group">
-                              <label htmlFor="dt">Fin</label>
+                              <label htmlFor="dt">Hasta</label>
                               <input type="date" className="form-control" id="tfin"/>
                             </div> 
                         </div>
                         <div className="col-sm-3">
                             <div className="form-group">
                               <label htmlFor="dt">Lapso</label>
-                              <select className="form-control">
+                              <select id="lapsoSel" className="form-control">
                                 <option hidden>----Select an option----</option>
-                                <option>Presente día</option>
-                                <option>Últimos 7 días</option>
-                                <option>Últimos 15 días</option>
-                                <option>Último Mes</option>
+                                <option value="0">Hoy</option>
+                                <option value="1">Ayer</option>
+                                <option value="7">Últimos 7 días</option>
+                                <option value="15">Últimos 15 días</option>
+                                <option value="30">Último Mes</option>
                               </select>
                             </div>
                         </div>
@@ -368,22 +521,26 @@
             render: function(){
                 var j='';
                 var Items = this.props.item.map(function(e){
+                    
+
+                    var ubicacion = reverseGeo(parseFloat(e.lat), parseFloat(e.lon));
+
                     return(
                         <tr key={j++}>
-                            <td className={e.vid}>{e.vid}</td>
-                            <td className={e.vid}>{e.nombre}</td>
-                            <td className={e.vid}>{e.lat}</td>
-                            <td className={e.vid}>{e.lon}</td>
-                            <td className={e.vid}>{e.up}</td>
-                            <td className={e.vid}>{e.down}</td>
-                            <td className={e.vid}>{e.onboard}</td>
-                            <td className={e.vid}>{e.ingreso}</td>
-                            <td className={e.vid}>{e.turno}</td>
+                            <td className={e.id}>{e.id}</td>
+                            <td className={e.id}>{e.nombre1}</td>
+                            <td className={e.id}>{e.nombre2}</td>
+                            <td className={e.id}>{e.nombre3}</td>
+                            <td className={e.id}>{ubicacion}</td>
+                            <td className={e.id}>{e.subidas}</td>
+                            <td className={e.id}>{e.bajadas}</td>
+                            <td className={e.id}>{e.abordo}</td>
+                            <td className={e.id}>{e.ingresos}</td>
+                            <td className={e.id}>{e.fecha}</td>
                         </tr>
                     );
 
                 }.bind(this));
-
 
                 return(
                     <div className="infodiv table-responsive">
@@ -391,14 +548,15 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>VEHÍCULO</th>
-                                <th>LAT</th>
-                                <th>LON</th>
+                                <th>NOMBRE</th>
+                                <th>{this.props.campo.elemA}</th>
+                                <th>{this.props.campo.elemB}</th>
+                                <th>UBICACIÓN</th>
                                 <th>SUBIDAS</th>
                                 <th>BAJADAS</th>
                                 <th>ABORDO</th>
                                 <th>INGRESO</th>
-                                <th>TURNO</th>
+                                <th>TIEMPO</th>
                             </tr>
                         </thead>
                         <tbody >{Items}</tbody>
@@ -417,9 +575,6 @@
             socket.emit ('stop', envelope);
 
             console.log('emitting stop to server', envelope);
-        }
-
-        function Logout(token){
 
             stopListen("all");
             socket.disconnect();
@@ -471,7 +626,10 @@
                         headers: {Authenticate: auth},
                         type: "GET",
                         success: function (result) {
-                            User = result.username;
+
+                            User=result.username;
+                            Uid=result.id;
+
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
                         }
                     });
@@ -508,8 +666,7 @@
 
                     var pathname = window.location.pathname;
 
-
-                    window.location = "/test_connect/reports"; //cuando este en la misma pagina reportes que no tenga que redireccionar.
+                    window.location = "/test_connect/reports"; //cuando este en la misma pagina reportes que no tenga que redireccionar. 
                     
 
                 }
@@ -517,20 +674,22 @@
 
         }
 
-        function Generar(){
+        /*function Generar(){
+
             
-        }
+        }*/
 
         function Chart(){
 
             toggle_chart ^= true;
             if(toggle_chart){
-                $('#chartbtn').addClass('current');
+                //$('#chartbtn').addClass('current');
+                $('#chartbtn').addClass('active');
             }else{
-                $('#chartbtn').removeClass('current');
+                //$('#chartbtn').removeClass('current');
+                $('#chartbtn').removeClass('active');
             }
 
-            console.log("Generando Reporte...");
             $('#highcharts').toggle();
             $(function () { 
                 $('#highcharts').highcharts({
@@ -563,9 +722,9 @@
             //console.log("Generando Mapa...");
             toggle_map ^= true;
             if(toggle_map){
-                $('#mapbtn').addClass('current');
+                $('#mapbtn').addClass('active');
             }else{
-                $('#mapbtn').removeClass('current');
+                $('#mapbtn').removeClass('active');
             }
 
             $('#maps').toggle();
@@ -574,6 +733,80 @@
                 zoom: 13,
                 zoomControl:true,
                 scrollwheel: true
+            });
+        }
+
+        function Lapso(event){
+
+            var seleccion = event.target.value;
+            var hs = new Date().toISOString();
+            var hm = new Date().getTime();
+            var a = new Date(hm-86400000);
+            var s = new Date(hm-604800000);
+            var q = new Date(hm-1296000000);
+            var m = new Date(hm-2592000000);
+            var inicio = '';
+            var fin = '';
+
+            console.log(m);
+
+            switch(seleccion){
+                case "0":
+                    inicio = hs.substr(0,10);
+                    fin = hs.substr(0,10);
+                    document.getElementById("tini").value = inicio;
+                    document.getElementById("tfin").value = fin;
+                break;
+                case "1":
+                    inicio = a.toISOString().substr(0,10);
+                    fin = a.toISOString().substr(0,10);
+                    document.getElementById("tini").value = inicio;
+                    document.getElementById("tfin").value = fin;
+                break;
+                case "7":
+                    inicio = hs.substr(0,10);
+                    fin = s.toISOString().substr(0,10);
+                    document.getElementById("tini").value = inicio;
+                    document.getElementById("tfin").value = fin;
+                break;
+                case "15":
+                    inicio = hs.substr(0,10);
+                    fin = q.toISOString().substr(0,10);
+                    document.getElementById("tini").value = inicio;
+                    document.getElementById("tfin").value = fin;
+                break;
+                case "30":
+                    inicio = hs.substr(0,10);
+                    fin = m.toISOString().substr(0,10);
+                    document.getElementById("tini").value = inicio;
+                    document.getElementById("tfin").value = fin; 
+                break;
+                default:
+                break;
+            }
+
+            console.log(seleccion);
+        }
+
+        function reverseGeo(lat, lng){
+
+            var geocoder = new google.maps.Geocoder;
+            var latlng = {lat: lat ,lng: lng };
+
+            geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+                  
+                  if (results[1]) {
+
+                    console.log(results[0].formatted_address);
+
+                  } else {
+                    window.alert('No results found');
+                  }
+
+                } else {
+                  window.alert('Geocoder failed due to: ' + status);
+                }
             });
         }
 
@@ -586,9 +819,10 @@
         document.getElementById("turno").addEventListener('click', function(){reporteSel("Turno");});
         document.getElementById("hora").addEventListener('click', function(){reporteSel("Hora");});
         document.getElementById("geo").addEventListener('click', function(){reporteSel("Geocerca");});
-        document.getElementById("genbtn").addEventListener('click', function(){Generar();});
+        //document.getElementById("genbtn").addEventListener('click', function(){Generar();});
         document.getElementById("chartbtn").addEventListener('click', function(){Chart();});
         document.getElementById("mapbtn").addEventListener('click', function(){Maps(16.7516009, -93.1029939);});
+        document.getElementById("lapsoSel").addEventListener('change', function(){Lapso(event);});
 
     </script>
 

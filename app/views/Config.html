@@ -291,7 +291,7 @@
                                 type: "POST",
                                 url: "app/model/model.php",
                                 dataType: "json",
-                                data: {"type": "infoTurn" , "userid": Uid},
+                                data: {"type": "infoTurn" , "userId": Uid},
                                 success: function(result){
                                     turnos = result.infoTurn;
                                     for(var i=0; i<result.infoTurn.length; i++){

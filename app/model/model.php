@@ -88,7 +88,7 @@
 			$infoJ = $_POST["infoRuta"];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
 			$vid = $info->vid;
-			$name_rotue = utf8_decode($info->rutaNom);
+			$name_route = utf8_decode($info->rutaNom);
 			$name_start = utf8_decode($info->nomInicio);
 			$start_lat = $info->ubicacion->inicio->lat;
 			$start_lon = $info->ubicacion->inicio->lon;
@@ -97,15 +97,15 @@
 			$end_lon = $info->ubicacion->fin->lon;
 			$iduser = $info->userId;
 
-			$name_rotue = $this->mysqli->real_escape_string($name_rotue);
+			$name_route = $this->mysqli->real_escape_string($name_route);
 			$name_start = $this->mysqli->real_escape_string($name_start);
 			$name_end = $this->mysqli->real_escape_string($name_end);
 
-			if ($name_rotue != "" && $name_start != "" && $name_end != "") {
-				//$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_rotue' and name_start = '$name_start' and name_end = '$name_end' ");
-				$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_rotue' and users_idusers = '$iduser'");
+			if ($name_route != "" && $name_start != "" && $name_end != "") {
+				//$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_route' and name_start = '$name_start' and name_end = '$name_end' ");
+				$query = $this->mysqli->query("SELECT * FROM route WHERE name_route = '$name_route' and users_idusers = '$iduser'");
 				if ($query->num_rows < 1) {
-					if ($this->mysqli->query("INSERT INTO route values (default, '$name_rotue', '$name_start', '$start_lat', '$start_lon', '$name_end', '$end_lat', '$end_lon', current_timestamp, '$iduser')")) {
+					if ($this->mysqli->query("INSERT INTO route values (default, '$name_route', '$name_start', '$start_lat', '$start_lon', '$name_end', '$end_lat', '$end_lon', current_timestamp, '$iduser')")) {
 						echo "Se ingreso la ruta";
 						$idroute = $this->mysqli->insert_id;
 						if ($this->mysqli->query("INSERT INTO vehicle_route values('$vid', '$idroute')")) {
@@ -244,7 +244,7 @@
 			$query3 = $this->mysqli->query("SELECT * FROM (SELECT d.iddrivers, v.idvehicle, d.name_driver, de.date_driver_event FROM driver_events as de 
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle 
 			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers 
-			ORDER BY de.date_driver_event DESC) conductor GROUP BY iddrivers;");
+			ORDER BY de.date_driver_event DESC) conductor GROUP BY iddrivers");
 			$query4 = $this->mysqli->query("SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date as fecha
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
@@ -299,24 +299,24 @@
     	 	while ($row = $query->fetch_array()) {
     	 		if ($output!='{"infoDriver":[') {$output .= ",";}
     	 		$output .= '{"id":"'.$row["iddrivers"].'",';
-    	 		$output .= '"name_driver":"'.utf8_encode($row["name_driver"]).'",';
+    	 		$output .= '"name":"'.utf8_encode($row["name_driver"]).'",';
     	 		$output .= '"ap_driver":"'.utf8_encode($row["ap_driver"]).'",';
     	 		$output .= '"active":"'.$row["active"].'",';
-    	 		$output .= '"date_driver":"'.$row["date_driver"].'"}';
+    	 		$output .= '"fecha":"'.$row["date_driver"].'"}';
     	 	}
     	 	$output .= "]}";
     	 	echo $output;
 		}
 
 		public function allTurns(){
-			$userid = $_POST['userid'];
+			$userid = $_POST['userId'];
 			//$userid = 8;
 			$query = $this->mysqli->query("SELECT *  FROM turn WHERE users_idusers = '$userid'");
     	 	$output = '{"infoTurn":[';
     	 	while ($row = $query->fetch_array()) {
     	 		if ($output!='{"infoTurn":[') {$output .= ",";}
     	 		$output .= '{"id":"'.$row["idturn_driver"].'",';
-    	 		$output .= '"nombre":"'.utf8_encode($row["name_turn"]).'",';
+    	 		$output .= '"name":"'.utf8_encode($row["name_turn"]).'",';
     	 		$output .= '"inicio":"'.$row["start_turn"].'",';
     	 		$output .= '"fin":"'.$row["end_turn"].'",';
     	 		$output .= '"fecha":"'.$row["date_turn"].'"}';
@@ -326,14 +326,14 @@
 		}
 
 		public function allRoutes(){
-			$userid = $_POST["userid"];
+			$userid = $_POST["userId"];
 			//$userid = 8;
 			$query = $this->mysqli->query("SELECT * FROM route WHERE users_idusers = '$userid'");
 			$output = '{"infoRoute":[';
 			while ($row = $query->fetch_array()) {
     	 		if ($output!='{"infoRoute":[') {$output .= ",";}
     	 		$output .= '{"id":"'.$row["idroute"].'",';
-    	 		$output .= '"rutaNom":"'.utf8_encode($row["name_route"]).'",';
+    	 		$output .= '"name":"'.utf8_encode($row["name_route"]).'",';
     	 		$output .= '"nomInicio":"'.utf8_encode($row["name_start"]).'",';
     	 		$output .= '"nomFin":"'.utf8_encode($row["name_end"]).'",';
     	 		$output .= '"ubicacion": { "incio": { "lat":'.$row['start_lat'].',"lat":'.$row['start_lon'].'},';
@@ -380,88 +380,198 @@
 		public function vehicleReport(){
 			$infoJ = $_POST['info'];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
-			$vid = $info->vid;
+			$id = $info->id;
 			$start = $info->tini;
 			$end = $info->tfin;
 
-			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up as ingreso, f.event_date
-			FROM vehicles as v
-			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date (f.event_date) between '$start' and '$end' and v.idvehicle = '$vid'
+			/*$id = 17;
+			$start = '2016-04-13';
+			$end = '2016-04-14';*/
+
+			$query = $this->mysqli->query("SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+			FROM data_frame as f 
+			LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
+			LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
+			LEFT JOIN route as r on r.idroute = vr.route_idroute
+			WHERE date(f.event_date) between '$start' and '$end' and v.idvehicle = '$id'
 			ORDER BY f.event_date DESC");
+
 			if ($query->num_rows > 1) {
-				$output = '{"infoVehicle":[';
+				$output = '{"infoReport":[';
 	    	 	while ($row = $query->fetch_array()) {
-	    	 		if ($output!='{"infoVehicle":[') {$output .= ",";}
-	    	 		$output .= '{"vid":"'.$row["idvehicle"].'",';
-	    	 		$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		if ($output!='{"infoReport":[') {$output .= ",";}
+	    	 		$output .= '{"id":"'.$row["idvehicle"].'",';
+	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre1":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre2":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		$output .= '"nombre3":"'.utf8_encode($row["name_route"]).'",';
+	    	 		$output .= '"subidas":"'.$row["up"].'",';
+	    	 		$output .= '"bajadas":"'.$row["down"].'",';
+	    	 		$output .= '"abordo":"'.$row["onboard"].'",';
+	    	 		$output .= '"ingresos":"'.$row["ingreso"].'",';
 	    	 		$output .= '"lat":"'.$row["lat"].'",';
 	    	 		$output .= '"lon":"'.$row["lon"].'",';
-	    	 		$output .= '"up":"'.$row["up"].'",';
-	    	 		$output .= '"down":"'.$row["down"].'",';
-	    	 		$output .= '"onboard":"'.$row["onboard"].'",';
-	    	 		$output .= '"ingreso":"'.$row["ingreso"].'",';
 	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
 	    	 	}
 	    	 	$output .= "]}";
 	    	 	echo $output;
 			}
 			else{
-				$output2 = '{"infoVehicle":[';
-	    	 	
-	    	 		if ($output2!='{"infoVehicle":[') {$output2 .= ",";}
-	    	 		$output2 .= '{"vid":"'."0".'",';
-	    	 		$output2 .= '"vehiculo":"'."0".'",';
-	    	 		$output2 .= '"lat":"'."0".'",';
-	    	 		$output2 .= '"lon":"'."0".'",';
-	    	 		$output2 .= '"up":"'."0".'",';
-	    	 		$output2 .= '"down":"'."0".'",';
-	    	 		$output2 .= '"onboard":"'."0".'",';
-	    	 		$output2 .= '"ingreso":"'."0".'",';
-	    	 		$output2 .= '"fecha":"'."0000-00-00 00:00:00".'"}';
-	    	 	
-	    	 	$output2 .= "]}";
-	    	 	echo $output2;
+				$output = '{"infoReport":[';
+	    	 	//while ($row = $query->fetch_array()) {
+	    	 	//	if ($output!='{"infoReport":[') {$output .= ",";}
+	    	 		$output .= '{"id":" ",';
+	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre1":" ",';
+	    	 		$output .= '"nombre2":" ",';
+	    	 		$output .= '"nombre3":" ",';
+	    	 		$output .= '"subidas":" ",';
+	    	 		$output .= '"bajadas":" ",';
+	    	 		$output .= '"abordo":" ",';
+	    	 		$output .= '"ingresos":" ",';
+	    	 		$output .= '"lat":" ",';
+	    	 		$output .= '"lon":" ",';
+	    	 		$output .= '"fecha":" ",';
+	    	 		$output .= '"mensaje":"No información de vehiculos"}';
+	    	 	//}
+	    	 	$output .= "]}";
+	    	 	echo $output;
 			}
 		}
 
 		public function driverReport(){
 			$infoJ = $_POST['info'];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
-			$cid = $info->cid;
+			$id = $info->id;
 			$start = $info->tini;
 			$end = $info->tfin;
 
-			$query = $this->mysqli->query("SELECT d.iddrivers, d.name_driver, v.name_vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up*6 as ingreso,f.event_date
-			FROM driver_events as de
-			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
-			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle
-			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-			WHERE date(f.event_date) between '$start' and '$end' and d.iddrivers = '$cid'
+			/*$id = 3;
+			$start = '2016-04-13';
+			$end = '2016-04-14';*/
+
+			$query = $this->mysqli->query("SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+			FROM data_frame as f 
+			LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
+			LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
+			LEFT JOIN route as r on r.idroute = vr.route_idroute
+			WHERE date(f.event_date) between '$start' and '$end' and d.iddrivers = '$id'
 			ORDER BY f.event_date DESC");
 
 			if ($query->num_rows > 1) {
-				$output = '{"infoDriver":[';
+				$output = '{"infoReport":[';
 	    	 	while ($row = $query->fetch_array()) {
-	    	 		if ($output!='{"infoDriver":[') {$output .= ",";}
-	    	 		$output .= '{"cid":"'.$row["iddrivers"].'",';
+	    	 		if ($output!='{"infoReport":[') {$output .= ",";}
+	    	 		$output .= '{"id":"'.$row["idvehicle"].'",';
 	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
 	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
-	    	 		$output .= '"conductor":"'.$row["name_driver"].'",';
-	    	 		$output .= '"vehiculo":"'.$row["name_vehicle"].'",';
+	    	 		$output .= '"nombre1":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		$output .= '"nombre2":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre3":"'.utf8_encode($row["name_route"]).'",';
+	    	 		$output .= '"subidas":"'.$row["up"].'",';
+	    	 		$output .= '"bajadas":"'.$row["down"].'",';
+	    	 		$output .= '"abordo":"'.$row["onboard"].'",';
+	    	 		$output .= '"ingresos":"'.$row["ingreso"].'",';
 	    	 		$output .= '"lat":"'.$row["lat"].'",';
 	    	 		$output .= '"lon":"'.$row["lon"].'",';
-	    	 		$output .= '"up":"'.$row["up"].'",';
-	    	 		$output .= '"down":"'.$row["down"].'",';
-	    	 		$output .= '"onboard":"'.$row["onboard"].'",';
-	    	 		$output .= '"ingreso":"'.$row["ingreso"].'",';
 	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
 	    	 	}
 	    	 	$output .= "]}";
 	    	 	echo $output;
 			}
 			else{
+				$output = '{"infoReport":[';
+	    	 	//while ($row = $query->fetch_array()) {
+	    	 	//	if ($output!='{"infoReport":[') {$output .= ",";}
+	    	 		$output .= '{"id":" ",';
+	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre1":" ",';
+	    	 		$output .= '"nombre2":" ",';
+	    	 		$output .= '"nombre3":" ",';
+	    	 		$output .= '"subidas":" ",';
+	    	 		$output .= '"bajadas":" ",';
+	    	 		$output .= '"abordo":" ",';
+	    	 		$output .= '"ingresos":" ",';
+	    	 		$output .= '"lat":" ",';
+	    	 		$output .= '"lon":" ",';
+	    	 		$output .= '"fecha":" ",';
+	    	 		$output .= '"mensaje":"No información de Conductores"}';
+	    	 	//}
+	    	 	$output .= "]}";
+	    	 	echo $output;
+			}
+		}
 
+		public function routeReport(){
+			$infoJ = $_POST['info'];
+			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+			$id = $info->id;
+			$start = $info->tini;
+			$end = $info->tfin;
+
+			/*$id = 2;
+			$start = '2016-04-13';
+			$end = '2016-04-14';*/
+
+			$query = $this->mysqli->query("SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+			FROM data_frame as f 
+			LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
+			LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
+			LEFT JOIN route as r on r.idroute = vr.route_idroute
+			WHERE date(f.event_date) between '$start' and '$end' and r.idroute = '$id'
+			ORDER BY f.event_date DESC");
+
+			if ($query->num_rows > 1) {
+				$output = '{"infoReport":[';
+	    	 	while ($row = $query->fetch_array()) {
+	    	 		if ($output!='{"infoReport":[') {$output .= ",";}
+	    	 		$output .= '{"id":"'.$row["idvehicle"].'",';
+	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre1":"'.utf8_encode($row["name_route"]).'",';
+	    	 		$output .= '"nombre2":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre3":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		$output .= '"subidas":"'.$row["up"].'",';
+	    	 		$output .= '"bajadas":"'.$row["down"].'",';
+	    	 		$output .= '"abordo":"'.$row["onboard"].'",';
+	    	 		$output .= '"ingresos":"'.$row["ingreso"].'",';
+	    	 		$output .= '"lat":"'.$row["lat"].'",';
+	    	 		$output .= '"lon":"'.$row["lon"].'",';
+	    	 		$output .= '"fecha":"'.$row["event_date"].'"}';
+	    	 	}
+	    	 	$output .= "]}";
+	    	 	echo $output;
+			}
+			else{
+				$output = '{"infoReport":[';
+	    	 	//while ($row = $query->fetch_array()) {
+	    	 	//	if ($output!='{"infoReport":[') {$output .= ",";}
+	    	 		$output .= '{"id":" ",';
+	    	 		//$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+	    	 		//$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+	    	 		$output .= '"nombre1":" ",';
+	    	 		$output .= '"nombre2":" ",';
+	    	 		$output .= '"nombre3":" ",';
+	    	 		$output .= '"subidas":" ",';
+	    	 		$output .= '"bajadas":" ",';
+	    	 		$output .= '"abordo":" ",';
+	    	 		$output .= '"ingresos":" ",';
+	    	 		$output .= '"lat":" ",';
+	    	 		$output .= '"lon":" ",';
+	    	 		$output .= '"fecha":" ",';
+	    	 		$output .= '"mensaje":"No información de las Rutas"}';
+	    	 	//}
+	    	 	$output .= "]}";
+	    	 	echo $output;
 			}
 		}
 
@@ -519,6 +629,12 @@
 	}
 	elseif ($_POST['type']=="repVehiculo") {
 		$instance->vehicleReport();
+	}
+	elseif ($_POST['type']=="repConductor") {
+		$instance->driverReport();
+	}
+	elseif ($_POST['type']=="repRuta") {
+		$instance->routeReport();
 	}
 	elseif ($_POST['type']=="asignar") {
 		$instance->assignDriver();

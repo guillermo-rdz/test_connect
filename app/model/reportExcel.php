@@ -7,16 +7,20 @@
     	exit();
 	}
 
-	$vid = 106;
+	$id = 106;
 	$start = "2016-04-12";
 	$end = "2016-04-14";
 	$userId = 8;
 
-	$query = "SELECT v.idvehicle as vid, v.name_vehicle as vehicle, f.lat, f.lon, f.up, f.down, f.onboard, f.up as ingreso, f.event_date as fecha
-	FROM vehicles as v
-	INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
-	WHERE date (f.event_date) between '$start' and '$end' and v.idvehicle = '$vid'
-	ORDER BY f.event_date DESC";
+	$query = "SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date as fecha
+			FROM data_frame as f 
+			LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
+			LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
+			LEFT JOIN route as r on r.idroute = vr.route_idroute
+			WHERE date(f.event_date) between '$start' and '$end' #and v.idvehicle = '$id'
+			ORDER BY f.event_date DESC";
 
 	$result = $conexion->query($query);
 
@@ -35,10 +39,10 @@
 							 ->setCategory("Vehiculos");
 
 		$title = "Reporte de vehiculos";
-		$titleColumns = array('Vid', 'Vehiculo', 'Latitud', 'Longitud', 'Subidas', 'Bajadas', 'Abordo', 'Ingreso', 'Fecha');
+		$titleColumns = array('Vid', 'Vehiculo', 'Conductor', 'Ruta', 'Subidas', 'Bajadas', 'Abordo', 'Ingreso', 'Latitud', 'Longitud', 'Fecha');
 
 		$excel->setActiveSheetIndex(0)
-        	  ->mergeCells('A1:I1');
+        	  ->mergeCells('A1:K1');
 
         $excel->setActiveSheetIndex(0)
 			  ->setCellValue('A1',$title)
@@ -50,20 +54,24 @@
               ->setCellValue('F2',  $titleColumns[5])
               ->setCellValue('G2',  $titleColumns[6])
               ->setCellValue('H2',  $titleColumns[7])
-              ->setCellValue('I2',  $titleColumns[8]);
+              ->setCellValue('I2',  $titleColumns[8])
+              ->setCellValue('J2',  $titleColumns[9])
+              ->setCellValue('K2',  $titleColumns[10]);
 
         $i = 3;
         while ($row = $result->fetch_array()) {
         	$excel->setActiveSheetIndex(0)
-        		  ->setCellValue('A'.$i,  $row['vid'])
-        		  ->setCellValue('B'.$i,  utf8_encode($row['vehicle']))
-        		  ->setCellValue('C'.$i,  $row['lat'])
-        		  ->setCellValue('D'.$i,  $row['lon'])
+        		  ->setCellValue('A'.$i,  $row['idvehicle'])
+        		  ->setCellValue('B'.$i,  utf8_encode($row['name_vehicle']))
+        		  ->setCellValue('C'.$i,  utf8_encode($row['name_driver']))
+        		  ->setCellValue('D'.$i,  utf8_encode($row['name_route']))
         		  ->setCellValue('E'.$i,  $row['up'])
         		  ->setCellValue('F'.$i,  $row['down'])
         		  ->setCellValue('G'.$i,  $row['onboard'])
         		  ->setCellValue('H'.$i,  $row['ingreso'])
-        		  ->setCellValue('I'.$i,  $row['fecha']);
+        		  ->setCellValue('I'.$i,  $row['lat'])
+        		  ->setCellValue('J'.$i,  $row['lon'])
+        		  ->setCellValue('K'.$i,  $row['fecha']);
        	$i++;
         }
 
@@ -162,11 +170,11 @@
 	           	)
 	        ));
 
-	        $excel->getActiveSheet()->getStyle('A1:I1')->applyFromArray($styleTitle);
-			$excel->getActiveSheet()->getStyle('A2:I2')->applyFromArray($styleTitleColumns);		
+	        $excel->getActiveSheet()->getStyle('A1:K1')->applyFromArray($styleTitle);
+			$excel->getActiveSheet()->getStyle('A2:K2')->applyFromArray($styleTitleColumns);		
 			//$excel->getActiveSheet()->setSharedStyle($styleInfo, "A4:D".($i-1));
 
-			for($i = 'A'; $i <= 'I'; $i++){
+			for($i = 'A'; $i <= 'K'; $i++){
 			$excel->setActiveSheetIndex(0)			
 				->getColumnDimension($i)->setAutoSize(TRUE);
 			}
