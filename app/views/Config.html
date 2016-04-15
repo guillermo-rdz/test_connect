@@ -122,6 +122,19 @@
 
                       <button type="submit" id="driverbtn"class="btn btn-default">Registrar</button>
                     </form>
+                    <div class="infodiv table-responsive">
+                        <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NOMBRE</th>
+                                <th>APELLIDO</th>
+                                <th>TURNO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regDriver"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div id="shiftData" class="col-sm-6">
@@ -287,6 +300,7 @@
                             User = result.username;
                             Uid = result.id;
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
@@ -297,8 +311,37 @@
                                     for(var i=0; i<result.infoTurn.length; i++){
                                         var x = document.getElementById("shiftOpt");
                                         var option = document.createElement("option");
-                                        option.text = result.infoTurn[i].nombre;
+                                        option.text = result.infoTurn[i].name;
                                         x.add(option);
+                                    }
+                                    
+                                    console.log(turnos);
+                                }
+                            });
+
+                            $.ajax({
+                                type: "POST",
+                                url: "app/model/model.php",
+                                dataType: "json",
+                                data: {"type": "infoDriver" , "userId": Uid},
+                                success: function(result){
+                                    
+                                    for(var i=0; i<result.infoDriver.length; i++){
+
+                                        var x = document.getElementById("regDriver");
+                                        var trow = document.createElement("tr");
+
+                                        var cid = document.createElement("td");
+                                        cid.text = result.infoTurn[i].id;
+                                        trow.add(cid);
+                                        var nom = document.createElement("td");
+                                        nom.text = result.infoTurn[i].name;
+                                        trow.add(nom);
+                                        var ap = document.createElement("td");
+                                        ap.text = result.infoTurn[i].ap_driver;
+                                        trow.add(ap);
+
+                                        x.add(trow);
                                     }
                                     
                                     console.log(result);
@@ -412,6 +455,7 @@
             });
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
         });
+
         $("#shiftOpt").change(function(event){
             var selShift = event.target.value;
             for(var i=0; i<turnos.length; i++){
