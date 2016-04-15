@@ -576,6 +576,10 @@
 
             console.log('emitting stop to server', envelope);
 
+        }
+
+        function Logout(){
+
             stopListen("all");
             socket.disconnect();
             console.log(auth);
@@ -674,10 +678,6 @@
 
         }
 
-        /*function Generar(){
-
-            
-        }*/
 
         function Chart(){
 
