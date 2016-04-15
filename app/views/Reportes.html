@@ -42,6 +42,11 @@
         #mapdiv{text-align: left}
         #maps{height:400px; width:100%; margin-top: 20px}
         
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/master
     </style>
 </head>
 <body> 
@@ -173,7 +178,10 @@
             handleGenerar: function(){
 
                 console.log("Generar!!");
+<<<<<<< HEAD
                 console.log(sel_id);
+=======
+>>>>>>> origin/master
                 var inicio = document.getElementById("tini").value;
                 var fin = document.getElementById("tfin").value ;
                 console.log(sel_id + " / " + inicio + " / " + fin);
@@ -200,7 +208,10 @@
                 }
 
                 this.setState({campos: comboSel});
+<<<<<<< HEAD
                 console.log(parametros);
+=======
+>>>>>>> origin/master
 
                 $.ajax({
                     type: "POST",
@@ -210,8 +221,12 @@
                     success: function(result){ 
                         console.log(result);
                         this.setState({infoReport: result.infoReport});
+<<<<<<< HEAD
 
                     }.bind(this)
+=======
+                    }
+>>>>>>> origin/master
                 });
             },
 
@@ -314,7 +329,11 @@
 
                                             for(var i=0;i<result.infoDriver.length; i++){
 
+<<<<<<< HEAD
                                                 conductorNombre.push(result.infoDriver[i].name);
+=======
+                                                conductorNombre.push(result.infoDriver[i].name_driver);
+>>>>>>> origin/master
 
                                             }
                                             this.setState({nombres:conductorNombre});
@@ -330,6 +349,7 @@
                             //document.getElementById("selectionCB").innerHTML = "Conductor";
                             break;
                             case "Ruta":
+<<<<<<< HEAD
 
                             $.ajax({
                                 url: source+"/api/user",
@@ -403,6 +423,54 @@
                                 }.bind(this)
                             });
 
+=======
+                            $.ajax({
+                                url: "app/model/model.php",
+                                dataType: "json",
+                                data: { "type": "infoRoutes", "userId": Uid},
+                                type: "POST",
+                                success: function(result) {
+
+                                    var rutasNombre = [];
+                                    console.log(result);
+
+                                    for(var i=0;i<result.infoRoute.length; i++){
+
+                                        rutaNombre.push(result.infoRoute[i].rutaNom);
+
+                                    }
+                                    this.setState({nombres:rutaNombre});
+                                    this.setState({items:result.infoRoute});
+                                    //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                }.bind(this)//set context
+                            });
+                            //document.getElementById("selectionCB").innerHTML = "Ruta";
+                            break;
+                            case "Turno":
+                            $.ajax({
+                                url: "app/model/model.php",
+                                dataType: "json",
+                                data: { "type": "infoTurn", "userId": Uid},
+                                type: "POST",
+                                success: function(result) {
+
+                                    var turnosNombre = [];
+                                    console.log(result);
+
+                                    for(var i=0;i<result.infoTurn.length; i++){
+
+                                        turnoNombre.push(result.infoTurn[i].nombre);
+
+                                    }
+                                    this.setState({nombres:turnoNombre});
+                                    this.setState({items:result.infoTurn});
+                                    //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
+
+                                }.bind(this)//set context
+                            });
+                            //document.getElementById("selectionCB").innerHTML = "Turno";
+>>>>>>> origin/master
                             break;
                             case "Hora":
                             //document.getElementById("selectionCB").innerHTML = "Hora";
@@ -453,6 +521,7 @@
                 var size=this.props.elementos.length;
               
                 for(var i=0;i<size;i++){
+<<<<<<< HEAD
                     
                     if(this.props.elementos[i].name == name){
                         
@@ -463,6 +532,13 @@
                     }
                 }
                 console.log(sel_id);
+=======
+                    if(this.props.elementos[i].name== name){
+                        sel_id = this.props.elementos[i].id;
+                        break;
+                    }
+                }
+>>>>>>> origin/master
 
             },
             
@@ -522,15 +598,23 @@
                 var j='';
                 var Items = this.props.item.map(function(e){
                     
+<<<<<<< HEAD
 
                     var ubicacion = reverseGeo(parseFloat(e.lat), parseFloat(e.lon));
+=======
+                    var ubicacion = reverseGeo(e.lat, e.lon);
+>>>>>>> origin/master
 
                     return(
                         <tr key={j++}>
                             <td className={e.id}>{e.id}</td>
                             <td className={e.id}>{e.nombre1}</td>
                             <td className={e.id}>{e.nombre2}</td>
+<<<<<<< HEAD
                             <td className={e.id}>{e.nombre3}</td>
+=======
+                            <td className={e.id}>{e.nombre2}</td>
+>>>>>>> origin/master
                             <td className={e.id}>{ubicacion}</td>
                             <td className={e.id}>{e.subidas}</td>
                             <td className={e.id}>{e.bajadas}</td>
