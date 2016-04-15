@@ -241,10 +241,12 @@
 
 			$query2 = $this->mysqli->query("SELECT iddrivers, name_driver FROM drivers WHERE active = 0 and users_idusers = '$userId'");
 			//$query2 = $this->mysqli->query("SELECT name_driver FROM drivers WHERE active = 0");
-			$query3 = $this->mysqli->query("SELECT * FROM (SELECT d.iddrivers, v.idvehicle, d.name_driver, de.date_driver_event FROM driver_events as de 
+			$query3 = $this->mysqli->query("SELECT * FROM (SELECT d.iddrivers, v.idvehicle, d.name_driver, de.date_driver_event, d.active FROM driver_events as de 
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle 
 			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers 
-			ORDER BY de.date_driver_event DESC) conductor GROUP BY iddrivers");
+			ORDER BY de.date_driver_event ASC) conductor
+			WHERE active = 1
+			GROUP BY iddrivers");
 			$query4 = $this->mysqli->query("SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, f.up as up, f.down as down, f.onboard as onboard, f.sensor_state as sensor, f.up*6 as total, f.event_date as fecha
 			FROM vehicles as v
 			INNER JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
@@ -381,8 +383,8 @@
 			$infoJ = $_POST['info'];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
 			$id = $info->id;
-			$start = $info->tini;
-			$end = $info->tfin;
+			$start = $info->tfin;
+			$end = $info->tini;
 
 			/*$id = 17;
 			$start = '2016-04-13';
@@ -395,7 +397,7 @@
 			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
 			LEFT JOIN route as r on r.idroute = vr.route_idroute
-			WHERE date(f.event_date) between '$start' and '$end' and v.idvehicle = '$id'
+			WHERE date(f.event_date) between '$start' and '$end' and v.idvehicle = '$id' and date(f.event_date) = date(de.date_driver_event)
 			ORDER BY f.event_date DESC");
 
 			if ($query->num_rows > 1) {
@@ -447,8 +449,8 @@
 			$infoJ = $_POST['info'];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
 			$id = $info->id;
-			$start = $info->tini;
-			$end = $info->tfin;
+			$start = $info->tfin;
+			$end = $info->tini;
 
 			/*$id = 3;
 			$start = '2016-04-13';
@@ -461,7 +463,7 @@
 			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
 			LEFT JOIN route as r on r.idroute = vr.route_idroute
-			WHERE date(f.event_date) between '$start' and '$end' and d.iddrivers = '$id'
+			WHERE date(f.event_date) between '$start' and '$end' and d.iddrivers = '$id' and date(f.event_date) = date(de.date_driver_event)
 			ORDER BY f.event_date DESC");
 
 			if ($query->num_rows > 1) {
@@ -513,8 +515,8 @@
 			$infoJ = $_POST['info'];
 			$info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
 			$id = $info->id;
-			$start = $info->tini;
-			$end = $info->tfin;
+			$start = $info->tfin;
+			$end = $info->tini;
 
 			/*$id = 2;
 			$start = '2016-04-13';
@@ -527,7 +529,7 @@
 			LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 			LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
 			LEFT JOIN route as r on r.idroute = vr.route_idroute
-			WHERE date(f.event_date) between '$start' and '$end' and r.idroute = '$id'
+			WHERE date(f.event_date) between '$start' and '$end' and r.idroute = '$id' and date(f.event_date) = date(de.date_driver_event)
 			ORDER BY f.event_date DESC");
 
 			if ($query->num_rows > 1) {
