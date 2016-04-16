@@ -162,6 +162,19 @@
 
                       <button type="submit" id="shiftbtn"class="btn btn-default">Registrar</button>
                     </form>
+                    <div class="infodiv table-responsive">
+                        <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NOMBRE</th>
+                                <th>INICIO</th>
+                                <th>FIN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regTurn"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div id="routesData" class="col-sm-6">
@@ -191,6 +204,20 @@
                         <div id="gmaps"></div>
                       <button type="submit" id="routebtn"class="btn btn-default">Registrar</button>
                     </form>
+
+                    <div class="infodiv table-responsive">
+                        <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NOMBRE</th>
+                                <th>INICIO</th>
+                                <th>FIN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regRoute"></tbody>
+                        </table>
+                    </div>
                     
                 </div>
 
@@ -308,11 +335,28 @@
                                 data: {"type": "infoTurn" , "userId": Uid},
                                 success: function(result){
                                     turnos = result.infoTurn;
+                                    $tbody = $('#regTurn');
                                     for(var i=0; i<result.infoTurn.length; i++){
                                         var x = document.getElementById("shiftOpt");
                                         var option = document.createElement("option");
                                         option.text = result.infoTurn[i].name;
                                         x.add(option);
+
+                                        var $tr = $('<tr/>');
+
+                                        var $id = $('<td/>').html(result.infoTurn[i].id);
+                                        $tr.append($id);
+
+                                        var $nom = $('<td/>').html(result.infoTurn[i].name);
+                                        $tr.append($nom);
+
+                                        var $ini = $('<td/>').html(result.infoTurn[i].inicio);
+                                        $tr.append($ini);
+
+                                        var $fin = $('<td/>').html(result.infoTurn[i].fin);
+                                        $tr.append($fin);
+
+                                        $tbody.append($tr);
                                     }
                                     
                                     console.log(turnos);
@@ -325,23 +369,53 @@
                                 dataType: "json",
                                 data: {"type": "infoDriver" , "userId": Uid},
                                 success: function(result){
-                                    
+
+                                    $tbody = $('#regDriver');                                    
                                     for(var i=0; i<result.infoDriver.length; i++){
 
-                                        var x = document.getElementById("regDriver");
-                                        var trow = document.createElement("tr");
+                                        var $tr = $('<tr/>');
 
-                                        var cid = document.createElement("td");
-                                        cid.text = result.infoTurn[i].id;
-                                        trow.add(cid);
-                                        var nom = document.createElement("td");
-                                        nom.text = result.infoTurn[i].name;
-                                        trow.add(nom);
-                                        var ap = document.createElement("td");
-                                        ap.text = result.infoTurn[i].ap_driver;
-                                        trow.add(ap);
+                                        var $id = $('<td/>').html(result.infoDriver[i].id);
+                                        $tr.append($id);
 
-                                        x.add(trow);
+                                        var $nom = $('<td/>').html(result.infoDriver[i].name);
+                                        $tr.append($nom);
+
+                                        var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
+                                        $tr.append($ap);
+
+                                        $tbody.append($tr);
+                                    }
+                                    
+                                    console.log(result);
+                                }
+                            });
+                            
+                            $.ajax({
+                                type: "POST",
+                                url: "app/model/model.php",
+                                dataType: "json",
+                                data: {"type": "infoRoutes" , "userId": Uid},
+                                success: function(result){
+
+                                    $tbody = $('#regRoute');                                    
+                                    for(var i=0; i<result.infoRoutes.length; i++){
+
+                                        var $tr = $('<tr/>');
+
+                                        var $id = $('<td/>').html(result.infoRoutes[i].id);
+                                        $tr.append($id);
+
+                                        var $nom = $('<td/>').html(result.infoRoutes[i].name);
+                                        $tr.append($nom);
+
+                                        var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
+                                        $tr.append($ini);
+
+                                        var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
+                                        $tr.append($fin);
+
+                                        $tbody.append($tr);
                                     }
                                     
                                     console.log(result);
