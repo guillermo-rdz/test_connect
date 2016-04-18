@@ -181,8 +181,13 @@ LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
 LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
 LEFT JOIN route as r on r.idroute = vr.route_idroute
-WHERE date(f.event_date) between '2016-04-13' and '2016-04-14' and v.idvehicle = 106
+WHERE date(f.event_date) between '2016-04-13' and '2016-04-15' and v.idvehicle = 106
 ORDER BY f.event_date DESC
 
-SELECT date_driver_event 
-FROM driver_events
+
+SELECT v.idvehicle, v.name_vehicle, d.iddrivers, d.users_idusers, de.date_assign, de.date_unassigned
+FROM driver_events as de
+INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle
+INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+WHERE v.idvehicle = 106 AND date(de.date_assign) between '2016-04-01' AND '2016-04-21'
+ 
