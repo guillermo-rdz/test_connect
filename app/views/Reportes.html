@@ -115,6 +115,7 @@
         var toggle_map=false;
         var Uid = '';
         var sel_id = '';
+        var ubicacion = '';
 
         var Prueba =[
             {vid: 12, nombre:'Camion1', lat: 67, lon: 52, up: 93, down: 46, onboard: 46, ingreso: 2467, turno: 'Matutino' },
@@ -575,9 +576,15 @@
             render: function(){
                 var j='';
                 var Items = this.props.item.map(function(e){
-                    
 
-                    var ubicacion = reverseGeo(parseFloat(e.lat), parseFloat(e.lon));
+                    if(e.lat && e.lon){
+                        reverseGeo(parseFloat(e.lat), parseFloat(e.lon));
+                    }else
+                    {
+                        ubicacion = "No Location";
+                    }
+
+                    console.log(ubicacion);
 
                     return(
                         <tr key={j++}>
@@ -854,7 +861,7 @@
                   if (results[1]) {
 
                     ubicacion = results[0].formatted_address;
-                    console.log(results[0].formatted_address);
+                    //console.log(results[0].formatted_address);
 
                   } else {
                     window.alert('No results found');
