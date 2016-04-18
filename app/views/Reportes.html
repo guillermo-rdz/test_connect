@@ -228,6 +228,19 @@
 
                 $('#highcharts').toggle();
 
+                var dateData = [];
+                var upData = [];
+                var downData = [];
+
+                for(var i=0; i<this.state.infoReport.length; i++){
+                    upData.push(this.state.infoReport[i].subidas);
+                    downData.push(this.state.infoReport[i].bajadas);
+                    dateData.push(this.state.infoReport[i].fecha);
+                }
+
+                console.log(upData);
+                console.log(dateData);
+
                 $(function () { 
                     $('#highcharts').highcharts({
                         chart: {
@@ -237,7 +250,7 @@
                             text: 'Flujo de Pasajeros'
                         },
                         xAxis: {
-                            categories: this.state.infoReport.fecha
+                            categories: dateData
                         },
                         yAxis: {
                             title: {
@@ -246,10 +259,10 @@
                         },
                         series: [{
                             name: 'Subidas',
-                            data: this.state.infoReport.subidas
+                            data: upData
                         }, {
                             name: 'Bajadas',
-                            data: this.state.infoReport.bajadas
+                            data: downData
                         }]
                     });
                 }.bind(this));
