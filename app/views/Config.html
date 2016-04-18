@@ -32,11 +32,13 @@
         #Userlog { pointer-events: none;}
         .pageContent{margin-top: 75px; margin-left: 20px; margin-right: 20px ;}
         .container {margin-left: 0px; padding-left: 0px}
-        #shiftData, #routesData{display: none}
+        #shiftData, #routesData, #ratesData{display: none}
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
         .alert-ruta{display: none;}
+        table {margin-top: 15px;}
+
     </style>
 </head>
 <body> 
@@ -64,8 +66,7 @@
                             <li><a href="#" id="geo">Geocerca</a></li>
                         </ul>
                     </li>
-                    <li><a href="#">Mapas</a></li> 
-                    <li class="active"><a href="config">Configuración</a></li> 
+                    <li class="active"><a href="config">Aministración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -88,6 +89,7 @@
                         <li class='active' id="driver_pill"><a href="#"><b>Conductores</b></a></li>
                         <li id="shift_pill"><a href="#"><b>Turnos</b></a></li>
                         <li id="routes_pill"><a href="#"><b>Rutas</b></a></li>
+                        <li id="rates_pill"><a href="#"><b>Tarifas</b></a></li>
                     </ul>
                 </div>
                 <div id="driverData" class="col-sm-6">
@@ -129,7 +131,6 @@
                                 <th>ID</th>
                                 <th>NOMBRE</th>
                                 <th>APELLIDO</th>
-                                <th>TURNO</th>
                             </tr>
                         </thead>
                         <tbody id="regDriver"></tbody>
@@ -162,7 +163,7 @@
 
                       <button type="submit" id="shiftbtn"class="btn btn-default">Registrar</button>
                     </form>
-                    <div class="infodiv table-responsive">
+                    <div  class="infodiv table-responsive">
                         <table class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -216,6 +217,40 @@
                             </tr>
                         </thead>
                         <tbody id="regRoute"></tbody>
+                        </table>
+                    </div>
+                    
+                </div>
+
+                <div id="ratesData" class="col-sm-6">
+                    <h3>DATOS TARIFAS</h3>
+                    <form role="form" id="ratesForm">
+                      <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" class="form-control" id="tarifanom" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="nombre">Ruta:</label>
+                        <select class="form-control" id="vehiclesOpt" required><option value="" disabled hidden>----Select Vehicle----</option></select>
+                      </div>
+                      <div class="form-group">
+                        <label for="nombre">Costo:</label>
+                        <input type="text" class="form-control" id="tarifanom" required>
+                      </div>
+                      <button type="submit" id="ratebtn"class="btn btn-default">Registrar</button>
+                    </form>
+
+                    <div class="infodiv table-responsive">
+                        <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NOMBRE</th>
+                                <th>INICIO</th>
+                                <th>FIN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="regRate"></tbody>
                         </table>
                     </div>
                     
@@ -345,16 +380,31 @@
                                         var $tr = $('<tr/>');
 
                                         var $id = $('<td/>').html(result.infoTurn[i].id);
+                                        var $idEdit = $('<input/>').attr("type", "text");
+                                        $idEdit.addClass("idEdit");
+                                        $id.append($idEdit);
                                         $tr.append($id);
 
                                         var $nom = $('<td/>').html(result.infoTurn[i].name);
+                                        var $nomEdit = $('<input/>').attr("type", "text");
+                                        $nomEdit.addClass("nomEdit");
+                                        $nom.append($nomEdit);
                                         $tr.append($nom);
 
                                         var $ini = $('<td/>').html(result.infoTurn[i].inicio);
+                                        var $iniEdit = $('<input/>').attr("type", "text");
+                                        $iniEdit.addClass("iniEdit");
+                                        $ini.append($iniEdit);
                                         $tr.append($ini);
 
                                         var $fin = $('<td/>').html(result.infoTurn[i].fin);
+                                        var $finEdit = $('<input/>').attr("type", "text");
+                                        $finEdit.addClass("finEdit");
+                                        $fin.append($finEdit);
                                         $tr.append($fin);
+
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit");
+                                        $tr.append($editbtn);
 
                                         $tbody.append($tr);
                                     }
@@ -376,13 +426,25 @@
                                         var $tr = $('<tr/>');
 
                                         var $id = $('<td/>').html(result.infoDriver[i].id);
+                                        var $idEdit = $('<input/>').attr("type", "text");
+                                        $idEdit.addClass("idEdit");
+                                        $id.append($idEdit);
                                         $tr.append($id);
 
                                         var $nom = $('<td/>').html(result.infoDriver[i].name);
+                                        var $nomEdit = $('<input/>').attr("type", "text");
+                                        $nomEdit.addClass("nomEdit");
+                                        $nom.append($nomEdit);
                                         $tr.append($nom);
 
-                                        var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
+                                        var $ap = $('<td/>').html(result.infoDriver[i].ap_driver)
+                                        var $apEdit = $('<input/>').attr("type", "text");
+                                        $apEdit.addClass("apEdit");
+                                        $ap.append($apEdit);;
                                         $tr.append($ap);
+
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit");
+                                        $tr.append($editbtn);
 
                                         $tbody.append($tr);
                                     }
@@ -404,16 +466,31 @@
                                         var $tr = $('<tr/>');
 
                                         var $id = $('<td/>').html(result.infoRoutes[i].id);
+                                        var $idEdit = $('<input/>').attr("type", "text");
+                                        $idEdit.addClass("idEdit");
+                                        $id.append($idEdit);
                                         $tr.append($id);
 
                                         var $nom = $('<td/>').html(result.infoRoutes[i].name);
+                                        var $nomEdit = $('<input/>').attr("type", "text");
+                                        $nomEdit.addClass("nomEdit");
+                                        $nom.append($nomEdit);
                                         $tr.append($nom);
 
                                         var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
+                                        var $iniEdit = $('<input/>').attr("type", "text");
+                                        $iniEdit.addClass("iniEdit");
+                                        $ini.append($iniEdit);
                                         $tr.append($ini);
 
                                         var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
+                                        var $finEdit = $('<input/>').attr("type", "text");
+                                        $finEdit.addClass("finEdit");
+                                        $id.append($finEdit);
                                         $tr.append($fin);
+
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit");
+                                        $tr.append($editbtn);
 
                                         $tbody.append($tr);
                                     }
@@ -544,30 +621,51 @@
             $("#divTini").show();
             $("#divTfin").show();
         });
+
         $("#driver_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#routes_pill").removeClass("active");
+            $("#rates_pill").removeClass("active")
             $("#driverData").show();
+            $("#ratesData").hide();
             $("#shiftData").hide();
             $("#routesData").hide();
             //$("#driverData").show();
         });
+
         $("#shift_pill").click(function (){
             $(this).addClass("active");
             $("#driver_pill").removeClass("active");
             $("#routes_pill").removeClass("active");
+            $("#rates_pill").removeClass("active")
             $("#shiftData").show();
+            $("#ratesData").hide();
             $("#driverData").hide();
             $("#routesData").hide();
             console.log("HOLA");
             //$("#shiftData").show();
         });
+
         $("#routes_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#driver_pill").removeClass("active");
+            $("#rates_pill").removeClass("active");
             $("#routesData").show();
+            $("#ratesData").hide();
+            $("#shiftData").hide();
+            $("#driverData").hide();
+            //$("#routeData").show();
+        });
+
+        $("#rates_pill").click(function (){
+            $(this).addClass("active");
+            $("#shift_pill").removeClass("active");
+            $("#driver_pill").removeClass("active");
+            $("#routes_pill").removeClass("active")
+            $("#ratesData").show();
+            $("#routesData").hide();
             $("#shiftData").hide();
             $("#driverData").hide();
             //$("#routeData").show();
