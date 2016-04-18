@@ -239,9 +239,6 @@
                     dateData.push(this.state.infoReport[i].fecha);
                 }
 
-                console.log(upData);
-                console.log(dateData);
-
                 $(function () { 
                     $('#highcharts').highcharts({
                         chart: {
@@ -304,8 +301,9 @@
                     this.setState({
                         ldata: liveData.data
                     });
-                    console.log(liveData);
-                    reverseGeo(events[0].lat,events[0].lon );
+                    //console.log(liveData);
+                    reverseGeo(events[0].lat,events[0].lon);
+                    console.log(ubicacion);
 
                 }.bind(this));
 
@@ -579,9 +577,10 @@
 
                     if(e.lat && e.lon){
                         reverseGeo(parseFloat(e.lat), parseFloat(e.lon));
+                        console.log(e.lat +" / " + e.lon);
                     }else
                     {
-                        ubicacion = "No Location";
+                        //ubicacion = "No Location";
                     }
 
                     console.log(ubicacion);
@@ -826,20 +825,20 @@
                     document.getElementById("tfin").value = fin;
                 break;
                 case "7":
-                    inicio = hs.substr(0,10);
-                    fin = s.toISOString().substr(0,10);
+                    inicio = s.toISOString().substr(0,10); 
+                    fin = hs.substr(0,10);
                     document.getElementById("tini").value = inicio;
                     document.getElementById("tfin").value = fin;
                 break;
                 case "15":
-                    inicio = hs.substr(0,10);
-                    fin = q.toISOString().substr(0,10);
+                    inicio = q.toISOString().substr(0,10);
+                    fin = hs.substr(0,10);
                     document.getElementById("tini").value = inicio;
                     document.getElementById("tfin").value = fin;
                 break;
                 case "30":
-                    inicio = hs.substr(0,10);
-                    fin = m.toISOString().substr(0,10);
+                    inicio = m.toISOString().substr(0,10);
+                    fin = hs.substr(0,10);
                     document.getElementById("tini").value = inicio;
                     document.getElementById("tfin").value = fin; 
                 break;
