@@ -36,7 +36,7 @@
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
-        .alert-ruta{display: none;}
+        .alert-ruta, .nomEdit, .apEdit, .iniEdit, .finEdit {display: none;}
         table {margin-top: 15px;}
 
     </style>
@@ -246,8 +246,8 @@
                             <tr>
                                 <th>ID</th>
                                 <th>NOMBRE</th>
-                                <th>INICIO</th>
-                                <th>FIN</th>
+                                <th>RUTA</th>
+                                <th>PRECIO</th>
                             </tr>
                         </thead>
                         <tbody id="regRate"></tbody>
@@ -345,6 +345,7 @@
                 }
             });
         }
+        
         function Setup(){
             $.ajax({
                 type: "POST",
@@ -380,31 +381,33 @@
                                         var $tr = $('<tr/>');
 
                                         var $id = $('<td/>').html(result.infoTurn[i].id);
-                                        var $idEdit = $('<input/>').attr("type", "text");
-                                        $idEdit.addClass("idEdit");
-                                        $id.append($idEdit);
                                         $tr.append($id);
 
                                         var $nom = $('<td/>').html(result.infoTurn[i].name);
+                                        $nom.addClass(result.infoTurn[i].id);
                                         var $nomEdit = $('<input/>').attr("type", "text");
                                         $nomEdit.addClass("nomEdit");
                                         $nom.append($nomEdit);
                                         $tr.append($nom);
 
                                         var $ini = $('<td/>').html(result.infoTurn[i].inicio);
+                                        $ini.addClass(result.infoTurn[i].id);
                                         var $iniEdit = $('<input/>').attr("type", "text");
                                         $iniEdit.addClass("iniEdit");
                                         $ini.append($iniEdit);
                                         $tr.append($ini);
 
                                         var $fin = $('<td/>').html(result.infoTurn[i].fin);
+                                        $fin.addClass(result.infoTurn[i].id);
                                         var $finEdit = $('<input/>').attr("type", "text");
                                         $finEdit.addClass("finEdit");
                                         $fin.append($finEdit);
                                         $tr.append($fin);
 
-                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit");
-                                        $tr.append($editbtn);
+                                        var $edit_action = $('<a/>').addClass(result.infoTurn[i].id);
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
+                                        $edit_action.append($editbtn);
+                                        $tr.append($edit_action);
 
                                         $tbody.append($tr);
                                     }
@@ -426,25 +429,26 @@
                                         var $tr = $('<tr/>');
 
                                         var $id = $('<td/>').html(result.infoDriver[i].id);
-                                        var $idEdit = $('<input/>').attr("type", "text");
-                                        $idEdit.addClass("idEdit");
-                                        $id.append($idEdit);
                                         $tr.append($id);
 
                                         var $nom = $('<td/>').html(result.infoDriver[i].name);
+                                        $nom.addClass(result.infoDriver[i].id);
                                         var $nomEdit = $('<input/>').attr("type", "text");
                                         $nomEdit.addClass("nomEdit");
                                         $nom.append($nomEdit);
                                         $tr.append($nom);
 
-                                        var $ap = $('<td/>').html(result.infoDriver[i].ap_driver)
+                                        var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
+                                        $ap.addClass(result.infoDriver[i].id);
                                         var $apEdit = $('<input/>').attr("type", "text");
                                         $apEdit.addClass("apEdit");
-                                        $ap.append($apEdit);;
+                                        $ap.append($apEdit);
                                         $tr.append($ap);
 
-                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit");
-                                        $tr.append($editbtn);
+                                        var $edit_action = $('<a/>').addClass(result.infoDriver[i].id);
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
+                                        $edit_action.append($editbtn);
+                                        $tr.append($edit_action);
 
                                         $tbody.append($tr);
                                     }
@@ -466,31 +470,33 @@
                                         var $tr = $('<tr/>');
 
                                         var $id = $('<td/>').html(result.infoRoutes[i].id);
-                                        var $idEdit = $('<input/>').attr("type", "text");
-                                        $idEdit.addClass("idEdit");
-                                        $id.append($idEdit);
                                         $tr.append($id);
 
                                         var $nom = $('<td/>').html(result.infoRoutes[i].name);
+                                        $nom.addClass(result.infoRoutes[i].id);
                                         var $nomEdit = $('<input/>').attr("type", "text");
                                         $nomEdit.addClass("nomEdit");
                                         $nom.append($nomEdit);
                                         $tr.append($nom);
 
                                         var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
+                                        $ini.addClass(result.infoRoutes[i].id);
                                         var $iniEdit = $('<input/>').attr("type", "text");
                                         $iniEdit.addClass("iniEdit");
                                         $ini.append($iniEdit);
                                         $tr.append($ini);
 
                                         var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
+                                        $fin.addClass(result.infoRoutes[i].id);
                                         var $finEdit = $('<input/>').attr("type", "text");
                                         $finEdit.addClass("finEdit");
                                         $id.append($finEdit);
                                         $tr.append($fin);
 
-                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit");
-                                        $tr.append($editbtn);
+                                        var $edit_action = $('<a/>').addClass(result.infoRoutes[i].id);
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
+                                        $edit_action.append($editbtn);
+                                        $tr.append($edit_action);
 
                                         $tbody.append($tr);
                                     }
@@ -663,12 +669,22 @@
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
             $("#driver_pill").removeClass("active");
-            $("#routes_pill").removeClass("active")
+            $("#routes_pill").removeClass("active");
             $("#ratesData").show();
             $("#routesData").hide();
             $("#shiftData").hide();
             $("#driverData").hide();
             //$("#routeData").show();
+        });
+
+        $(".icon-edit").click(function(event){
+            event.preventDefault();
+            var clase = event.target;
+            console.log(clase);
+            $(".nomEdit").show();
+            $(".apEdit").show();
+            console.log("EDITAR!!!");
+
         });
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
