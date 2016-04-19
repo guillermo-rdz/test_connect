@@ -185,9 +185,12 @@ WHERE date(f.event_date) between '2016-04-13' and '2016-04-15' and v.idvehicle =
 ORDER BY f.event_date DESC
 
 
-SELECT v.idvehicle, v.name_vehicle, d.iddrivers, d.users_idusers, de.date_assign, de.date_unassigned
-FROM driver_events as de
-INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle
-INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
-WHERE v.idvehicle = 106 AND date(de.date_assign) between '2016-04-01' AND '2016-04-21'
- 
+SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+FROM data_frame as f 
+LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
+LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
+LEFT JOIN route as r on r.idroute = vr.route_idroute
+WHERE date(f.event_date) between '2016-04-11' and '2016-04-19' and r.idroute = 1
+ORDER BY f.event_date DESC
