@@ -234,9 +234,21 @@
                 var downData = [];
 
                 for(var i=0; i<this.state.infoReport.length; i++){
-                    upData.push(this.state.infoReport[i].subidas);
-                    downData.push(this.state.infoReport[i].bajadas);
-                    dateData.push(this.state.infoReport[i].fecha);
+                    
+                    var upNow = Number(this.state.infoReport[i].subidas);
+                    var downNow = Number(this.state.infoReport[i].bajadas);
+
+                    if(i==0){
+                        upData.push(upNow);
+                        downData.push(downNow);
+                        dateData.push(this.state.infoReport[i].fecha);
+                    }else{
+                        var upBefore = Number(this.state.infoReport[i-1].subidas);
+                        var downBefore = Number(this.state.infoReport[i-1].bajadas);
+                        upData.push(upNow-upBefore);
+                        downData.push(downNow-downBefore);
+                        dateData.push(this.state.infoReport[i].fecha);
+                    }
                 }
 
                 $(function () { 
@@ -860,7 +872,6 @@
                   if (results[1]) {
 
                     ubicacion = results[0].formatted_address;
-                    //console.log(results[0].formatted_address);
 
                   } else {
                     window.alert('No results found');
