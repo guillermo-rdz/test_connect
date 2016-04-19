@@ -238,6 +238,7 @@
                     var upNow = Number(this.state.infoReport[i].subidas);
                     var downNow = Number(this.state.infoReport[i].bajadas);
 
+<<<<<<< HEAD
                     if(i<(this.state.infoReport.length-1)){
                         var upAfter = Number(this.state.infoReport[i+1].subidas);
                         var downAfter = Number(this.state.infoReport[i+1].bajadas);
@@ -251,6 +252,18 @@
                         downData.push(downNow);
                         dateData.push(this.state.infoReport[i].fecha);
                         
+=======
+                    if(i==0){
+                        upData.push(upNow);
+                        downData.push(downNow);
+                        dateData.push(this.state.infoReport[i].fecha);
+                    }else{
+                        var upBefore = Number(this.state.infoReport[i-1].subidas);
+                        var downBefore = Number(this.state.infoReport[i-1].bajadas);
+                        upData.push(upNow-upBefore);
+                        downData.push(downNow-downBefore);
+                        dateData.push(this.state.infoReport[i].fecha);
+>>>>>>> origin/master
                     }
                 }
 

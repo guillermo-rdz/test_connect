@@ -36,7 +36,11 @@
         #gmaps {height:300px; width: 600px; margin-bottom: 15px}
         #shiftOpt{margin-bottom: 10px}
         #divTini,#divTfin {display: none;}
+<<<<<<< HEAD
         .alert-ruta, .nomEdit, .apEdit, .iniEdit, .finEdit, .icon-ok, .icon-remove {display: none;}
+=======
+        .alert-ruta, .nomEdit, .apEdit, .iniEdit, .finEdit {display: none;}
+>>>>>>> origin/master
         table {margin-top: 15px;}
     </style>
 </head>
@@ -396,10 +400,18 @@
                                         $finEdit.addClass("finEdit");
                                         $fin.append($finEdit);
                                         $tr.append($fin);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                                         var $edit_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
                                         $edit_action.append($editbtn);
                                         $tr.append($edit_action);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                                         $tbody.append($tr);
                                     }
                                     
@@ -423,12 +435,17 @@
                                         $nomEdit.addClass("nomEdit");
                                         $nom.append($nomEdit);
                                         $tr.append($nom);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                                         var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
                                         $ap.addClass(result.infoDriver[i].id);
                                         var $apEdit = $('<input/>').attr("type", "text");
                                         $apEdit.addClass("apEdit");
                                         $ap.append($apEdit);
                                         $tr.append($ap);
+<<<<<<< HEAD
                                         var $edit_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $edit_action.attr("href", "#");
                                         $edit_action.attr("onClick", "editDriver(event)");
@@ -449,6 +466,13 @@
                                         var $removebtn = $('<span/>').addClass("glyphicon glyphicon-remove icon-remove");
                                         $remove_action.append($removebtn);
                                         $tr.append($remove_action);
+=======
+
+                                        var $edit_action = $('<a/>').addClass(result.infoDriver[i].id);
+                                        var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
+                                        $edit_action.append($editbtn);
+                                        $tr.append($edit_action);
+>>>>>>> origin/master
 
                                         $tbody.append($tr);
                                     }
@@ -486,10 +510,18 @@
                                         $finEdit.addClass("finEdit");
                                         $id.append($finEdit);
                                         $tr.append($fin);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                                         var $edit_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
                                         $edit_action.append($editbtn);
                                         $tr.append($edit_action);
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                                         $tbody.append($tr);
                                     }
                                     
@@ -665,6 +697,7 @@
         });
 
         $(".icon-edit").click(function(event){
+<<<<<<< HEAD
             
         });
 
@@ -695,6 +728,16 @@
         function editRoute(event){
             event.preventDefault();
         }
+=======
+            event.preventDefault();
+            var clase = event.target;
+            console.log(clase);
+            $(".nomEdit").show();
+            $(".apEdit").show();
+            console.log("EDITAR!!!");
+
+        });
+>>>>>>> origin/master
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
         document.getElementById("vehiculo").addEventListener('click', function(){reporteSel("Vehiculo");});
