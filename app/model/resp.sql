@@ -37,7 +37,7 @@ CREATE TABLE `data_frame` (
   `lat` char(18) DEFAULT NULL,
   `lon` char(18) DEFAULT NULL,
   `imei` double DEFAULT NULL,
-  `vehicle_idvehicle` double NOT NULL,
+  `vehicle_idvehicle` bigint unsigned NOT NULL,
   PRIMARY KEY (`iddata_frame`),
   KEY `fk_data_frame_vehicles_idx` (`vehicle_idvehicle`),
   CONSTRAINT `fk_data_frame_vehicles` FOREIGN KEY (`vehicle_idvehicle`) REFERENCES `db_frames`.`vehicles` (`idvehicle`) ON DELETE NO ACTION ON UPDATE NO ACTION

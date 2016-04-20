@@ -105,4 +105,87 @@
             }
         }
 
+
+        $output = '{"infoReport":[';
+                $output .= '{"id":"",';
+                $output .= '"nombre1":"",';
+                $output .= '"nombre2":"",';
+                $output .= '"nombre3":"",';
+                $output .= '"subidas":"",';
+                $output .= '"bajadas":"",';
+                $output .= '"abordo":"",';
+                $output .= '"ingresos":"",';
+                $output .= '"lat":"",';
+                $output .= '"lon":"",';
+                $output .= '"fecha":"",';
+                $output .= '"mensaje":"No hay información de vehiculos"}';
+                $output .= "]}";
+                echo $output;
+
+        public function routeReport(){
+            $infoJ = $_POST['info'];
+            $info = json_decode($infoJ, false, 512, JSON_BIGINT_AS_STRING);
+            //$id = $info->id;
+            //$start = $info->tfin;
+            //$end = $info->tini;
+
+            $id = 2;
+            $start = '2016-04-13';
+            $end = '2016-04-14';
+
+            $query = $this->mysqli->query("SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+            FROM data_frame as f 
+            LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
+            LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+            LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+            LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
+            LEFT JOIN route as r on r.idroute = vr.route_idroute
+            WHERE date(f.event_date) between '$start' and '$end' and r.idroute = '$id'
+            ORDER BY f.event_date DESC");
+
+            if ($query->num_rows > 1) {
+                $output = '{"infoReport":[';
+                while ($row = $query->fetch_array()) {
+                    if ($output!='{"infoReport":[') {$output .= ",";}
+                    $output .= '{"id":"'.$row["idvehicle"].'",';
+                    //$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+                    //$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+                    $output .= '"nombre1":"'.utf8_encode($row["name_route"]).'",';
+                    $output .= '"nombre2":"'.utf8_encode($row["name_vehicle"]).'",';
+                    $output .= '"nombre3":"'.utf8_encode($row["name_driver"]).'",';
+                    $output .= '"subidas":"'.$row["up"].'",';
+                    $output .= '"bajadas":"'.$row["down"].'",';
+                    $output .= '"abordo":"'.$row["onboard"].'",';
+                    $output .= '"ingresos":"'.$row["ingreso"].'",';
+                    $output .= '"lat":"'.$row["lat"].'",';
+                    $output .= '"lon":"'.$row["lon"].'",';
+                    $output .= '"fecha":"'.$row["event_date"].'"}';
+                }
+                $output .= "]}";
+                echo $output;
+            }
+            else{
+                $output = '{"infoReport":[';
+                //while ($row = $query->fetch_array()) {
+                //  if ($output!='{"infoReport":[') {$output .= ",";}
+                    $output .= '{"id":" ",';
+                    //$output .= '"conductor":"'.utf8_encode($row["name_driver"]).'",';
+                    //$output .= '"vehiculo":"'.utf8_encode($row["name_vehicle"]).'",';
+                    $output .= '"nombre1":" ",';
+                    $output .= '"nombre2":" ",';
+                    $output .= '"nombre3":" ",';
+                    $output .= '"subidas":" ",';
+                    $output .= '"bajadas":" ",';
+                    $output .= '"abordo":" ",';
+                    $output .= '"ingresos":" ",';
+                    $output .= '"lat":" ",';
+                    $output .= '"lon":" ",';
+                    $output .= '"fecha":" ",';
+                    $output .= '"mensaje":"No información de las Rutas"}';
+                //}
+                $output .= "]}";
+                echo $output;
+            }
+        }
+
  ?>

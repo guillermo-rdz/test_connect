@@ -419,13 +419,13 @@
                                             var rutaNombre = [];
                                             console.log(result);
 
-                                            for(var i=0;i<result.infoRoute.length; i++){
+                                            for(var i=0;i<result.infoRoutes.length; i++){
 
-                                                rutaNombre.push(result.infoRoute[i].name);
+                                                rutaNombre.push(result.infoRoutes[i].name);
 
                                             }
                                             this.setState({nombres:rutaNombre});
-                                            this.setState({items:result.infoRoute});
+                                            this.setState({items:result.infoRoutes});
                                             //ReactDOM.render(<ReportPage/>, document.getElementById("reactContent"));
 
                                         }.bind(this)//set context
