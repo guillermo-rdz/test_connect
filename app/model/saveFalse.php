@@ -1,12 +1,12 @@
 <?php 
 	require_once "conexion.php";
-
+	date_default_timezone_set('America/Mexico_City');
 	class SaveFalse extends conexion{
 		
 		public function _construct(){
 			parent:: _construct();
 		}
-
+		//16.769691, -93.166436
 		public function saveFalseFrame(){
 			$jsonFrame = $_POST["liveData"];
 			$frame = json_decode($jsonFrame, false, 512, JSON_BIGINT_AS_STRING);
@@ -14,9 +14,11 @@
 			$tx = $frame->tx;
 			$imei = $frame->imei;
 			$vid = $frame->vid;
-			$lat = $frame->lat+rand(0, 5);
-			$lon = $frame->lon+rand(0, 5);
+			$lat = $frame->lat;//+1/rand(1, 7);
+			$lon = $frame->lon;//+1/rand(1, 7);
 			//$arrayFrame = "0000,0000,000,0,00,0000,0000,0000,0001";
+			$now = time();
+			$fecha = date("Y-m-d H:i:s");
 
 			if (empty($tx)) {
 				echo "trama vacia";
@@ -26,7 +28,7 @@
 				$frame = explode(",", $tx);
 
 				$up = $frame[0];
-				$down = $frame[1]+rand(0, 2);
+				$down = $frame[1]+rand(1, 3);
 				$onboard = $frame[2];
 				$sensor_state = $frame[3];
 				$error = $frame[4];
@@ -37,7 +39,7 @@
 
 				//if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down','$eventTime', '$lat', '$lon', '$imei', '$vid')")) {
 				if ($this->mysqli->query("INSERT INTO data_frame VALUES (default, '$up', '$down', '$onboard', '$sensor_state', '$error','$false_up', '$false_down', '$block_up', '$block_down',current_timestamp, '$lat', '$lon', '$imei', '$vid')")) {
-					echo "Se ingreso la trama";
+					echo "Se ingreso la trama".$fecha;
 				}
 				else{
 									    	

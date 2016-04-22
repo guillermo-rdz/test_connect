@@ -181,7 +181,8 @@ LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
 LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
 LEFT JOIN route as r on r.idroute = vr.route_idroute
-WHERE date(f.event_date) between '2016-04-13' and '2016-04-15' and v.idvehicle = 106
+#WHERE date(f.event_date) between '2016-04-11' and '2016-04-22' and v.idvehicle = 17
+GROUP by v.idvehicle
 ORDER BY f.event_date DESC
 
 
@@ -192,5 +193,73 @@ LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
 LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
 LEFT JOIN vehicle_route as vr on v.idvehicle = vr.vehicles_idvehicle
 LEFT JOIN route as r on r.idroute = vr.route_idroute
-WHERE date(f.event_date) between '2016-04-11' and '2016-04-19' and r.idroute = 1
+WHERE date(f.event_date) between '2016-04-11' and '2016-04-19' and r.idroute = 3 and iddrivers = 6
 ORDER BY f.event_date DESC
+
+SELECT v.idvehicle, d.name_driver, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+FROM vehicle_route as vr 
+LEFT JOIN route as r on r.idroute = vr.route_idroute
+LEFT JOIN vehicles as v on v.idvehicle = vr.vehicles_idvehicle
+LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+RIGHT JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between '2016-04-11' and '2016-04-19' and r.idroute = 8
+ORDER BY f.event_date DESC
+
+SELECT r.idroute, r.name_route, v.idvehicle, v.name_vehicle, d.iddrivers, d.name_driver, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
+FROM vehicle_route as vr 
+LEFT JOIN route as r on r.idroute = vr.route_idroute
+LEFT JOIN vehicles as v on v.idvehicle = vr.vehicles_idvehicle
+LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+LEFT JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+RIGHT JOIN data_frame as f on v.idvehicle = f.vehicle_idvehicle
+WHERE date(f.event_date) between '2016-04-11' and '2016-04-19' and r.idroute = 6
+ORDER BY f.event_date DESC
+
+#SELECT v.idvehicle, v.name_vehicle, r.idroute, r.name_route, d.iddrivers, d.name_driver
+SELECT v.idvehicle, v.name_vehicle, d.iddrivers, d.users_idusers, de.date_assign as assign, de.date_unassigned as unassigned
+FROM vehicle_route as vr 
+LEFT JOIN vehicles as v on v.idvehicle = vr.vehicles_idvehicle
+LEFT JOIN route as r on r.idroute = vr.route_idroute
+LEFT JOIN driver_events as de on v.idvehicle = de.vehicles_idvehicle
+INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
+WHERE r.idroute = 1 AND d.users_idusers = 8
+
+SELECT r.idroute, r.name_route, v.idvehicle, v.name_vehicle
+FROM vehicle_route as vr
+INNER JOIN vehicles as v on v.idvehicle = vr.vehicles_idvehicle
+INNER JOIN route as r on r.idroute = vr.route_idroute
+ORDER BY r.idroute
+
+############################### Consulta nueva para Luis por día con conductor #############################################
+SELECT idvehicle, name_vehicle, name_driver, up, down, onboard, event_date, up * 6 as ingreso, onboard, event_date
+FROM (SELECT v.idvehicle, v.name_vehicle, d.name_driver, f.up, f.down, f.onboard, f.event_date
+FROM data_frame as f 
+INNER JOIN vehicles as v on v.idvehicle = f.vehicle_idvehicle
+LEFT JOIN driver_events as de on de.vehicles_idvehicle = v.idvehicle
+LEFT JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
+WHERE v.idvehicle = 17 and date(event_date) between '2016-04-04' and '2016-04-22' and d.iddrivers = 3
+ORDER BY f.event_date DESC) as sub
+GROUP BY date(event_date)
+ORDER BY event_date DESC
+############################### Consulta nueva para Luis por día sin conductor #############################################
+SELECT idvehicle, name_vehicle, up, down, onboard, event_date, up * 6 as ingreso, onboard, event_date
+FROM (SELECT v.idvehicle, v.name_vehicle, f.up, f.down, f.onboard, f.event_date
+FROM data_frame as f 
+INNER JOIN vehicles as v on v.idvehicle = f.vehicle_idvehicle
+WHERE v.idvehicle = 35 and date(event_date) between '2016-04-04' and '2016-04-22'
+ORDER BY f.event_date DESC) as sub
+GROUP BY date(event_date)
+ORDER BY event_date DESC
+
+####################### Consulta nueva para Luis por hora (pendiente acumulado de la hora) ###################
+SELECT * FROM (SELECT v.idvehicle, v.name_vehicle, d.name_driver, f.up, f.down, f.onboard, f.event_date 
+	FROM data_frame as f
+	INNER JOIN vehicles as v on v.idvehicle = f.vehicle_idvehicle
+	LEFT JOIN driver_events as de on de.vehicles_idvehicle = v.idvehicle
+	LEFT JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
+	WHERE date(event_date) = '2016-04-22' and vehicle_idvehicle = 6
+	ORDER BY event_date DESC) as sub1
+#WHERE hour(event_date) = 11
+GROUP BY hour(event_date)
+ORDER BY event_date DESC
