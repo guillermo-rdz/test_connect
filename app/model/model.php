@@ -1162,12 +1162,12 @@
 	elseif ($_POST['type']=="ruta") {
 		$instance->insertRoute();
 	}
-	//elseif ($_POST['type']=="driver") {
-	//	$instance->insertDriver();
-	//}
-	//elseif ($_POST['type']=="driver") {
-	//	$instance->insertDriver();
-	//}
+	elseif ($_POST['type']=="borrarConductor") {
+		$instance->deleteDriver();
+	}
+	elseif ($_POST['type']=="editarConductor") {
+		$instance->updateDriver();
+	}
 	elseif ($_POST['type']=="infoDriver") {
 		//$instance->vehicleReport();
 		$instance->allDrivers();
