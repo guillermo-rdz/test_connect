@@ -33,9 +33,13 @@
 
 				return $fechas;
 			}
-			else{
+			elseif($ini == $assi && $fin == $unassi){
 				$fechas = array('inicio' => $assign, 'fin' => $unassign);
 				return $fechas;
+			}
+			else{
+				$fechas = array('inicio' => $start, 'fin' => $end);
+				return $fechas;	
 			}
 		}
 
@@ -109,7 +113,7 @@
 			$query = "INSERT INTO turn values(default, '$name_turn', '$start_turn', '$end_turn', current_timestamp, '$iduser')";
 
 			if ($name_turn != "" && $start_turn != "" && $end_turn != "" && $iduser != 0) {
-				$query2 = $this->mysqli->query("SELECT name_turn FROM turn WHERE users_idusers = '$iduser'");
+				$query2 = $this->mysqli->query("SELECT name_turn FROM turn WHERE users_idusers = '$iduser' and name_turn = '$name_turn'");
 				if ($query2->num_rows < 1) {
 					
 					if ($this->mysqli->query($query)) {
@@ -214,13 +218,13 @@
 			$driverData = json_decode($driverJson, true);
 			$name = utf8_decode($driverData['nombre']);
 			$ap = utf8_decode($driverData['apellido']);
-			$idturn = $driverData['shiftId'];
+			//$idturn = $driverData['shiftId'];
 			$iddriver = $driverData['cid'];
 			$active = 0;
 
 			if ($name != "" && $ap != "") {
 				if ($this->mysqli->query("UPDATE drivers SET name_driver = '$name', ap_driver ='$ap' WHERE iddrivers = '$iddriver' ")) {
-					if ($idturn !=0) {
+					/*if ($idturn !=0) {
 						if ($this->mysqli->query("UPDATE driver_turn SET drivers_iddrivers = '$iddriver', idturn_driver = '$idturn' ")) {
 							echo "Se actualizo el turno";
 						}
@@ -230,7 +234,7 @@
 					}
 					else{
 						echo "No hay cambio en el turno";
-					}
+					}*/
 				}
 				else{
 					echo "No se actualizo el registro";
@@ -254,6 +258,17 @@
 				else{
 					echo "No se actualizo el turno";
 				}
+			}
+		}
+
+		public function deleteDriver(){
+			$idDriver = $_POST['id'];
+
+			if ($this->mysqli->query("DELETE FROM drivers WHERE iddrivers = '$idDriver'")) {
+				echo "Se elimino al conductor";
+			}
+			else{
+				echo "No se elimino al conductor";
 			}
 		}
 
@@ -422,7 +437,7 @@
 			$vid = $_POST['vid'];
 			$iddrivers = $_POST['cid'];
 
-			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', '$iddrivers', current_timestamp)")) {
+			if ($this->mysqli->query("INSERT INTO driver_events values(default, '$vid', '$iddrivers', current_timestamp, null)")) {
 				echo "Se asigno el Conductor";
 				if ($this->mysqli->query("UPDATE drivers SET active = 1 WHERE iddrivers = '$iddrivers' ")) {
 					echo "Se cambio el estado a activo";
@@ -533,7 +548,7 @@
 			$hoy = date("Y-m-d",$now);
 			//echo "$fecha2";
 
-			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.iddrivers, d.users_idusers, de.date_assign as assign, de.date_unassigned as unassigned
+			$query = $this->mysqli->query("SELECT v.idvehicle, v.name_vehicle, d.iddrivers, d.name_driver, d.users_idusers, de.date_assign as assign, de.date_unassigned as unassigned
 			FROM driver_events as de
 			INNER JOIN vehicles as v on v.idvehicle = de.vehicles_idvehicle
 			INNER JOIN drivers as d on d.iddrivers = de.drivers_iddrivers
@@ -541,11 +556,12 @@
 			$output = '{"infoReport":[';
 			if ($query->num_rows > 0) {
 				//$output = '{"infoReport":[';
+				//echo "Primer IF";
                 while ($row = $query->fetch_array()) {
                     $did = $row['iddrivers'];
                     $assign = $row['assign'];
                     $unassign = $row['unassigned'];
-                    if (is_null($unassign)) {
+                    if (empty($unassign)) {
                         $unassign = $hoy;
                     }
                     $fecha = $this->compare($start, $end, $assign, $unassign);
@@ -600,6 +616,7 @@
 			}
 			else{
 				//$output = '{"infoReport":[';
+				//echo "Primer Else";
                     /*$query2 = $this->mysqli->query("SELECT v.idvehicle, r.name_route, v.name_vehicle, f.up, f.down, f.onboard, f.up as ingreso, f.lat, f.lon, f.event_date
 					FROM data_frame as f 
 					LEFT JOIN vehicles as v on f.vehicle_idvehicle = v.idvehicle
@@ -608,7 +625,7 @@
 					WHERE date(f.event_date) between '$start' and '$end' and v.idvehicle = '$id'
 					GROUP BY date(f.event_date)
 					ORDER BY f.event_date DESC");*/
-					$query2 = $this->mysqli->query("SELECT idvehicle, name_vehicle, up, down, onboard, event_date,  up * 6 as ingreso, onboard, event_date
+					$query2 = $this->mysqli->query("SELECT idvehicle, name_vehicle, up, down, onboard, event_date, up * 6 as ingreso, onboard, event_date
 					FROM (SELECT v.idvehicle, v.name_vehicle, f.up, f.down, f.onboard, f.event_date
 					FROM data_frame as f 
 					INNER JOIN vehicles as v on v.idvehicle = f.vehicle_idvehicle

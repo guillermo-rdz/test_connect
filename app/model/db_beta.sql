@@ -232,22 +232,22 @@ INNER JOIN route as r on r.idroute = vr.route_idroute
 ORDER BY r.idroute
 
 ############################### Consulta nueva para Luis por día con conductor #############################################
-SELECT idvehicle, name_vehicle, name_driver, up, down, onboard, event_date, up * 6 as ingreso, onboard, event_date
+SELECT idvehicle, name_vehicle, name_driver, up, down, up * 6 as ingreso, onboard, event_date
 FROM (SELECT v.idvehicle, v.name_vehicle, d.name_driver, f.up, f.down, f.onboard, f.event_date
 FROM data_frame as f 
 INNER JOIN vehicles as v on v.idvehicle = f.vehicle_idvehicle
 LEFT JOIN driver_events as de on de.vehicles_idvehicle = v.idvehicle
 LEFT JOIN drivers as d on de.drivers_iddrivers = d.iddrivers
-WHERE v.idvehicle = 17 and date(event_date) between '2016-04-04' and '2016-04-22' and d.iddrivers = 3
+WHERE v.idvehicle = 6 and date(event_date) between '2016-04-07' and '2016-04-22' and d.iddrivers = 2
 ORDER BY f.event_date DESC) as sub
 GROUP BY date(event_date)
-ORDER BY event_date DESC
+ORDER BY event_date ASC
 ############################### Consulta nueva para Luis por día sin conductor #############################################
 SELECT idvehicle, name_vehicle, up, down, onboard, event_date, up * 6 as ingreso, onboard, event_date
 FROM (SELECT v.idvehicle, v.name_vehicle, f.up, f.down, f.onboard, f.event_date
 FROM data_frame as f 
 INNER JOIN vehicles as v on v.idvehicle = f.vehicle_idvehicle
-WHERE v.idvehicle = 35 and date(event_date) between '2016-04-04' and '2016-04-22'
+#WHERE v.idvehicle = 6 and date(event_date) between '2016-04-04' and '2016-04-22'
 ORDER BY f.event_date DESC) as sub
 GROUP BY date(event_date)
 ORDER BY event_date DESC

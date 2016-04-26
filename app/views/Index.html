@@ -5,15 +5,15 @@
     <meta charset="utf-8" />
     <title>GrupoITSolutions</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/test_connect/app/views/js/react.js"></script>
+    <script src="/test_connect/app/views/js/react-dom.js"></script>
+    <script src="/test_connect/app/views/js/jquery-2.2.3.min.js"></script>
+    <script src="/test_connect/app/views/js/jquery.dynatable.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    <script type="text/javascript" src="/path/to/jquery.tablesorter.js"></script>
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="/test_connect/app/views/js/jquery.tablesorter.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="/test_connect/app/views/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAH2Cwa5ty4cb17GwoievJfxKkrKkYuaDE">
@@ -44,7 +44,7 @@
         .infodiv table tr{display: block; float:left; width:100%;}
         .infodiv table td{display: block; float:left; width:11.11%; }
         .infodiv table {width: 100%; overflow-x: scroll;}*/
-        .infodiv { overflow-y:scroll; height:500px;}
+        .infodiv { height:500px; margin-top: 15px}
         #gmaps{ width:100%; height:500px;}
         
         .navbar{margin-bottom: 0px}
@@ -54,6 +54,8 @@
         .icon-ok {color:#009900; display:none; padding-left: 5px}
         .icon-remove {color:#cc0000; display:none; padding-left: 5px;}
         .icon-edit {padding-left: 5px}
+        #infoTable tbody select {width: 170px;}
+        #listenbtn, #stopbtn {display: none;}
     </style>
 </head>
 <body> 
@@ -82,8 +84,7 @@
                             <li><a href="#" id="geo">Geocerca</a></li>
                         </ul>
                     </li>
-                    <li><a href="#">Mapas</a></li> 
-                    <li><a href="config">Configuración</a></li> 
+                    <li><a href="config">Administración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -210,29 +211,35 @@
                     for(var j=0; j<this.state.dvrs_on.length; j++){
 
                         if(this.state.vehicles[i].vid == this.state.dvrs_on[j].Vid){
-                            this.state.vehicles[i].conductor = this.state.dvrs_on[j].Conductor;
+                            //this.state.vehicles[i].conductor = this.state.dvrs_on[j].Conductor;
                             data_driver = this.state.dvrs_on[j].Conductor;
                             break;
                         }else{
-                            //this.state.vehicles[i].conductor  = '----Select a driver----';
+                            data_driver = '----Select a driver----';
                         }
                     }
 
                     for(var k=0; k<this.state.counters.length;k++){
                         
                         if(this.state.vehicles[i].vid == this.state.counters[k].Vid){
-                            this.state.vehicles[i].up = this.state.counters[k].Subidas;
+                            //this.state.vehicles[i].up = this.state.counters[k].Subidas;
                             data_up = this.state.counters[k].Subidas;
-                            this.state.vehicles[i].down = this.state.counters[k].Bajadas;
+                            //this.state.vehicles[i].down = this.state.counters[k].Bajadas;
                             data_down = this.state.counters[k].Bajadas;
-                            this.state.vehicles[i].onboard = this.state.counters[k].Abordo;
+                            //this.state.vehicles[i].onboard = this.state.counters[k].Abordo;
                             data_onboard = this.state.counters[k].Abordo;
-                            this.state.vehicles[i].sensores = this.state.counters[k].Sensor;
+                            //this.state.vehicles[i].sensores = this.state.counters[k].Sensor;
                             data_sensor = this.state.counters[k].Sensor;
-                            this.state.vehicles[i].ingreso = this.state.counters[k].Ingreso;
+                            //this.state.vehicles[i].ingreso = this.state.counters[k].Ingreso;
                             data_ingreso = this.state.counters[k].Ingresos;
                             break;
                         }else{
+
+                            /*data_up = 0;
+                            data_down = 0;
+                            data_onboard = 0;
+                            data_ sensor ='NA';
+                            data_ingreso = 0;*/
 
                             /*this.state.vehicles[i].up = 0
                             this.state.vehicles[i].down = 0
@@ -241,13 +248,11 @@
                             this.state.vehicles[i].ingreso = 0*/
                         }
                     }
-                    /*data_temp.push({vid:this.state.vehicles[i].vid, nombre:this.state.vehicles[i].nombre, conductor: data_driver, ruta: 'NA', up: data_up, down: data_down, onboard: data_onboard, sensores: data_sensor, ingreso: data_ingreso, turno: 'NA'});*/
 
+                    data_temp.push({vid: this.state.vehicles[i].vid, nombre: this.state.vehicles[i].nombre, conductor: data_driver, ruta: 'NA', up: data_up, down: data_down, onboard: data_onboard, sensores: data_sensor, ingreso: data_ingreso, turno: 'NA'});
                 }
 
-                //this.setState({vehicle:data_temp});
-
-                console.log("POST");
+                this.setState({vehicles: data_temp});
                 
             },
 
@@ -348,7 +353,10 @@
                     }
 
                     console.log(Time(events[0].event_time));
+
                 }.bind(this));
+                
+                setTimeout(Sorter,5000);
 
             },
 
@@ -388,13 +396,13 @@
                                 });
 
                                 console.log(result);
+                                
 
                             }.bind(this) //set context
                         });
 
                     }.bind(this)
                 });
-
             },
 
             
@@ -404,6 +412,7 @@
                 return(
                     <InfoTable item={this.state.vehicles} tramas={this.state.counters} dvrs_on={this.state.dvrs_on} dvrs_off={this.state.dvrs_off} token={this.state.token}/>
                 );
+
             }
 
         });
@@ -473,10 +482,10 @@
                 event.preventDefault();
 
                 var driverVehicle = event.currentTarget.className;
-                var selectedDriver = document.getElementsByClassName(driverVehicle)[3].value;
-                var iconOk = document.getElementsByClassName(driverVehicle)[5].firstChild;
-                var iconRemove = document.getElementsByClassName(driverVehicle)[6].firstChild;
-                var iconEdit = document.getElementsByClassName(driverVehicle)[4].firstChild;
+                var selectedDriver = document.getElementsByClassName(driverVehicle)[0].value;
+                var iconOk = document.getElementsByClassName(driverVehicle)[2].firstChild;
+                var iconRemove = document.getElementsByClassName(driverVehicle)[3].firstChild;
+                var iconEdit = document.getElementsByClassName(driverVehicle)[1].firstChild;
                 var driversOff = this.props.dvrs_off;
 
                 for(var i=0; i<driversOff.length; i++){
@@ -501,7 +510,7 @@
                         $(iconOk).hide();
                         $(iconRemove).hide();
                         $(iconEdit).show();
-                        $(document.getElementsByClassName(driverVehicle)[3]).prop("disabled", true);
+                        $(document.getElementsByClassName(driverVehicle)[0]).prop("disabled", true);
                     }
                 });
             },
@@ -509,13 +518,13 @@
             handleRemove: function(event){
                 event.preventDefault();
                 var clase = event.target.parentNode.className;
-                var iconOk = document.getElementsByClassName(clase)[5].firstChild;
-                var iconRemove = document.getElementsByClassName(clase)[6].firstChild;
-                var iconEdit = document.getElementsByClassName(clase)[4].firstChild;
+                var iconOk = document.getElementsByClassName(clase)[2].firstChild;
+                var iconRemove = document.getElementsByClassName(clase)[3].firstChild;
+                var iconEdit = document.getElementsByClassName(clase)[1].firstChild;
                 $(iconOk).hide();
                 $(iconRemove).hide();
                 $(iconEdit).show();
-                $(document.getElementsByClassName(clase)[3]).prop("disabled", true);
+                $(document.getElementsByClassName(clase)[0]).prop("disabled", true);
                 console.log(clase);
 
             },
@@ -523,14 +532,14 @@
             handleEdit: function(event){
                 event.preventDefault();
                 var clase = event.target.parentNode.className;
-                var iconOk = document.getElementsByClassName(clase)[5].firstChild;
-                var iconRemove = document.getElementsByClassName(clase)[6].firstChild;
-                var iconEdit = document.getElementsByClassName(clase)[4].firstChild;
-                console.log(document.getElementsByClassName(clase)[2]);
+                var iconOk = document.getElementsByClassName(clase)[2].firstChild;
+                var iconRemove = document.getElementsByClassName(clase)[3].firstChild;
+                var iconEdit = document.getElementsByClassName(clase)[1].firstChild;
+                console.log(document.getElementsByClassName(clase));
                 $(iconOk).show();
                 $(iconEdit).hide();
 
-                $(document.getElementsByClassName(clase)[3]).prop("disabled", false);
+                $(document.getElementsByClassName(clase)[0]).prop("disabled", false);
                 $(iconRemove).show();
 
             },
@@ -555,7 +564,7 @@
                             <td className={e.vid}>{e.vid}</td>
                             <td className={e.vid}>{e.nombre}</td>
                             <td className={e.vid}><select className={e.vid} disabled>
-                            <option hidden>{e.conductor}</option>
+                            <option>{e.conductor}</option>
                             {conductores}
                             </select><a href="#" className={e.vid} onClick = {this.handleEdit}><span className="glyphicon glyphicon-edit icon-edit"></span></a> <a href="#" className={e.vid} onClick = {this.handleAssign}><span className="glyphicon glyphicon-ok icon-ok"></span></a> <a href="#" className={e.vid} onClick = {this.handleRemove}><span className="glyphicon glyphicon-remove icon-remove"></span></a></td>
                             <td className={e.vid}>{e.ruta}</td>
@@ -568,15 +577,16 @@
                         </tr>
                     );
 
+
                 }.bind(this));
 
 
                 return(
                     <div className="infodiv table-responsive">
-                        <table className="table table-striped table-hover">
+                        <table className="table table-striped table-hover" id="infoTable">
                         <thead>
                             <tr>
-                                <th></th>
+                                <th data-dynatable-no-sort></th>
                                 <th>ID</th>
                                 <th>VEHÍCULO</th>
                                 <th>CONDUCTOR</th>
@@ -586,7 +596,7 @@
                                 <th>ABORDO</th>
                                 <th>SENSORES</th>
                                 <th>INGRESOS</th>
-                                <th>TURNO</th>
+                                <th>FECHA</th>
                             </tr>
                         </thead>
                         <tbody >{Items}</tbody>
@@ -617,9 +627,6 @@
             {vid: 16, nombre:'Camion90', conductor: 'Jaime', ruta: 65, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
             {vid: 14, nombre:'Camion10', conductor: 'Andres', ruta: 95, up: 60, down: 48 , onboard: 46 , sensores: 'OK', ingreso: 2467, turno: 'Matutino' },
         ];*/
-
-        //ReactDOM.render(<HomePage/>, document.getElementById("reactContent"));
-
 
         function Gmap(latitude, longitude){
 
@@ -772,6 +779,29 @@
             fecha.setTime(tiempoMili);
             console.log("Milisegundos: "+tiempoMili+", Fecha: "+fecha.toLocaleString());
 
+        }
+
+        function Sorter(){
+
+            $("#infoTable").dynatable({
+
+                features: {
+                    paginate: false,
+                    sort: true,
+                    pushState: true,
+                    search: false,
+                    recordCount: true,
+                    perPageSelect: false
+                },
+
+                readers: {
+                      'id' : function(el, record) {
+                        return Number(el.innerHTML) || 0;
+                    }
+                }
+            });
+
+            //$("#infoTable").tablesorter();
         }
 
         /*function hoverSel(event){

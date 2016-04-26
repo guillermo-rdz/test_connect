@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>VEHICULOS_GPS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/test_connect/app/views/js/react.js"></script>
+    <script src="/test_connect/app/views/js/react-dom.js"></script>
+    <script src="/test_connect/app/views/js/jquery-2.2.3.min.js"></script>
+    <script src="/test_connect/app/views/js/jquery.tablesorter.js"></script>
+    <script src="/test_connect/app/views/js/jquery.dynatable.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="/test_connect/app/views/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5bziuTX-sOCYrRaRArTsjvBW469wcmGE">
@@ -38,6 +39,9 @@
         #divTini,#divTfin {display: none;}
         .alert-ruta, .nomEdit, .apEdit, .iniEdit, .finEdit, .icon-ok, .icon-remove {display: none;}
         table {margin-top: 15px;}
+        .icon-ok {color:#009900;}
+        .icon-remove{padding-left: 5px; color:#cc0000;}
+        .icon-trash{padding-left: 5px; color: black;}
     </style>
 </head>
 <body> 
@@ -124,7 +128,7 @@
                       <button type="submit" id="driverbtn"class="btn btn-default">Registrar</button>
                     </form>
                     <div class="infodiv table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover" id="myTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -276,6 +280,7 @@
         var imarker=0;
         var markerIni = '';
         var markerFin = '';
+        
         Setup();
         Gmap(16.7516009, -93.1029939);
         
@@ -380,26 +385,57 @@
                                         $tr.append($id);
                                         var $nom = $('<td/>').html(result.infoTurn[i].name);
                                         $nom.addClass(result.infoTurn[i].id);
-                                        var $nomEdit = $('<input/>').attr("type", "text");
-                                        $nomEdit.addClass("nomEdit");
-                                        $nom.append($nomEdit);
                                         $tr.append($nom);
+                                        var $nomEdit = $('<td/>').addClass("nomEdit");
+                                        var $nomInput = $('<input/>').attr("type","text");
+                                        $nomInput.addClass(result.infoTurn[i].id);
+                                        $nomEdit.append($nomInput);
+                                        $tr.append($nomEdit);
                                         var $ini = $('<td/>').html(result.infoTurn[i].inicio);
                                         $ini.addClass(result.infoTurn[i].id);
-                                        var $iniEdit = $('<input/>').attr("type", "text");
-                                        $iniEdit.addClass("iniEdit");
-                                        $ini.append($iniEdit);
                                         $tr.append($ini);
+                                        var $iniEdit = $('<td/>').addClass("iniEdit");
+                                        var $iniInput = $('<input/>').attr("type", "time");
+                                        $iniInput.addClass(result.infoTurn[i].id);
+                                        $iniEdit.append($iniInput);
+                                        $tr.append($iniEdit);
                                         var $fin = $('<td/>').html(result.infoTurn[i].fin);
                                         $fin.addClass(result.infoTurn[i].id);
-                                        var $finEdit = $('<input/>').attr("type", "text");
-                                        $finEdit.addClass("finEdit");
-                                        $fin.append($finEdit);
                                         $tr.append($fin);
+                                        var $finEdit = $('<td/>').addClass("finEdit");
+                                        var $finInput = $('<input/>').attr("type", "time");
+                                        $finInput.addClass(result.infoTurn[i].id);
+                                        $finEdit.append($finInput);
+                                        $tr.append($finEdit);
+                                        var $actionBtns = $('<td/>');
                                         var $edit_action = $('<a/>').addClass(result.infoTurn[i].id);
+                                        $edit_action.attr("href","#");
+                                        $edit_action.attr("onClick","editTurn(event)");
                                         var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
                                         $edit_action.append($editbtn);
-                                        $tr.append($edit_action);
+                                        $actionBtns.append($edit_action);
+                                        $tr.append($actionBtns);
+                                        var $erase_action = $('<a/>').addClass(result.infoTurn[i].id);
+                                        $erase_action.attr("href", "#");
+                                        $erase_action.attr("onClick", "eraseTurn(event)");
+                                        var $erasebtn = $('<span/>').addClass("glyphicon glyphicon-trash icon-trash");
+                                        $erase_action.append($erasebtn);
+                                        $actionBtns.append($erase_action);
+                                        $tr.append($actionBtns);
+                                        var $ok_action = $('<a/>').addClass(result.infoTurn[i].id);
+                                        $ok_action.attr("href","#");
+                                        $ok_action.attr("onClick","okTurn(event)");
+                                        var $okbtn = $('<span/>').addClass("glyphicon glyphicon-ok icon-ok");
+                                        $ok_action.append($okbtn);
+                                        $actionBtns.append($ok_action);
+                                        $tr.append($actionBtns);
+                                        var $remove_action = $('<a/>').addClass(result.infoTurn[i].id);
+                                        $remove_action.attr("href","#");
+                                        $remove_action.attr("onClick","removeTurn(event)");
+                                        var $removebtn = $('<span/>').addClass("glyphicon glyphicon-remove icon-remove");
+                                        $remove_action.append($removebtn);
+                                        $actionBtns.append($remove_action);
+                                        $tr.append($actionBtns);
                                         $tbody.append($tr);
                                     }
                                     
@@ -419,42 +455,58 @@
                                         $tr.append($id);
                                         var $nom = $('<td/>').html(result.infoDriver[i].name);
                                         $nom.addClass(result.infoDriver[i].id);
-                                        var $nomEdit = $('<input/>').attr("type", "text");
-                                        $nomEdit.addClass("nomEdit");
-                                        $nom.append($nomEdit);
                                         $tr.append($nom);
+                                        var $nomEdit = $('<td/>');
+                                        $nomEdit.addClass("nomEdit");
+                                        var $nomInput = $('<input/>').attr("type", "text");
+                                        $nomInput.addClass(result.infoDriver[i].id);
+                                        $nomEdit.append($nomInput);
+                                        $tr.append($nomEdit);
                                         var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
                                         $ap.addClass(result.infoDriver[i].id);
-                                        var $apEdit = $('<input/>').attr("type", "text");
-                                        $apEdit.addClass("apEdit");
-                                        $ap.append($apEdit);
                                         $tr.append($ap);
+                                        var $apEdit = $('<td/>').addClass("apEdit");
+                                        var $apInput = $('<input/>').attr("type", "text");
+                                        $apInput.addClass(result.infoDriver[i].id);
+                                        $apEdit.append($apInput);
+                                        $tr.append($apEdit);
+                                        var $actionBtns = $('<td/>');
                                         var $edit_action = $('<a/>').addClass(result.infoDriver[i].id);
-                                        $edit_action.attr("href", "#");
-                                        $edit_action.attr("onClick", "editDriver(event)");
+                                        $edit_action.attr("href","#");
+                                        $edit_action.attr("onClick","editDriver(event)");
                                         var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
                                         $edit_action.append($editbtn);
-                                        $tr.append($edit_action);
-
+                                        $actionBtns.append($edit_action);
+                                        $tr.append($actionBtns);
+                                        var $erase_action = $('<a/>').addClass(result.infoDriver[i].id);
+                                        $erase_action.attr("href", "#");
+                                        $erase_action.attr("onClick", "eraseDriver(event)");
+                                        var $erasebtn = $('<span/>').addClass("glyphicon glyphicon-trash icon-trash");
+                                        $erase_action.append($erasebtn);
+                                        $actionBtns.append($erase_action);
+                                        $tr.append($actionBtns);
                                         var $ok_action = $('<a/>').addClass(result.infoDriver[i].id);
-                                        $ok_action.attr("href", "#");
-                                        $ok_action.attr("onClick", "okEdit(event)");
+                                        $ok_action.attr("href","#");
+                                        $ok_action.attr("onClick","okDriver(event)");
                                         var $okbtn = $('<span/>').addClass("glyphicon glyphicon-ok icon-ok");
                                         $ok_action.append($okbtn);
-                                        $tr.append($ok_action);
-
+                                        $actionBtns.append($ok_action);
+                                        $tr.append($actionBtns);
                                         var $remove_action = $('<a/>').addClass(result.infoDriver[i].id);
-                                        $remove_action.attr("href", "#");
-                                        $remove_action.attr("onClick", "editRemove(event)");
+                                        $remove_action.attr("href","#");
+                                        $remove_action.attr("onClick","removeDriver(event)");
                                         var $removebtn = $('<span/>').addClass("glyphicon glyphicon-remove icon-remove");
                                         $remove_action.append($removebtn);
-                                        $tr.append($remove_action);
-
+                                        $actionBtns.append($remove_action);
+                                        $tr.append($actionBtns);
                                         $tbody.append($tr);
                                     }
                                     
                                     console.log(result);
+                                    //setTimeout(sort,5000);
+                                       
                                 }
+                                   
                             });
                             
                             $.ajax({
@@ -470,26 +522,57 @@
                                         $tr.append($id);
                                         var $nom = $('<td/>').html(result.infoRoutes[i].name);
                                         $nom.addClass(result.infoRoutes[i].id);
-                                        var $nomEdit = $('<input/>').attr("type", "text");
-                                        $nomEdit.addClass("nomEdit");
-                                        $nom.append($nomEdit);
                                         $tr.append($nom);
+                                        var $nomEdit = $('<td/>').addClass("nomEdit");
+                                        var $nomInput = $('<input/>').attr("type", "text");
+                                        $nomInput.addClass(result.infoRoutes[i].id);
+                                        $nomEdit.append($nomInput);
+                                        $tr.append($nomEdit);
                                         var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
                                         $ini.addClass(result.infoRoutes[i].id);
-                                        var $iniEdit = $('<input/>').attr("type", "text");
-                                        $iniEdit.addClass("iniEdit");
-                                        $ini.append($iniEdit);
                                         $tr.append($ini);
+                                        var $iniEdit = $('<td/>').addClass("iniEdit");
+                                        var $iniInput = $('<input/>').attr("type", "text");
+                                        $iniInput.addClass(result.infoRoutes[i].id);
+                                        $iniEdit.append($iniInput);
+                                        $tr.append($iniEdit);
                                         var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
                                         $fin.addClass(result.infoRoutes[i].id);
-                                        var $finEdit = $('<input/>').attr("type", "text");
-                                        $finEdit.addClass("finEdit");
-                                        $id.append($finEdit);
                                         $tr.append($fin);
+                                        var $finEdit = $('<td/>').addClass("finEdit");
+                                        var $finInput = $('<input/>').attr("type", "text")
+                                        $finInput.addClass(result.infoRoutes[i].id);
+                                        $finEdit.append($finInput);
+                                        $tr.append($finEdit);
+                                        var $actionBtns = $('<td/>');
                                         var $edit_action = $('<a/>').addClass(result.infoRoutes[i].id);
+                                        $edit_action.attr("href","#");
+                                        $edit_action.attr("onClick","editRoutes(event)");
                                         var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
                                         $edit_action.append($editbtn);
-                                        $tr.append($edit_action);
+                                        $actionBtns.append($edit_action);
+                                        $tr.append($actionBtns);
+                                        var $erase_action = $('<a/>').addClass(result.infoRoutes[i].id);
+                                        $erase_action.attr("href", "#");
+                                        $erase_action.attr("onClick", "eraseRoutes(event)");
+                                        var $erasebtn = $('<span/>').addClass("glyphicon glyphicon-trash icon-trash");
+                                        $erase_action.append($erasebtn);
+                                        $actionBtns.append($erase_action);
+                                        $tr.append($actionBtns);
+                                        var $ok_action = $('<a/>').addClass(result.infoRoutes[i].id);
+                                        $ok_action.attr("href","#");
+                                        $ok_action.attr("onClick","okRoutes(event)");
+                                        var $okbtn = $('<span/>').addClass("glyphicon glyphicon-ok icon-ok");
+                                        $ok_action.append($okbtn);
+                                        $actionBtns.append($ok_action);
+                                        $tr.append($actionBtns);
+                                        var $remove_action = $('<a/>').addClass(result.infoRoutes[i].id);
+                                        $remove_action.attr("href","#");
+                                        $remove_action.attr("onClick","removeRoutes(event)");
+                                        var $removebtn = $('<span/>').addClass("glyphicon glyphicon-remove icon-remove");
+                                        $remove_action.append($removebtn);
+                                        $actionBtns.append($remove_action);
+                                        $tr.append($actionBtns);
                                         $tbody.append($tr);
                                     }
                                     
@@ -515,6 +598,7 @@
                     });
                 }
             });
+    
         }
         function reporteSel(seleccion){
             console.log(seleccion);
@@ -527,6 +611,10 @@
                     window.location = "/test_connect/reports"
                 }
             });
+        }
+        function sort(){
+            
+            $("#myTable").dynatable();
         }
         $("#driverForm").submit(function (event){
             event.preventDefault();
@@ -607,10 +695,11 @@
         $("#shiftOpt").change(function(event){
             var selShift = event.target.value;
             for(var i=0; i<turnos.length; i++){
-                if(selShift == turnos[i].nombre){
+                if(selShift == turnos[i].name){
                     shiftId = turnos[i].id
                     var inicio = turnos[i].inicio;
                     var fin = turnos[i].fin;
+                    console.log(inicio);
                 }
             }
             document.getElementById("tini").value = inicio;
@@ -663,37 +752,182 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
-
-        $(".icon-edit").click(function(event){
-            
-        });
-
         function editDriver(event){
-
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombreIn = document.getElementsByClassName(clase)[0].lastChild;
-            var apellidoIn = document.getElementsByClassName(clase)[1].lastChild;
-            var editIcon = document.getElementsByClassName(clase)[2];
-            var okIcon = document.getElementsByClassName(clase)[3];
-            var removeIcon = document.getElementsByClassName(clase)[4];
-
+            var nombre = document.getElementsByClassName(clase)[0];
+            var nomInput = document.getElementsByClassName(clase)[1].parentNode;
+            var apellido = document.getElementsByClassName(clase)[2];
+            var apInput = document.getElementsByClassName(clase)[3].parentNode;
+            var editIcon = document.getElementsByClassName(clase)[4].firstChild;
+            var eraseIcon = document.getElementsByClassName(clase)[5].firstChild;
+            var okIcon = document.getElementsByClassName(clase)[6].firstChild;
+            var removeIcon = document.getElementsByClassName(clase)[7].firstChild;
             console.log(document.getElementsByClassName(clase));
-            $(nombreIn).show();
-            $(apellidoIn).show();
+            $(nomInput).show();
+            $(apInput).show();
             $(okIcon).show();
             $(removeIcon).show();
             $(editIcon).hide();
-
-            console.log("EDITAR!!!");
+            $(eraseIcon).hide();
+            $(nombre).hide();
+            $(apellido).hide();
         }
-
+        function okDriver(event){
+            event.preventDefault();
+        }
+        function removeDriver(event){
+            event.preventDefault();
+            var clase = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(clase)[0];
+            var nomInput = document.getElementsByClassName(clase)[1].parentNode;
+            var apellido = document.getElementsByClassName(clase)[2];
+            var apInput = document.getElementsByClassName(clase)[3].parentNode;
+            var editIcon = document.getElementsByClassName(clase)[4].firstChild;
+            var eraseIcon = document.getElementsByClassName(clase)[5].firstChild;
+            var okIcon = document.getElementsByClassName(clase)[6].firstChild;
+            var removeIcon = document.getElementsByClassName(clase)[7].firstChild;
+            $(nomInput).hide();
+            $(apInput).hide();
+            $(okIcon).hide();
+            $(removeIcon).hide();
+            $(editIcon).show();
+            $(eraseIcon).show();
+            $(nombre).show();
+            $(apellido).show();
+        }
+        function eraseDriver(event){
+            event.preventDefault();
+            var resp = window.confirm("¿Esta seguro que se desea eliminar ese conductor?");
+            if(resp == true){
+                console.log("OK");
+            }else{
+                console.log("CANCELAR");
+            }
+        }
         function editTurn(event){
             event.preventDefault();
+            var clase = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(clase)[8];
+            var nomInput = document.getElementsByClassName(clase)[9].parentNode;
+            var inicio = document.getElementsByClassName(clase)[10];
+            var iniInput = document.getElementsByClassName(clase)[11].parentNode;
+            var fin = document.getElementsByClassName(clase)[12];
+            var finInput = document.getElementsByClassName(clase)[13].parentNode;
+            var editIcon = document.getElementsByClassName(clase)[14].firstChild;
+            var eraseIcon = document.getElementsByClassName(clase)[15].firstChild;
+            var okIcon = document.getElementsByClassName(clase)[16].firstChild;
+            var removeIcon = document.getElementsByClassName(clase)[17].firstChild;
+            console.log(document.getElementsByClassName(clase));
+            $(nomInput).show();
+            $(iniInput).show();
+            $(finInput).show();
+            $(okIcon).show();
+            $(removeIcon).show();
+            $(editIcon).hide();
+            $(eraseIcon).hide();
+            $(nombre).hide();
+            $(inicio).hide();
+            $(fin).hide();
         }
-
-        function editRoute(event){
+        function okTurn(event){
             event.preventDefault();
+        }
+        function removeTurn(event){
+            event.preventDefault();
+            var clase = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(clase)[8];
+            var nomInput = document.getElementsByClassName(clase)[9].parentNode;
+            var inicio = document.getElementsByClassName(clase)[10];
+            var iniInput = document.getElementsByClassName(clase)[11].parentNode;
+            var fin = document.getElementsByClassName(clase)[12];
+            var finInput = document.getElementsByClassName(clase)[13].parentNode;
+            var editIcon = document.getElementsByClassName(clase)[14].firstChild;
+            var eraseIcon = document.getElementsByClassName(clase)[15].firstChild;
+            var okIcon = document.getElementsByClassName(clase)[16].firstChild;
+            var removeIcon = document.getElementsByClassName(clase)[17].firstChild;
+            console.log(document.getElementsByClassName(clase));
+            $(nomInput).hide();
+            $(iniInput).hide();
+            $(finInput).hide();
+            $(okIcon).hide();
+            $(removeIcon).hide();
+            $(editIcon).show();
+            $(eraseIcon).show();
+            $(nombre).show();
+            $(inicio).show();
+            $(fin).show();
+        }
+        function eraseTurn(event){
+            event.preventDefault();
+            var resp = window.confirm("¿Esta seguro que se desea eliminar ese Turno?");
+            if(resp == true){
+                console.log("OK");
+            }else{
+                console.log("CANCELAR");
+            }
+        }
+        function editRoutes(event){
+            event.preventDefault();
+            var clase = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(clase)[18];
+            var nomInput = document.getElementsByClassName(clase)[19].parentNode;
+            var inicio = document.getElementsByClassName(clase)[20];
+            var iniInput = document.getElementsByClassName(clase)[21].parentNode;
+            var fin = document.getElementsByClassName(clase)[22];
+            var finInput = document.getElementsByClassName(clase)[23].parentNode;
+            var editIcon = document.getElementsByClassName(clase)[24].firstChild;
+            var eraseIcon = document.getElementsByClassName(clase)[25].firstChild;
+            var okIcon = document.getElementsByClassName(clase)[26].firstChild;
+            var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
+            console.log(document.getElementsByClassName(clase));
+            $(nomInput).show();
+            $(iniInput).show();
+            $(finInput).show();
+            $(okIcon).show();
+            $(removeIcon).show();
+            $(editIcon).hide();
+            $(eraseIcon).hide();
+            $(nombre).hide();
+            $(inicio).hide();
+            $(fin).hide();
+        }
+        function okRoutes(event){
+            event.preventDefault();
+        }
+        function removeRoutes(event){
+            event.preventDefault();
+            var clase = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(clase)[18];
+            var nomInput = document.getElementsByClassName(clase)[19].parentNode;
+            var inicio = document.getElementsByClassName(clase)[20];
+            var iniInput = document.getElementsByClassName(clase)[21].parentNode;
+            var fin = document.getElementsByClassName(clase)[22];
+            var finInput = document.getElementsByClassName(clase)[23].parentNode;
+            var editIcon = document.getElementsByClassName(clase)[24].firstChild;
+            var eraseIcon = document.getElementsByClassName(clase)[25].firstChild;
+            var okIcon = document.getElementsByClassName(clase)[26].firstChild;
+            var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
+            console.log(document.getElementsByClassName(clase));
+            $(nomInput).hide();
+            $(iniInput).hide();
+            $(finInput).hide();
+            $(okIcon).hide();
+            $(removeIcon).hide();
+            $(editIcon).show();
+            $(eraseIcon).show();
+            $(nombre).show();
+            $(inicio).show();
+            $(fin).show();
+        }
+        function eraseRoutes(event){
+            event.preventDefault();
+            var resp = window.confirm("¿Esta seguro que se desea eliminar esa Ruta?");
+            if(resp == true){
+                console.log("OK");
+            }else{
+                console.log("CANCELAR");
+            }
         }
        //Una vez instanciada la función "Login" la asgina al objeto btn.
         document.getElementById("logout_btn").addEventListener('click', function(){Logout(auth);});
