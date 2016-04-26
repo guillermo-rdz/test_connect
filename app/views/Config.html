@@ -42,10 +42,6 @@
         .icon-ok {color:#009900;}
         .icon-remove{padding-left: 5px; color:#cc0000;}
         .icon-trash{padding-left: 5px; color: black;}
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
     </style>
 </head>
 <body> 
@@ -73,7 +69,7 @@
                             <li><a href="#" id="geo">Geocerca</a></li>
                         </ul>
                     </li>
-                    <li class="active"><a href="config">Administración</a></li> 
+                    <li class="active"><a href="config">Aministración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -294,7 +290,6 @@
             socket.emit ('stop', envelope);
             console.log('emitting stop to server', envelope);
         }
-
         function Gmap(latitude, longitude){
             map = new google.maps.Map(document.getElementById('gmaps'), {
                 center: {lat: latitude, lng: longitude},
@@ -303,7 +298,6 @@
                 scrollwheel: true
             });
         }
-
         function Marker(map, ubicacion, count){
             
             var marker;
@@ -331,7 +325,6 @@
                 });
             }
         }
-
         function Logout(token){
             stopListen("all");
             socket.disconnect();
@@ -374,7 +367,6 @@
                             User = result.username;
                             Uid = result.id;
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
-
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
@@ -388,63 +380,34 @@
                                         var option = document.createElement("option");
                                         option.text = result.infoTurn[i].name;
                                         x.add(option);
-
                                         var $tr = $('<tr/>');
-
                                         var $id = $('<td/>').html(result.infoTurn[i].id);
                                         $tr.append($id);
-
                                         var $nom = $('<td/>').html(result.infoTurn[i].name);
                                         $nom.addClass(result.infoTurn[i].id);
                                         $tr.append($nom);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $nomEdit = $('<td/>').addClass("nomEdit");
                                         var $nomInput = $('<input/>').attr("type","text");
                                         $nomInput.addClass(result.infoTurn[i].id);
                                         $nomEdit.append($nomInput);
                                         $tr.append($nomEdit);
-<<<<<<< HEAD
                                         var $ini = $('<td/>').html(result.infoTurn[i].inicio);
                                         $ini.addClass(result.infoTurn[i].id);
                                         $tr.append($ini);
-=======
-
-                                        var $ini = $('<td/>').html(result.infoTurn[i].inicio);
-                                        $ini.addClass(result.infoTurn[i].id);
-                                        $tr.append($ini);
-
->>>>>>> origin/master
                                         var $iniEdit = $('<td/>').addClass("iniEdit");
                                         var $iniInput = $('<input/>').attr("type", "time");
                                         $iniInput.addClass(result.infoTurn[i].id);
                                         $iniEdit.append($iniInput);
                                         $tr.append($iniEdit);
-<<<<<<< HEAD
                                         var $fin = $('<td/>').html(result.infoTurn[i].fin);
                                         $fin.addClass(result.infoTurn[i].id);
                                         $tr.append($fin);
-=======
-
-                                        var $fin = $('<td/>').html(result.infoTurn[i].fin);
-                                        $fin.addClass(result.infoTurn[i].id);
-                                        $tr.append($fin);
-
->>>>>>> origin/master
                                         var $finEdit = $('<td/>').addClass("finEdit");
                                         var $finInput = $('<input/>').attr("type", "time");
                                         $finInput.addClass(result.infoTurn[i].id);
                                         $finEdit.append($finInput);
                                         $tr.append($finEdit);
-<<<<<<< HEAD
                                         var $actionBtns = $('<td/>');
-=======
-
-                                        var $actionBtns = $('<td/>');
-
->>>>>>> origin/master
                                         var $edit_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $edit_action.attr("href","#");
                                         $edit_action.attr("onClick","editTurn(event)");
@@ -452,10 +415,6 @@
                                         $edit_action.append($editbtn);
                                         $actionBtns.append($edit_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $erase_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $erase_action.attr("href", "#");
                                         $erase_action.attr("onClick", "eraseTurn(event)");
@@ -463,10 +422,6 @@
                                         $erase_action.append($erasebtn);
                                         $actionBtns.append($erase_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $ok_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $ok_action.attr("href","#");
                                         $ok_action.attr("onClick","okTurn(event)");
@@ -474,10 +429,6 @@
                                         $ok_action.append($okbtn);
                                         $actionBtns.append($ok_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $remove_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $remove_action.attr("href","#");
                                         $remove_action.attr("onClick","removeTurn(event)");
@@ -485,68 +436,41 @@
                                         $remove_action.append($removebtn);
                                         $actionBtns.append($remove_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         $tbody.append($tr);
                                     }
                                     
                                     console.log(turnos);
                                 }
                             });
-
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
                                 dataType: "json",
                                 data: {"type": "infoDriver" , "userId": Uid},
                                 success: function(result){
-
                                     $tbody = $('#regDriver');                                    
                                     for(var i=0; i<result.infoDriver.length; i++){
-
                                         var $tr = $('<tr/>');
-
                                         var $id = $('<td/>').html(result.infoDriver[i].id);
                                         $tr.append($id);
-
                                         var $nom = $('<td/>').html(result.infoDriver[i].name);
                                         $nom.addClass(result.infoDriver[i].id);
                                         $tr.append($nom);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $nomEdit = $('<td/>');
                                         $nomEdit.addClass("nomEdit");
                                         var $nomInput = $('<input/>').attr("type", "text");
                                         $nomInput.addClass(result.infoDriver[i].id);
                                         $nomEdit.append($nomInput);
                                         $tr.append($nomEdit);
-<<<<<<< HEAD
                                         var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
                                         $ap.addClass(result.infoDriver[i].id);
                                         $tr.append($ap);
-=======
-
-                                        var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
-                                        $ap.addClass(result.infoDriver[i].id);
-                                        $tr.append($ap);
-
->>>>>>> origin/master
                                         var $apEdit = $('<td/>').addClass("apEdit");
                                         var $apInput = $('<input/>').attr("type", "text");
                                         $apInput.addClass(result.infoDriver[i].id);
                                         $apEdit.append($apInput);
                                         $tr.append($apEdit);
-<<<<<<< HEAD
                                         var $actionBtns = $('<td/>');
-=======
-
-                                        var $actionBtns = $('<td/>');
-
->>>>>>> origin/master
                                         var $edit_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $edit_action.attr("href","#");
                                         $edit_action.attr("onClick","editDriver(event)");
@@ -554,10 +478,6 @@
                                         $edit_action.append($editbtn);
                                         $actionBtns.append($edit_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $erase_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $erase_action.attr("href", "#");
                                         $erase_action.attr("onClick", "eraseDriver(event)");
@@ -565,11 +485,6 @@
                                         $erase_action.append($erasebtn);
                                         $actionBtns.append($erase_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/master
                                         var $ok_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $ok_action.attr("href","#");
                                         $ok_action.attr("onClick","okDriver(event)");
@@ -577,10 +492,6 @@
                                         $ok_action.append($okbtn);
                                         $actionBtns.append($ok_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $remove_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $remove_action.attr("href","#");
                                         $remove_action.attr("onClick","removeDriver(event)");
@@ -588,10 +499,6 @@
                                         $remove_action.append($removebtn);
                                         $actionBtns.append($remove_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         $tbody.append($tr);
                                     }
                                     
@@ -608,66 +515,36 @@
                                 dataType: "json",
                                 data: {"type": "infoRoutes" , "userId": Uid},
                                 success: function(result){
-
                                     $tbody = $('#regRoute');                                    
                                     for(var i=0; i<result.infoRoutes.length; i++){
-
                                         var $tr = $('<tr/>');
-
                                         var $id = $('<td/>').html(result.infoRoutes[i].id);
                                         $tr.append($id);
-
                                         var $nom = $('<td/>').html(result.infoRoutes[i].name);
                                         $nom.addClass(result.infoRoutes[i].id);
                                         $tr.append($nom);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $nomEdit = $('<td/>').addClass("nomEdit");
                                         var $nomInput = $('<input/>').attr("type", "text");
                                         $nomInput.addClass(result.infoRoutes[i].id);
                                         $nomEdit.append($nomInput);
                                         $tr.append($nomEdit);
-<<<<<<< HEAD
                                         var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
                                         $ini.addClass(result.infoRoutes[i].id);
                                         $tr.append($ini);
-=======
-
-                                        var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
-                                        $ini.addClass(result.infoRoutes[i].id);
-                                        $tr.append($ini);
-
->>>>>>> origin/master
                                         var $iniEdit = $('<td/>').addClass("iniEdit");
                                         var $iniInput = $('<input/>').attr("type", "text");
                                         $iniInput.addClass(result.infoRoutes[i].id);
                                         $iniEdit.append($iniInput);
                                         $tr.append($iniEdit);
-<<<<<<< HEAD
                                         var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
                                         $fin.addClass(result.infoRoutes[i].id);
                                         $tr.append($fin);
-=======
-
-                                        var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
-                                        $fin.addClass(result.infoRoutes[i].id);
-                                        $tr.append($fin);
-
->>>>>>> origin/master
                                         var $finEdit = $('<td/>').addClass("finEdit");
                                         var $finInput = $('<input/>').attr("type", "text")
                                         $finInput.addClass(result.infoRoutes[i].id);
                                         $finEdit.append($finInput);
                                         $tr.append($finEdit);
-<<<<<<< HEAD
                                         var $actionBtns = $('<td/>');
-=======
-
-                                        var $actionBtns = $('<td/>');
-
->>>>>>> origin/master
                                         var $edit_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $edit_action.attr("href","#");
                                         $edit_action.attr("onClick","editRoutes(event)");
@@ -675,10 +552,6 @@
                                         $edit_action.append($editbtn);
                                         $actionBtns.append($edit_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $erase_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $erase_action.attr("href", "#");
                                         $erase_action.attr("onClick", "eraseRoutes(event)");
@@ -686,10 +559,6 @@
                                         $erase_action.append($erasebtn);
                                         $actionBtns.append($erase_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $ok_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $ok_action.attr("href","#");
                                         $ok_action.attr("onClick","okRoutes(event)");
@@ -697,10 +566,6 @@
                                         $ok_action.append($okbtn);
                                         $actionBtns.append($ok_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         var $remove_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $remove_action.attr("href","#");
                                         $remove_action.attr("onClick","removeRoutes(event)");
@@ -708,10 +573,6 @@
                                         $remove_action.append($removebtn);
                                         $actionBtns.append($remove_action);
                                         $tr.append($actionBtns);
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
                                         $tbody.append($tr);
                                     }
                                     
@@ -735,12 +596,10 @@
                             console.log(vehiculos);
                         }
                     });
-
                 }
             });
     
         }
-
         function reporteSel(seleccion){
             console.log(seleccion);
             $.ajax({
@@ -753,19 +612,10 @@
                 }
             });
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
         function sort(){
             
             $("#myTable").dynatable();
         }
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/master
         $("#driverForm").submit(function (event){
             event.preventDefault();
             var inicio = document.getElementById("tini").value+":00";
@@ -783,7 +633,6 @@
                 }
             });
         });
-
         $("#routesForm").submit(function(event){
             event.preventDefault();
             if(markerFin && markerIni){
@@ -843,7 +692,6 @@
             });
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
         });
-
         $("#shiftOpt").change(function(event){
             var selShift = event.target.value;
             for(var i=0; i<turnos.length; i++){
@@ -854,13 +702,11 @@
                     console.log(inicio);
                 }
             }
-
             document.getElementById("tini").value = inicio;
             document.getElementById("tfin").value = fin; 
             $("#divTini").show();
             $("#divTfin").show();
         });
-
         $("#driver_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
@@ -872,7 +718,6 @@
             $("#routesData").hide();
             //$("#driverData").show();
         });
-
         $("#shift_pill").click(function (){
             $(this).addClass("active");
             $("#driver_pill").removeClass("active");
@@ -885,7 +730,6 @@
             console.log("HOLA");
             //$("#shiftData").show();
         });
-
         $("#routes_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
@@ -897,7 +741,6 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
-
         $("#rates_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
@@ -909,10 +752,6 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
         function editDriver(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
@@ -934,18 +773,9 @@
             $(nombre).hide();
             $(apellido).hide();
         }
-<<<<<<< HEAD
         function okDriver(event){
             event.preventDefault();
         }
-=======
-
-        function okDriver(event){
-
-            event.preventDefault();
-        }
-
->>>>>>> origin/master
         function removeDriver(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
@@ -965,13 +795,7 @@
             $(eraseIcon).show();
             $(nombre).show();
             $(apellido).show();
-<<<<<<< HEAD
         }
-=======
-
-        }
-
->>>>>>> origin/master
         function eraseDriver(event){
             event.preventDefault();
             var resp = window.confirm("¿Esta seguro que se desea eliminar ese conductor?");
@@ -1005,7 +829,6 @@
             $(nombre).hide();
             $(inicio).hide();
             $(fin).hide();
-<<<<<<< HEAD
         }
         function okTurn(event){
             event.preventDefault();
@@ -1070,119 +893,7 @@
             $(fin).hide();
         }
         function okRoutes(event){
-=======
-
-        }
-
-        function okTurn(event){
-
             event.preventDefault();
-        }
-
-        function removeTurn(event){
->>>>>>> origin/master
-            event.preventDefault();
-            var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[8];
-            var nomInput = document.getElementsByClassName(clase)[9].parentNode;
-            var inicio = document.getElementsByClassName(clase)[10];
-            var iniInput = document.getElementsByClassName(clase)[11].parentNode;
-            var fin = document.getElementsByClassName(clase)[12];
-            var finInput = document.getElementsByClassName(clase)[13].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[14].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[15].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[16].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[17].firstChild;
-            console.log(document.getElementsByClassName(clase));
-            $(nomInput).hide();
-            $(iniInput).hide();
-            $(finInput).hide();
-            $(okIcon).hide();
-            $(removeIcon).hide();
-            $(editIcon).show();
-            $(eraseIcon).show();
-            $(nombre).show();
-            $(inicio).show();
-            $(fin).show();
-        }
-
-        function eraseTurn(event){
-
-            event.preventDefault();
-            var resp = window.confirm("¿Esta seguro que se desea eliminar ese Turno?");
-            if(resp == true){
-                console.log("OK");
-            }else{
-                console.log("CANCELAR");
-            }
-        }
-
-        function editRoutes(event){
-            event.preventDefault();
-            var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[18];
-            var nomInput = document.getElementsByClassName(clase)[19].parentNode;
-            var inicio = document.getElementsByClassName(clase)[20];
-            var iniInput = document.getElementsByClassName(clase)[21].parentNode;
-            var fin = document.getElementsByClassName(clase)[22];
-            var finInput = document.getElementsByClassName(clase)[23].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[24].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[25].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[26].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
-            console.log(document.getElementsByClassName(clase));
-            $(nomInput).show();
-            $(iniInput).show();
-            $(finInput).show();
-            $(okIcon).show();
-            $(removeIcon).show();
-            $(editIcon).hide();
-            $(eraseIcon).hide();
-            $(nombre).hide();
-            $(inicio).hide();
-            $(fin).hide();
-        }
-
-        function okRoutes(event){
-
-            event.preventDefault();
-        }
-
-        function removeRoutes(event){
-            event.preventDefault();
-            var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[18];
-            var nomInput = document.getElementsByClassName(clase)[19].parentNode;
-            var inicio = document.getElementsByClassName(clase)[20];
-            var iniInput = document.getElementsByClassName(clase)[21].parentNode;
-            var fin = document.getElementsByClassName(clase)[22];
-            var finInput = document.getElementsByClassName(clase)[23].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[24].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[25].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[26].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
-            console.log(document.getElementsByClassName(clase));
-            $(nomInput).hide();
-            $(iniInput).hide();
-            $(finInput).hide();
-            $(okIcon).hide();
-            $(removeIcon).hide();
-            $(editIcon).show();
-            $(eraseIcon).show();
-            $(nombre).show();
-            $(inicio).show();
-            $(fin).show();
-        }
-
-        function eraseRoutes(event){
-
-            event.preventDefault();
-            var resp = window.confirm("¿Esta seguro que se desea eliminar esa Ruta?");
-            if(resp == true){
-                console.log("OK");
-            }else{
-                console.log("CANCELAR");
-            }
         }
         function removeRoutes(event){
             event.preventDefault();
