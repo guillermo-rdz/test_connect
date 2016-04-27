@@ -308,6 +308,17 @@
 			}
 		}
 
+		public function FunctionName(){
+			$idroute = $_POST['id'];
+
+			if ($this->mysqli->query("DELETE FROM route WHERE idroute = '$idroute'")) {
+				echo "Se elimino al conductor";
+			}
+			else{
+				echo "No se elimino al conductor";
+			}
+		}
+
 		public function saveDriver(){
 			$driverJson = $_POST['info'];
 			$driverData = json_decode($driverJson, true);
