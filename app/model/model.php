@@ -222,6 +222,9 @@
 			$iddriver = $driverData['cid'];
 			$active = 0;
 
+			$name = $this->mysqli->real_escape_string($name);
+			$ap = $this->mysqli->real_escape_string($ap);
+
 			if ($name != "" && $ap != "") {
 				if ($this->mysqli->query("UPDATE drivers SET name_driver = '$name', ap_driver ='$ap' WHERE iddrivers = '$iddriver' ")) {
 					/*if ($idturn !=0) {
@@ -251,8 +254,10 @@
 			$start_turn = $_POST['inicio'];
 			$end_turn = $_POST['fin'];
 			$idturn = $_POST['idturn'];
+
+			$name_turn = $this->mysqli->real_escape_string($name_turn);
 			if ($name_turn != "" && $start_turn != "" && $end_turn != "" && $idturn != 0) {
-				if ($this->mysqli->query("UPDATE turn SET name_turn = '$name_turn', start_turn = '$start_turn', $end_turn = '$end_turn' WHERE idturn='$idturn_driver'")) {
+				if ($this->mysqli->query("UPDATE turn SET name_turn = '$name_turn', start_turn = '$start_turn', $end_turn = '$end_turn' WHERE idturn_driver='$idturn'")) {
 					echo "Se actualizo el turno";
 				}
 				else{
@@ -261,10 +266,25 @@
 			}
 		}
 
+		public function updateRoute(){
+			
+		}
+
 		public function deleteDriver(){
 			$idDriver = $_POST['id'];
 
 			if ($this->mysqli->query("DELETE FROM drivers WHERE iddrivers = '$idDriver'")) {
+				echo "Se elimino al conductor";
+			}
+			else{
+				echo "No se elimino al conductor";
+			}
+		}
+
+		public function deleteTurn(){
+			$idTurn = $_POST['id'];
+
+			if ($this->mysqli->query("DELETE FROM turn WHERE idturn_driver = '$idTurn'")) {
 				echo "Se elimino al conductor";
 			}
 			else{
