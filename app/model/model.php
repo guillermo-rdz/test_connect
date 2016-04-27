@@ -267,7 +267,23 @@
 		}
 
 		public function updateRoute(){
-			
+			$name_route = utf8_decode($_POST['ruta']);
+			$inicio = utf8_decode($_POST['inicio']);
+			$fin = utf8_decode($_POST['fin']);
+			$idroute = $_POST['id'];
+
+			$name_turn = $this->mysqli->real_escape_string($name_turn);
+			$inicio = $this->mysqli->real_escape_string($inicio);
+			$fin = $this->mysqli->real_escape_string($fin);
+
+			if ($name_turn != "" && $inicio != "" && $fin != "" && $idroute != 0) {
+				if ($this->mysqli->query("UPDATE route SET name_route = '$name_route', name_start = '$inicio', name_end = '$fin' WHERE idroute='$idroute'")) {
+					echo "Se actualizo la ruta";
+				}
+				else{
+					echo "No se actualizo la ruta";
+				}
+			}
 		}
 
 		public function deleteDriver(){
