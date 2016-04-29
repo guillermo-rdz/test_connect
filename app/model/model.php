@@ -272,7 +272,7 @@
 			$fin = utf8_decode($_POST['fin']);
 			$idroute = $_POST['id'];
 
-			$name_turn = $this->mysqli->real_escape_string($name_turn);
+			$name_turn = $this->mysqli->real_escape_string($name_route);
 			$inicio = $this->mysqli->real_escape_string($inicio);
 			$fin = $this->mysqli->real_escape_string($fin);
 
@@ -301,21 +301,21 @@
 			$idTurn = $_POST['id'];
 
 			if ($this->mysqli->query("DELETE FROM turn WHERE idturn_driver = '$idTurn'")) {
-				echo "Se elimino al conductor";
+				echo "Se elimino el turno";
 			}
 			else{
-				echo "No se elimino al conductor";
+				echo "No se elimino el turno";
 			}
 		}
 
-		public function FunctionName(){
+		public function deleteRoute(){
 			$idroute = $_POST['id'];
 
 			if ($this->mysqli->query("DELETE FROM route WHERE idroute = '$idroute'")) {
-				echo "Se elimino al conductor";
+				echo "Se elimino la ruta";
 			}
 			else{
-				echo "No se elimino al conductor";
+				echo "No se elimino la ruta";
 			}
 		}
 
@@ -1214,6 +1214,18 @@
 	}
 	elseif ($_POST['type']=="editarConductor") {
 		$instance->updateDriver();
+	}
+	elseif ($_POST['type']=="editarTurno") {
+		$instance->updateTurn();
+	}
+	elseif ($_POST['type']=="borrarTurno") {
+		$instance->deleteTurn();
+	}
+	elseif ($_POST['type']=="editarRuta") {
+		$instance->updateRoute();
+	}
+	elseif ($_POST['type']=="borrarRuta") {
+		$instance->deleteRoute();
 	}
 	elseif ($_POST['type']=="infoDriver") {
 		//$instance->vehicleReport();
