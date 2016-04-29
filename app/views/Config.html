@@ -70,7 +70,7 @@
                             <li><a href="#" id="geo">Geocerca</a></li>
                         </ul>
                     </li>
-                    <li class="active"><a href="config">Aministración</a></li> 
+                    <li class="active"><a href="config">Administración</a></li> 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a id="Userlog" href="#"></a></li>
@@ -819,16 +819,17 @@
 
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[0];
-            var nomInput = document.getElementsByClassName(clase)[1].parentNode;
-            var apellido = document.getElementsByClassName(clase)[2];
-            var apInput = document.getElementsByClassName(clase)[3].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[4].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[5].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[6].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[7].firstChild;
-            document.getElementsByClassName(clase)[1].value = nombre.innerHTML;
-            document.getElementsByClassName(clase)[3].value = apellido.innerHTML;
+            var rowTable =document.getElementById("driverTable").getElementsByClassName(clase);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var apellido = rowTable[2];
+            var apInput = rowTable[3].parentNode;
+            var editIcon = rowTable[4].firstChild;
+            var eraseIcon = rowTable[5].firstChild;
+            var okIcon = rowTable[6].firstChild;
+            var removeIcon = rowTable[7].firstChild;
+            rowTable[1].value = nombre.innerHTML;
+            rowTable[3].value = apellido.innerHTML;
             console.log(document.getElementsByClassName(clase));
             $(nomInput).show();
             $(apInput).show();
@@ -844,19 +845,20 @@
 
             event.preventDefault();
             var driverId = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(driverId)[0];
-            var nomInput = document.getElementsByClassName(driverId)[1].parentNode;
-            var apellido = document.getElementsByClassName(driverId)[2];
-            var apInput = document.getElementsByClassName(driverId)[3].parentNode;
-            var editIcon = document.getElementsByClassName(driverId)[4].firstChild;
-            var eraseIcon = document.getElementsByClassName(driverId)[5].firstChild;
-            var okIcon = document.getElementsByClassName(driverId)[6].firstChild;
-            var removeIcon = document.getElementsByClassName(driverId)[7].firstChild;
-            var newName = document.getElementsByClassName(driverId)[1].value;
-            var newLastN = document.getElementsByClassName(driverId)[3].value;
+            var rowTable =document.getElementById("driverTable").getElementsByClassName(driverId);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var apellido = rowTable[2];
+            var apInput = rowTable[3].parentNode;
+            var editIcon = rowTable[4].firstChild;
+            var eraseIcon = rowTable[5].firstChild;
+            var okIcon = rowTable[6].firstChild;
+            var removeIcon = rowTable[7].firstChild;
+            var newName = rowTable[1].value;
+            var newLastN = rowTable[3].value;
 
-            if(!newName) newName = document.getElementsByClassName(driverId)[0].innerHTML;
-            if(!newLastN) newLastN = document.getElementsByClassName(driverId)[2].innerHTML;
+            if(!newName) newName = rowTable[0].innerHTML;
+            if(!newLastN) newLastN = rowTable[2].innerHTML;
             
             console.log(newName +" " + newLastN + " " + driverId);
             
@@ -868,9 +870,9 @@
                 data: {"type": "editarConductor", "info": infoEdit},
                 success: function(result){
                     console.log(result);
-                    if(result == "El registro se actualizó exitosamente."){
-                        document.getElementsByClassName(driverId)[0].innerHTML = newName;
-                        document.getElementsByClassName(driverId)[2].innerHTML = newLastN;
+                    if(result == "El registro se actualizo exitosamente."){
+                        rowTable[0].innerHTML = newName;
+                        rowTable[2].innerHTML = newLastN;
                     }
                 }
             });
@@ -889,14 +891,15 @@
         function removeDriver(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[0];
-            var nomInput = document.getElementsByClassName(clase)[1].parentNode;
-            var apellido = document.getElementsByClassName(clase)[2];
-            var apInput = document.getElementsByClassName(clase)[3].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[4].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[5].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[6].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[7].firstChild;
+            var rowTable =document.getElementById("driverTable").getElementsByClassName(clase);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var apellido = rowTable[2];
+            var apInput = rowTable[3].parentNode;
+            var editIcon = rowTable[4].firstChild;
+            var eraseIcon = rowTable[5].firstChild;
+            var okIcon = rowTable[6].firstChild;
+            var removeIcon = rowTable[7].firstChild;
             $(nomInput).hide();
             $(apInput).hide();
             $(okIcon).hide();
@@ -936,20 +939,20 @@
         function editShift(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[8];
-            var nomInput = document.getElementsByClassName(clase)[9].parentNode;
-            var inicio = document.getElementsByClassName(clase)[10];
-            var iniInput = document.getElementsByClassName(clase)[11].parentNode;
-            var fin = document.getElementsByClassName(clase)[12];
-            var finInput = document.getElementsByClassName(clase)[13].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[14].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[15].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[16].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[17].firstChild;
-            document.getElementsByClassName(clase)[9].value = nombre.innerHTML;
-            document.getElementsByClassName(clase)[11].value = inicio.innerHTML;
-            document.getElementsByClassName(clase)[13].value = fin.innerHTML;
-            console.log(inicio.value);
+            var rowTable =document.getElementById("shiftTable").getElementsByClassName(clase);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var inicio = rowTable[2];
+            var iniInput = rowTable[3].parentNode;
+            var fin = rowTable[4];
+            var finInput = rowTable[5].parentNode;
+            var editIcon = rowTable[6].firstChild;
+            var eraseIcon = rowTable[7].firstChild;
+            var okIcon = rowTable[8].firstChild;
+            var removeIcon = rowTable[9].firstChild;
+            rowTable[1].value = nombre.innerHTML;
+            rowTable[3].value = inicio.innerHTML;
+            rowTable[5].value = fin.innerHTML;
             console.log(document.getElementsByClassName(clase));
             $(nomInput).show();
             $(iniInput).show();
@@ -968,25 +971,28 @@
 
             event.preventDefault();
             var shiftId = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(shiftId)[8];
-            var nomInput = document.getElementsByClassName(shiftId)[9].parentNode;
-            var inicio = document.getElementsByClassName(shiftId)[10];
-            var iniInput = document.getElementsByClassName(shiftId)[11].parentNode;
-            var fin = document.getElementsByClassName(shiftId)[12];
-            var finInput = document.getElementsByClassName(shiftId)[13].parentNode;
-            var editIcon = document.getElementsByClassName(shiftId)[14].firstChild;
-            var eraseIcon = document.getElementsByClassName(shiftId)[15].firstChild;
-            var okIcon = document.getElementsByClassName(shiftId)[16].firstChild;
-            var removeIcon = document.getElementsByClassName(shiftId)[17].firstChild;
-            var newName = document.getElementsByClassName(shiftId)[9].value;
-            var newIni = document.getElementsByClassName(shiftId)[11].value;
-            var newFin = document.getElementsByClassName(shiftId)[13].value;
+            var rowTable =document.getElementById("shiftTable").getElementsByClassName(shiftId);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var inicio = rowTable[2];
+            var iniInput = rowTable[3].parentNode;
+            var fin = rowTable[4];
+            var finInput = rowTable[5].parentNode;
+            var editIcon = rowTable[6].firstChild;
+            var eraseIcon = rowTable[7].firstChild;
+            var okIcon = rowTable[8].firstChild;
+            var removeIcon = rowTable[9].firstChild;
+            var newName = rowTable[1].value;
+            var newIni = rowTable[3].value ;
+            var newFin = rowTable[5].value;
 
-            if(!newName) newName = document.getElementsByClassName(shiftId)[8].innerHTML;
-            if(!newIni) newIni = document.getElementsByClassName(shiftId)[10].innerHTML;
-            if(!newFin) newFin = document.getElementsByClassName(shiftId)[12].innerHTML;
+            if(!newName) newName = rowTable[0].innerHTML;
+            if(!newIni) newIni = rowTable[2].innerHTML;
+            if(!newFin) newFin = rowTable[4].innerHTML;
+            if(newIni.length<8) newIni = newIni+":00";
+            if(newFin.length<8) newFin = newFin+":00"; 
             
-            console.log(newName +" " + newIni + " " + newFin);
+            console.log(newName +" " + newIni + " " + newFin + " " + shiftId);
             //var infoEdit = {"turno": newName, "inicio": newIni, "fin": newFin, "idturn": shiftId};
 
             $.ajax({
@@ -995,11 +1001,11 @@
                 data: {"type": "editarTurno", "turno": newName, "inicio": newIni, "fin": newFin, "idturn": shiftId},
                 success: function(result){
                     console.log(result);
-                    if(result == "Se actualizó el turno"){
+                    if(result == "Se actualizo el turno"){
 
-                        document.getElementsByClassName(driverId)[8].innerHTML = newName;
-                        document.getElementsByClassName(driverId)[10].innerHTML = newIni;
-                        document.getElementsByClassName(driverId)[12].innerHTML = newFin;
+                        rowTable[0].innerHTML = newName;
+                        rowTable[2].innerHTML = newIni;
+                        rowTable[4].innerHTML = newFin;
                     }
                 }
             });
@@ -1019,16 +1025,17 @@
         function removeShift(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[8];
-            var nomInput = document.getElementsByClassName(clase)[9].parentNode;
-            var inicio = document.getElementsByClassName(clase)[10];
-            var iniInput = document.getElementsByClassName(clase)[11].parentNode;
-            var fin = document.getElementsByClassName(clase)[12];
-            var finInput = document.getElementsByClassName(clase)[13].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[14].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[15].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[16].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[17].firstChild;
+            var rowTable =document.getElementById("shiftTable").getElementsByClassName(clase);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var inicio = rowTable[2];
+            var iniInput = rowTable[3].parentNode;
+            var fin = rowTable[4];
+            var finInput = rowTable[5].parentNode;
+            var editIcon = rowTable[6].firstChild;
+            var eraseIcon = rowTable[7].firstChild;
+            var okIcon = rowTable[8].firstChild;
+            var removeIcon = rowTable[9].firstChild;
             console.log(document.getElementsByClassName(clase));
             $(nomInput).hide();
             $(iniInput).hide();
@@ -1070,20 +1077,21 @@
         function editRoutes(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[18];
-            var nomInput = document.getElementsByClassName(clase)[19].parentNode;
-            var inicio = document.getElementsByClassName(clase)[20];
-            var iniInput = document.getElementsByClassName(clase)[21].parentNode;
-            var fin = document.getElementsByClassName(clase)[22];
-            var finInput = document.getElementsByClassName(clase)[23].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[24].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[25].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[26].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
+            var rowTable =document.getElementById("routeTable").getElementsByClassName(clase);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var inicio = rowTable[2];
+            var iniInput = rowTable[3].parentNode;
+            var fin = rowTable[4];
+            var finInput = rowTable[5].parentNode;
+            var editIcon = rowTable[6].firstChild;
+            var eraseIcon = rowTable[7].firstChild;
+            var okIcon = rowTable[8].firstChild;
+            var removeIcon = rowTable[9].firstChild;
             console.log(document.getElementsByClassName(clase));
-            document.getElementsByClassName(clase)[19].value = nombre.innerHTML;
-            document.getElementsByClassName(clase)[21].value = inicio.innerHTML;
-            document.getElementsByClassName(clase)[23].value = fin.innerHTML;
+            rowTable[1].value = nombre.innerHTML;
+            rowTable[3].value = inicio.innerHTML;
+            rowTable[5].value = fin.innerHTML;
             $(nomInput).show();
             $(iniInput).show();
             $(finInput).show();
@@ -1100,23 +1108,24 @@
 
             event.preventDefault();
             var routeId = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(routeId)[18];
-            var nomInput = document.getElementsByClassName(routeId)[19].parentNode;
-            var inicio = document.getElementsByClassName(routeId)[20];
-            var iniInput = document.getElementsByClassName(routeId)[21].parentNode;
-            var fin = document.getElementsByClassName(routeId)[22];
-            var finInput = document.getElementsByClassName(routeId)[23].parentNode;
-            var editIcon = document.getElementsByClassName(routeId)[24].firstChild;
-            var eraseIcon = document.getElementsByClassName(routeId)[25].firstChild;
-            var okIcon = document.getElementsByClassName(routeId)[26].firstChild;
-            var removeIcon = document.getElementsByClassName(routeId)[27].firstChild;
-            var newName = document.getElementsByClassName(routeId)[19].value;
-            var newIni = document.getElementsByClassName(routeId)[21].value;
-            var newFin = document.getElementsByClassName(routeId)[23].value;
+            var rowTable =document.getElementById("routeTable").getElementsByClassName(routeId);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var inicio = rowTable[2];
+            var iniInput = rowTable[3].parentNode;
+            var fin = rowTable[4];
+            var finInput = rowTable[5].parentNode;
+            var editIcon = rowTable[6].firstChild;
+            var eraseIcon = rowTable[7].firstChild;
+            var okIcon = rowTable[8].firstChild;
+            var removeIcon = rowTable[9].firstChild;
+            var newName = rowTable[1].value;
+            var newIni = rowTable[3].value;
+            var newFin = rowTable[5].value;
 
-            if(!newName) newName = document.getElementsByClassName(routeId)[18].innerHTML;
-            if(!newIni) newIni = document.getElementsByClassName(routeId)[20].innerHTML;
-            if(!newFin) newFin = document.getElementsByClassName(routeId)[22].innerHTML;
+            if(!newName) newName = rowTable[0].innerHTML;
+            if(!newIni) newIni = rowTable[2].innerHTML;
+            if(!newFin) newFin = rowTable[4].innerHTML;
             
             console.log(newName +" " + newIni + " " + newFin);
             //var infoEdit = {"ruta": newName, "inicio": newIni, "fin": newFin, "id": routeId};
@@ -1129,9 +1138,9 @@
                     console.log(result);
                     if(result == "Se actualizo la ruta"){
 
-                        document.getElementsByClassName(driverId)[18].innerHTML = newName;
-                        document.getElementsByClassName(driverId)[20].innerHTML = newIni;
-                        document.getElementsByClassName(driverId)[22].innerHTML = newFin;
+                        rowTable[0].innerHTML = newName;
+                        rowTable[2].innerHTML = newIni;
+                        rowTable[4].innerHTML = newFin;
                     }
                 }
             });
@@ -1151,16 +1160,17 @@
         function removeRoutes(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
-            var nombre = document.getElementsByClassName(clase)[18];
-            var nomInput = document.getElementsByClassName(clase)[19].parentNode;
-            var inicio = document.getElementsByClassName(clase)[20];
-            var iniInput = document.getElementsByClassName(clase)[21].parentNode;
-            var fin = document.getElementsByClassName(clase)[22];
-            var finInput = document.getElementsByClassName(clase)[23].parentNode;
-            var editIcon = document.getElementsByClassName(clase)[24].firstChild;
-            var eraseIcon = document.getElementsByClassName(clase)[25].firstChild;
-            var okIcon = document.getElementsByClassName(clase)[26].firstChild;
-            var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
+            var rowTable =document.getElementById("routeTable").getElementsByClassName(clase);
+            var nombre = rowTable[0];
+            var nomInput = rowTable[1].parentNode;
+            var inicio = rowTable[2];
+            var iniInput = rowTable[3].parentNode;
+            var fin = rowTable[4];
+            var finInput = rowTable[5].parentNode;
+            var editIcon = rowTable[6].firstChild;
+            var eraseIcon = rowTable[7].firstChild;
+            var okIcon = rowTable[8].firstChild;
+            var removeIcon = rowTable[9].firstChild;
             console.log(document.getElementsByClassName(clase));
             $(nomInput).hide();
             $(iniInput).hide();
@@ -1190,7 +1200,7 @@
                     data: {"type": "borrarRuta", "id": routeId },
                     success: function(result){
                         console.log(result);
-                        if(result == "Se elimino el turno"){
+                        if(result == "Se elimino la ruta"){
                             document.getElementById("routeTable").deleteRow(rowIndex);
                         }
                     }
