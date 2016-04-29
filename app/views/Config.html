@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>VEHICULOS_GPS</title>
@@ -42,6 +42,7 @@
         .icon-ok {color:#009900;}
         .icon-remove{padding-left: 5px; color:#cc0000;}
         .icon-trash{padding-left: 5px; color: black;}
+
     </style>
 </head>
 <body> 
@@ -128,7 +129,7 @@
                       <button type="submit" id="driverbtn"class="btn btn-default">Registrar</button>
                     </form>
                     <div class="infodiv table-responsive">
-                        <table class="table table-striped table-hover" id="myTable">
+                        <table class="table table-striped table-hover" id="driverTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -167,7 +168,7 @@
                       <button type="submit" id="shiftbtn"class="btn btn-default">Registrar</button>
                     </form>
                     <div  class="infodiv table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover" id = "shiftTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -210,7 +211,7 @@
                     </form>
 
                     <div class="infodiv table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover" id = "routeTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -244,7 +245,7 @@
                     </form>
 
                     <div class="infodiv table-responsive">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover" id = "rateTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -290,6 +291,7 @@
             socket.emit ('stop', envelope);
             console.log('emitting stop to server', envelope);
         }
+
         function Gmap(latitude, longitude){
             map = new google.maps.Map(document.getElementById('gmaps'), {
                 center: {lat: latitude, lng: longitude},
@@ -298,6 +300,7 @@
                 scrollwheel: true
             });
         }
+
         function Marker(map, ubicacion, count){
             
             var marker;
@@ -325,6 +328,7 @@
                 });
             }
         }
+
         function Logout(token){
             stopListen("all");
             socket.disconnect();
@@ -367,6 +371,7 @@
                             User = result.username;
                             Uid = result.id;
                             document.getElementById("Userlog").innerHTML = "[USUARIO: "+result.username+"]";
+
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
@@ -380,97 +385,121 @@
                                         var option = document.createElement("option");
                                         option.text = result.infoTurn[i].name;
                                         x.add(option);
+
                                         var $tr = $('<tr/>');
+
                                         var $id = $('<td/>').html(result.infoTurn[i].id);
                                         $tr.append($id);
+
                                         var $nom = $('<td/>').html(result.infoTurn[i].name);
                                         $nom.addClass(result.infoTurn[i].id);
                                         $tr.append($nom);
+
                                         var $nomEdit = $('<td/>').addClass("nomEdit");
                                         var $nomInput = $('<input/>').attr("type","text");
                                         $nomInput.addClass(result.infoTurn[i].id);
                                         $nomEdit.append($nomInput);
                                         $tr.append($nomEdit);
+
                                         var $ini = $('<td/>').html(result.infoTurn[i].inicio);
                                         $ini.addClass(result.infoTurn[i].id);
                                         $tr.append($ini);
+
                                         var $iniEdit = $('<td/>').addClass("iniEdit");
                                         var $iniInput = $('<input/>').attr("type", "time");
                                         $iniInput.addClass(result.infoTurn[i].id);
                                         $iniEdit.append($iniInput);
                                         $tr.append($iniEdit);
+
                                         var $fin = $('<td/>').html(result.infoTurn[i].fin);
                                         $fin.addClass(result.infoTurn[i].id);
                                         $tr.append($fin);
+
                                         var $finEdit = $('<td/>').addClass("finEdit");
                                         var $finInput = $('<input/>').attr("type", "time");
                                         $finInput.addClass(result.infoTurn[i].id);
                                         $finEdit.append($finInput);
                                         $tr.append($finEdit);
+
                                         var $actionBtns = $('<td/>');
+
                                         var $edit_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $edit_action.attr("href","#");
-                                        $edit_action.attr("onClick","editTurn(event)");
+                                        $edit_action.attr("onClick","editShift(event)");
                                         var $editbtn = $('<span/>').addClass("glyphicon glyphicon-edit icon-edit");
                                         $edit_action.append($editbtn);
                                         $actionBtns.append($edit_action);
                                         $tr.append($actionBtns);
+
                                         var $erase_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $erase_action.attr("href", "#");
-                                        $erase_action.attr("onClick", "eraseTurn(event)");
+                                        $erase_action.attr("onClick", "eraseShift(event)");
                                         var $erasebtn = $('<span/>').addClass("glyphicon glyphicon-trash icon-trash");
                                         $erase_action.append($erasebtn);
                                         $actionBtns.append($erase_action);
                                         $tr.append($actionBtns);
+
                                         var $ok_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $ok_action.attr("href","#");
-                                        $ok_action.attr("onClick","okTurn(event)");
+                                        $ok_action.attr("onClick","okShift(event)");
                                         var $okbtn = $('<span/>').addClass("glyphicon glyphicon-ok icon-ok");
                                         $ok_action.append($okbtn);
                                         $actionBtns.append($ok_action);
                                         $tr.append($actionBtns);
+
                                         var $remove_action = $('<a/>').addClass(result.infoTurn[i].id);
                                         $remove_action.attr("href","#");
-                                        $remove_action.attr("onClick","removeTurn(event)");
+                                        $remove_action.attr("onClick","removeShift(event)");
                                         var $removebtn = $('<span/>').addClass("glyphicon glyphicon-remove icon-remove");
                                         $remove_action.append($removebtn);
                                         $actionBtns.append($remove_action);
                                         $tr.append($actionBtns);
+
                                         $tbody.append($tr);
                                     }
                                     
                                     console.log(turnos);
                                 }
                             });
+
                             $.ajax({
                                 type: "POST",
                                 url: "app/model/model.php",
                                 dataType: "json",
                                 data: {"type": "infoDriver" , "userId": Uid},
                                 success: function(result){
+
                                     $tbody = $('#regDriver');                                    
                                     for(var i=0; i<result.infoDriver.length; i++){
+
                                         var $tr = $('<tr/>');
+
                                         var $id = $('<td/>').html(result.infoDriver[i].id);
                                         $tr.append($id);
+
                                         var $nom = $('<td/>').html(result.infoDriver[i].name);
                                         $nom.addClass(result.infoDriver[i].id);
                                         $tr.append($nom);
+
                                         var $nomEdit = $('<td/>');
                                         $nomEdit.addClass("nomEdit");
                                         var $nomInput = $('<input/>').attr("type", "text");
                                         $nomInput.addClass(result.infoDriver[i].id);
                                         $nomEdit.append($nomInput);
                                         $tr.append($nomEdit);
+
                                         var $ap = $('<td/>').html(result.infoDriver[i].ap_driver);
                                         $ap.addClass(result.infoDriver[i].id);
                                         $tr.append($ap);
+
                                         var $apEdit = $('<td/>').addClass("apEdit");
                                         var $apInput = $('<input/>').attr("type", "text");
                                         $apInput.addClass(result.infoDriver[i].id);
                                         $apEdit.append($apInput);
                                         $tr.append($apEdit);
+
                                         var $actionBtns = $('<td/>');
+
                                         var $edit_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $edit_action.attr("href","#");
                                         $edit_action.attr("onClick","editDriver(event)");
@@ -478,6 +507,7 @@
                                         $edit_action.append($editbtn);
                                         $actionBtns.append($edit_action);
                                         $tr.append($actionBtns);
+
                                         var $erase_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $erase_action.attr("href", "#");
                                         $erase_action.attr("onClick", "eraseDriver(event)");
@@ -485,6 +515,8 @@
                                         $erase_action.append($erasebtn);
                                         $actionBtns.append($erase_action);
                                         $tr.append($actionBtns);
+
+
                                         var $ok_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $ok_action.attr("href","#");
                                         $ok_action.attr("onClick","okDriver(event)");
@@ -492,6 +524,7 @@
                                         $ok_action.append($okbtn);
                                         $actionBtns.append($ok_action);
                                         $tr.append($actionBtns);
+
                                         var $remove_action = $('<a/>').addClass(result.infoDriver[i].id);
                                         $remove_action.attr("href","#");
                                         $remove_action.attr("onClick","removeDriver(event)");
@@ -499,6 +532,7 @@
                                         $remove_action.append($removebtn);
                                         $actionBtns.append($remove_action);
                                         $tr.append($actionBtns);
+
                                         $tbody.append($tr);
                                     }
                                     
@@ -515,36 +549,47 @@
                                 dataType: "json",
                                 data: {"type": "infoRoutes" , "userId": Uid},
                                 success: function(result){
+
                                     $tbody = $('#regRoute');                                    
                                     for(var i=0; i<result.infoRoutes.length; i++){
+
                                         var $tr = $('<tr/>');
+
                                         var $id = $('<td/>').html(result.infoRoutes[i].id);
                                         $tr.append($id);
+
                                         var $nom = $('<td/>').html(result.infoRoutes[i].name);
                                         $nom.addClass(result.infoRoutes[i].id);
                                         $tr.append($nom);
+
                                         var $nomEdit = $('<td/>').addClass("nomEdit");
                                         var $nomInput = $('<input/>').attr("type", "text");
                                         $nomInput.addClass(result.infoRoutes[i].id);
                                         $nomEdit.append($nomInput);
                                         $tr.append($nomEdit);
+
                                         var $ini = $('<td/>').html(result.infoRoutes[i].nomInicio);
                                         $ini.addClass(result.infoRoutes[i].id);
                                         $tr.append($ini);
+
                                         var $iniEdit = $('<td/>').addClass("iniEdit");
                                         var $iniInput = $('<input/>').attr("type", "text");
                                         $iniInput.addClass(result.infoRoutes[i].id);
                                         $iniEdit.append($iniInput);
                                         $tr.append($iniEdit);
+
                                         var $fin = $('<td/>').html(result.infoRoutes[i].nomFin);
                                         $fin.addClass(result.infoRoutes[i].id);
                                         $tr.append($fin);
+
                                         var $finEdit = $('<td/>').addClass("finEdit");
                                         var $finInput = $('<input/>').attr("type", "text")
                                         $finInput.addClass(result.infoRoutes[i].id);
                                         $finEdit.append($finInput);
                                         $tr.append($finEdit);
+
                                         var $actionBtns = $('<td/>');
+
                                         var $edit_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $edit_action.attr("href","#");
                                         $edit_action.attr("onClick","editRoutes(event)");
@@ -552,6 +597,7 @@
                                         $edit_action.append($editbtn);
                                         $actionBtns.append($edit_action);
                                         $tr.append($actionBtns);
+
                                         var $erase_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $erase_action.attr("href", "#");
                                         $erase_action.attr("onClick", "eraseRoutes(event)");
@@ -559,6 +605,7 @@
                                         $erase_action.append($erasebtn);
                                         $actionBtns.append($erase_action);
                                         $tr.append($actionBtns);
+
                                         var $ok_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $ok_action.attr("href","#");
                                         $ok_action.attr("onClick","okRoutes(event)");
@@ -566,6 +613,7 @@
                                         $ok_action.append($okbtn);
                                         $actionBtns.append($ok_action);
                                         $tr.append($actionBtns);
+
                                         var $remove_action = $('<a/>').addClass(result.infoRoutes[i].id);
                                         $remove_action.attr("href","#");
                                         $remove_action.attr("onClick","removeRoutes(event)");
@@ -573,6 +621,7 @@
                                         $remove_action.append($removebtn);
                                         $actionBtns.append($remove_action);
                                         $tr.append($actionBtns);
+
                                         $tbody.append($tr);
                                     }
                                     
@@ -596,10 +645,12 @@
                             console.log(vehiculos);
                         }
                     });
+
                 }
             });
     
         }
+
         function reporteSel(seleccion){
             console.log(seleccion);
             $.ajax({
@@ -612,10 +663,13 @@
                 }
             });
         }
+
         function sort(){
             
             $("#myTable").dynatable();
         }
+
+
         $("#driverForm").submit(function (event){
             event.preventDefault();
             var inicio = document.getElementById("tini").value+":00";
@@ -630,9 +684,11 @@
                 success: function(result){
                     console.log(result);
                     document.getElementById("driverForm").reset();
+                    //location.reload();
                 }
             });
         });
+
         $("#routesForm").submit(function(event){
             event.preventDefault();
             if(markerFin && markerIni){
@@ -692,6 +748,7 @@
             });
             console.log(shiftName + " " + shiftIni + " " + shiftFin);
         });
+
         $("#shiftOpt").change(function(event){
             var selShift = event.target.value;
             for(var i=0; i<turnos.length; i++){
@@ -702,11 +759,13 @@
                     console.log(inicio);
                 }
             }
+
             document.getElementById("tini").value = inicio;
             document.getElementById("tfin").value = fin; 
             $("#divTini").show();
             $("#divTfin").show();
         });
+
         $("#driver_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
@@ -718,6 +777,7 @@
             $("#routesData").hide();
             //$("#driverData").show();
         });
+
         $("#shift_pill").click(function (){
             $(this).addClass("active");
             $("#driver_pill").removeClass("active");
@@ -730,6 +790,7 @@
             console.log("HOLA");
             //$("#shiftData").show();
         });
+
         $("#routes_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
@@ -741,6 +802,7 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
+
         $("#rates_pill").click(function (){
             $(this).addClass("active");
             $("#shift_pill").removeClass("active");
@@ -752,7 +814,9 @@
             $("#driverData").hide();
             //$("#routeData").show();
         });
+
         function editDriver(event){
+
             event.preventDefault();
             var clase = event.target.parentNode.className;
             var nombre = document.getElementsByClassName(clase)[0];
@@ -763,6 +827,8 @@
             var eraseIcon = document.getElementsByClassName(clase)[5].firstChild;
             var okIcon = document.getElementsByClassName(clase)[6].firstChild;
             var removeIcon = document.getElementsByClassName(clase)[7].firstChild;
+            document.getElementsByClassName(clase)[1].value = nombre.innerHTML;
+            document.getElementsByClassName(clase)[3].value = apellido.innerHTML;
             console.log(document.getElementsByClassName(clase));
             $(nomInput).show();
             $(apInput).show();
@@ -773,9 +839,53 @@
             $(nombre).hide();
             $(apellido).hide();
         }
+
         function okDriver(event){
+
             event.preventDefault();
+            var driverId = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(driverId)[0];
+            var nomInput = document.getElementsByClassName(driverId)[1].parentNode;
+            var apellido = document.getElementsByClassName(driverId)[2];
+            var apInput = document.getElementsByClassName(driverId)[3].parentNode;
+            var editIcon = document.getElementsByClassName(driverId)[4].firstChild;
+            var eraseIcon = document.getElementsByClassName(driverId)[5].firstChild;
+            var okIcon = document.getElementsByClassName(driverId)[6].firstChild;
+            var removeIcon = document.getElementsByClassName(driverId)[7].firstChild;
+            var newName = document.getElementsByClassName(driverId)[1].value;
+            var newLastN = document.getElementsByClassName(driverId)[3].value;
+
+            if(!newName) newName = document.getElementsByClassName(driverId)[0].innerHTML;
+            if(!newLastN) newLastN = document.getElementsByClassName(driverId)[2].innerHTML;
+            
+            console.log(newName +" " + newLastN + " " + driverId);
+            
+            var infoEdit = JSON.stringify({"nombre": newName, "apellido": newLastN, "cid": driverId});
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "editarConductor", "info": infoEdit},
+                success: function(result){
+                    console.log(result);
+                    if(result == "El registro se actualizó exitosamente."){
+                        document.getElementsByClassName(driverId)[0].innerHTML = newName;
+                        document.getElementsByClassName(driverId)[2].innerHTML = newLastN;
+                    }
+                }
+            });
+
+            $(nomInput).hide();
+            $(apInput).hide();
+            $(okIcon).hide();
+            $(removeIcon).hide();
+            $(editIcon).show();
+            $(eraseIcon).show();
+            $(nombre).show();
+            $(apellido).show();
+            
         }
+
         function removeDriver(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
@@ -795,17 +905,35 @@
             $(eraseIcon).show();
             $(nombre).show();
             $(apellido).show();
+
         }
+
         function eraseDriver(event){
             event.preventDefault();
+            var driverId = event.target.parentNode.className;
+            var rowIndex = event.target.parentNode.parentNode.parentNode.rowIndex;
             var resp = window.confirm("¿Esta seguro que se desea eliminar ese conductor?");
+            console.log(driverId)
             if(resp == true){
                 console.log("OK");
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type": "borrarConductor", "id": driverId},
+                    success: function(result){
+                        console.log(result);
+                        if(result == "Se elimino al conductor"){
+                            document.getElementById("driverTable").deleteRow(rowIndex);
+                        }
+                    }
+                });
+
             }else{
                 console.log("CANCELAR");
             }
         }
-        function editTurn(event){
+
+        function editShift(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
             var nombre = document.getElementsByClassName(clase)[8];
@@ -818,6 +946,10 @@
             var eraseIcon = document.getElementsByClassName(clase)[15].firstChild;
             var okIcon = document.getElementsByClassName(clase)[16].firstChild;
             var removeIcon = document.getElementsByClassName(clase)[17].firstChild;
+            document.getElementsByClassName(clase)[9].value = nombre.innerHTML;
+            document.getElementsByClassName(clase)[11].value = inicio.innerHTML;
+            document.getElementsByClassName(clase)[13].value = fin.innerHTML;
+            console.log(inicio.value);
             console.log(document.getElementsByClassName(clase));
             $(nomInput).show();
             $(iniInput).show();
@@ -829,11 +961,62 @@
             $(nombre).hide();
             $(inicio).hide();
             $(fin).hide();
+
         }
-        function okTurn(event){
+
+        function okShift(event){
+
             event.preventDefault();
+            var shiftId = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(shiftId)[8];
+            var nomInput = document.getElementsByClassName(shiftId)[9].parentNode;
+            var inicio = document.getElementsByClassName(shiftId)[10];
+            var iniInput = document.getElementsByClassName(shiftId)[11].parentNode;
+            var fin = document.getElementsByClassName(shiftId)[12];
+            var finInput = document.getElementsByClassName(shiftId)[13].parentNode;
+            var editIcon = document.getElementsByClassName(shiftId)[14].firstChild;
+            var eraseIcon = document.getElementsByClassName(shiftId)[15].firstChild;
+            var okIcon = document.getElementsByClassName(shiftId)[16].firstChild;
+            var removeIcon = document.getElementsByClassName(shiftId)[17].firstChild;
+            var newName = document.getElementsByClassName(shiftId)[9].value;
+            var newIni = document.getElementsByClassName(shiftId)[11].value;
+            var newFin = document.getElementsByClassName(shiftId)[13].value;
+
+            if(!newName) newName = document.getElementsByClassName(shiftId)[8].innerHTML;
+            if(!newIni) newIni = document.getElementsByClassName(shiftId)[10].innerHTML;
+            if(!newFin) newFin = document.getElementsByClassName(shiftId)[12].innerHTML;
+            
+            console.log(newName +" " + newIni + " " + newFin);
+            //var infoEdit = {"turno": newName, "inicio": newIni, "fin": newFin, "idturn": shiftId};
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "editarTurno", "turno": newName, "inicio": newIni, "fin": newFin, "idturn": shiftId},
+                success: function(result){
+                    console.log(result);
+                    if(result == "Se actualizó el turno"){
+
+                        document.getElementsByClassName(driverId)[8].innerHTML = newName;
+                        document.getElementsByClassName(driverId)[10].innerHTML = newIni;
+                        document.getElementsByClassName(driverId)[12].innerHTML = newFin;
+                    }
+                }
+            });
+
+            $(nomInput).hide();
+            $(iniInput).hide();
+            $(finInput).hide();
+            $(okIcon).hide();
+            $(removeIcon).hide();
+            $(editIcon).show();
+            $(eraseIcon).show();
+            $(nombre).show();
+            $(inicio).show();
+            $(fin).show();
         }
-        function removeTurn(event){
+
+        function removeShift(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
             var nombre = document.getElementsByClassName(clase)[8];
@@ -858,15 +1041,32 @@
             $(inicio).show();
             $(fin).show();
         }
-        function eraseTurn(event){
+
+        function eraseShift(event){
+
             event.preventDefault();
+            var shiftId = event.target.parentNode.className;
+            var rowIndex = event.target.parentNode.parentNode.parentNode.rowIndex;
             var resp = window.confirm("¿Esta seguro que se desea eliminar ese Turno?");
             if(resp == true){
                 console.log("OK");
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type": "borrarTurno", "id": shiftId },
+                    success: function(result){
+                        console.log(result);
+                        if(result == "Se elimino el turno"){
+                            document.getElementById("shiftTable").deleteRow(rowIndex);
+                        }
+                    }
+                });
+                
             }else{
                 console.log("CANCELAR");
             }
         }
+
         function editRoutes(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
@@ -881,6 +1081,9 @@
             var okIcon = document.getElementsByClassName(clase)[26].firstChild;
             var removeIcon = document.getElementsByClassName(clase)[27].firstChild;
             console.log(document.getElementsByClassName(clase));
+            document.getElementsByClassName(clase)[19].value = nombre.innerHTML;
+            document.getElementsByClassName(clase)[21].value = inicio.innerHTML;
+            document.getElementsByClassName(clase)[23].value = fin.innerHTML;
             $(nomInput).show();
             $(iniInput).show();
             $(finInput).show();
@@ -892,9 +1095,59 @@
             $(inicio).hide();
             $(fin).hide();
         }
+
         function okRoutes(event){
+
             event.preventDefault();
+            var routeId = event.target.parentNode.className;
+            var nombre = document.getElementsByClassName(routeId)[18];
+            var nomInput = document.getElementsByClassName(routeId)[19].parentNode;
+            var inicio = document.getElementsByClassName(routeId)[20];
+            var iniInput = document.getElementsByClassName(routeId)[21].parentNode;
+            var fin = document.getElementsByClassName(routeId)[22];
+            var finInput = document.getElementsByClassName(routeId)[23].parentNode;
+            var editIcon = document.getElementsByClassName(routeId)[24].firstChild;
+            var eraseIcon = document.getElementsByClassName(routeId)[25].firstChild;
+            var okIcon = document.getElementsByClassName(routeId)[26].firstChild;
+            var removeIcon = document.getElementsByClassName(routeId)[27].firstChild;
+            var newName = document.getElementsByClassName(routeId)[19].value;
+            var newIni = document.getElementsByClassName(routeId)[21].value;
+            var newFin = document.getElementsByClassName(routeId)[23].value;
+
+            if(!newName) newName = document.getElementsByClassName(routeId)[18].innerHTML;
+            if(!newIni) newIni = document.getElementsByClassName(routeId)[20].innerHTML;
+            if(!newFin) newFin = document.getElementsByClassName(routeId)[22].innerHTML;
+            
+            console.log(newName +" " + newIni + " " + newFin);
+            //var infoEdit = {"ruta": newName, "inicio": newIni, "fin": newFin, "id": routeId};
+
+            $.ajax({
+                type: "POST",
+                url: "app/model/model.php",
+                data: {"type": "editarRuta", "ruta": newName, "inicio": newIni, "fin": newFin, "id": routeId},
+                success: function(result){
+                    console.log(result);
+                    if(result == "Se actualizo la ruta"){
+
+                        document.getElementsByClassName(driverId)[18].innerHTML = newName;
+                        document.getElementsByClassName(driverId)[20].innerHTML = newIni;
+                        document.getElementsByClassName(driverId)[22].innerHTML = newFin;
+                    }
+                }
+            });
+
+            $(nomInput).hide();
+            $(iniInput).hide();
+            $(finInput).hide();
+            $(okIcon).hide();
+            $(removeIcon).hide();
+            $(editIcon).show();
+            $(eraseIcon).show();
+            $(nombre).show();
+            $(inicio).show();
+            $(fin).show();
         }
+
         function removeRoutes(event){
             event.preventDefault();
             var clase = event.target.parentNode.className;
@@ -920,11 +1173,29 @@
             $(inicio).show();
             $(fin).show();
         }
+
         function eraseRoutes(event){
+
             event.preventDefault();
+            var routeId = event.target.parentNode.className;
+            var rowIndex = event.target.parentNode.parentNode.parentNode.rowIndex;
             var resp = window.confirm("¿Esta seguro que se desea eliminar esa Ruta?");
             if(resp == true){
+
                 console.log("OK");
+
+                $.ajax({
+                    type: "POST",
+                    url: "app/model/model.php",
+                    data: {"type": "borrarRuta", "id": routeId },
+                    success: function(result){
+                        console.log(result);
+                        if(result == "Se elimino el turno"){
+                            document.getElementById("routeTable").deleteRow(rowIndex);
+                        }
+                    }
+                });
+
             }else{
                 console.log("CANCELAR");
             }
