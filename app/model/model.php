@@ -238,6 +238,7 @@
 					else{
 						echo "No hay cambio en el turno";
 					}*/
+					echo "El registro se actualizo exitosamente.";
 				}
 				else{
 					echo "No se actualizo el registro";
