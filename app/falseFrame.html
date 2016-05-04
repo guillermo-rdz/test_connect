@@ -28,7 +28,7 @@
 					var nuevo = array.toString();
 					//console.log(nuevo);
 					//console.log(jsonSend);
-					var jsonSend = {"vid":6, "tx":nuevo, "lat":16.769691, "lon":-93.166436, "imei":356612024653182};
+					var jsonSend = {"vid":17, "tx":nuevo, "lat":16.769691, "lon":-93.166436, "imei":356612024653182};
 					var liveData = JSON.stringify(jsonSend);
 					i++;
 					$.ajax({
@@ -43,7 +43,8 @@
 				//}
 			}
 			setTimeout(sendFalse, 10000);
-			setInterval(sendFalse, 900000);
+			//setInterval(sendFalse, 900000);
+			setInterval(sendFalse, 120000);
 
 
 	});
